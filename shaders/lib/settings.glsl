@@ -4,6 +4,8 @@
 const float sunPathRotation = 30.0;
 const int shadowMapResolution = 512;
 
+const ivec2 environmentMapSize = ivec2(4096, 2048);
+
 /*
 const int colortex2Format = RGB32F;
 const bool colortex2Clear = false;

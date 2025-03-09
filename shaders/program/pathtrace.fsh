@@ -36,22 +36,37 @@ void main() {
 	for (int i = 0; i < 5; i++) {
 		intersection it = traceRay(colortex10, r);
 		if (it.t < 0.0) {
-			L += throughput * environmentMap(r);
+			// L += throughput * environmentMap(r);
 			break;
 		}
+		
+		it.albedo.rgb = srgbToLinear(it.albedo.rgb);
 
 		vec3 nextDir;
 		vec3 brdf;
 		float pdf;
 
 		nextDir = sampleCosineWeightedHemisphere(random2(seed), it.normal);
-		brdf = srgbToLinear(it.albedo.rgb) / PI;
+		brdf = it.albedo.rgb / PI;
 		pdf = cosineWeightedHemispherePDF(nextDir, it.normal);
+
+		float d_pdf;
+		vec3 d_sampleDir = sampleEnvironmentMap(random3(seed), d_pdf);
+		if (dot(d_sampleDir, it.normal) > 0.0) {
+			vec3 d_brdf = it.albedo.rgb / PI;
+			vec3 d_origin = r.origin + r.direction * it.t + it.normal * 0.001;
+			float visibility = float(!traceShadowRay(colortex10, ray(d_origin, d_sampleDir)));
+			L += environmentMap(d_sampleDir) * (d_brdf / d_pdf) * throughput * dot(d_sampleDir, it.normal) * visibility;
+		}
 
 		float costh = dot(nextDir, it.normal);
         
         throughput *= (brdf / pdf) * abs(costh);
         r = ray(r.origin + r.direction * it.t + it.normal * (sign(costh) * 0.001), nextDir);
+	}
+	
+	if (any(isnan(L)) || any(isinf(L)) || any(lessThan(L, vec3(0.0)))) {
+		L = vec3(0.0);
 	}
 
 	vec3 history = texture(colortex2, texcoord).rgb;

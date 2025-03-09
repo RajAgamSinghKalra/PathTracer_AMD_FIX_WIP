@@ -1,6 +1,7 @@
 #ifndef _ENVIRONMENT_GLSL
 #define _ENVIRONMENT_GLSL 1
 
+#include "/lib/buffer/bins.glsl"
 #include "/lib/raytracing/ray.glsl"
 #include "/lib/utility/constants.glsl"
 #include "/lib/settings.glsl"
@@ -17,6 +18,34 @@ vec3 environmentMap(vec3 rayDirection) {
 
 vec3 environmentMap(ray r) {
     return environmentMap(r.direction);
+}
+
+vec3 sampleEnvironmentMap(vec3 u, out float pdf) {
+    int binIndex = int(binBuffer.numBins * u.x);
+    bin_data bin = binBuffer.bins[binIndex];
+
+    float binWidth = float(bin.x1 - bin.x0);
+    float binHeight = float(bin.y1 - bin.y0);
+
+    vec2 uv = vec2(
+        float(bin.x0) + u.y * binWidth,
+        float(bin.y0) + u.z * binHeight
+    );
+
+    uv /= vec2(environmentMapSize);
+    uv.x += ENVMAP_OFFSET_U;
+
+    float phi = mod(uv.x * 2.0 * PI, 2.0 * PI);
+    float theta = uv.y * PI;
+
+    float sinTheta = max(sin(theta), 1.0e-6);
+    vec3 sampleDir = vec3(cos(phi) * sinTheta, cos(theta), sin(phi) * sinTheta);
+
+    float binArea = binWidth * binHeight;
+    float binPDF = float(environmentMapSize.x * environmentMapSize.y) / (float(binBuffer.numBins) * binArea);
+    pdf = binPDF / (2.0 * PI * PI * sinTheta);
+
+    return sampleDir;
 }
 
 #endif // _ENVIRONMENT_GLSL

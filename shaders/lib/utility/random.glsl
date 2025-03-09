@@ -22,7 +22,7 @@ float floatConstruct(uint m) {
     m |= ieeeOne;
 
     float f = uintBitsToFloat(m);
-    return f - 1.0;
+    return fract(f - 1.0);
 }
 
 float random1(inout vec3 v) {
