@@ -1,0 +1,6 @@
+#ifndef _CONSTANTS_GLSL
+#define _CONSTANTS_GLSL 1
+
+#define PI 3.141592653589
+
+#endif // _CONSTANTS_GLSL
