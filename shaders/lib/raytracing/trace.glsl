@@ -94,7 +94,7 @@ bool traceVoxel(sampler2D atlas, ray r, uint pointer, inout intersection it) {
 	return it.t >= 0.0;
 }
 
-intersection traceRay(sampler2D atlas, ray r) {
+intersection traceRay(sampler2D atlas, ray r, int voxels) {
 	ivec3 voxel = ivec3(floor(r.origin));
     vec3 delta = abs(1.0 / r.direction);
     ivec3 rayStep = ivec3(sign(r.direction));
@@ -104,7 +104,7 @@ intersection traceRay(sampler2D atlas, ray r) {
 
 	intersection it = noHit();
 
-    for (int i = 0; i < 128; i++) {
+    for (int i = 0; i < voxels; i++) {
 		if (any(lessThan(voxel, ivec3(0, 0, 0))) || any(greaterThanEqual(voxel, VOXEL_VOLUME_SIZE))) {
 			break;
 		}

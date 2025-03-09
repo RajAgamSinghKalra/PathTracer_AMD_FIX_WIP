@@ -16,4 +16,6 @@ const ivec3 HALF_VOXEL_VOLUME_SIZE = VOXEL_VOLUME_SIZE / 2;
 
 #define ENVMAP_OFFSET_U 0.5 // [ 0.0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 ]
 
+// #define NEIGHBOURHOOD_CLAMPING
+
 #endif // _SETTINGS_GLSL

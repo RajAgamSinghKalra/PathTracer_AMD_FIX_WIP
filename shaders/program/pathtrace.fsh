@@ -14,6 +14,8 @@ uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferModelViewInverse;
 
 uniform vec3 cameraPositionFract;
+uniform float viewWidth;
+uniform float viewHeight;
 
 in vec2 texcoord;
 
@@ -23,8 +25,9 @@ layout(location = 0) out vec3 color;
 void main() {
 	vec3 seed = vec3(texcoord, float(renderState.frame));
 
-	vec3 rayOrigin = projectAndDivide(gbufferProjectionInverse, vec3(texcoord * 2.0 - 1.0, 0.0));
-	vec3 rayDirection = projectAndDivide(gbufferProjectionInverse, vec3(texcoord * 2.0 - 1.0, 1.0));
+	vec2 filmSample = texcoord + random2(seed) / vec2(viewWidth, viewHeight);
+	vec3 rayOrigin = projectAndDivide(gbufferProjectionInverse, vec3(filmSample * 2.0 - 1.0, 0.0));
+	vec3 rayDirection = projectAndDivide(gbufferProjectionInverse, vec3(filmSample * 2.0 - 1.0, 1.0));
 	rayOrigin = (gbufferModelViewInverse * vec4(rayOrigin, 1.0)).xyz + cameraPositionFract;
 	rayDirection = normalize((gbufferModelViewInverse * vec4(rayDirection, 1.0)).xyz);
 
@@ -34,9 +37,10 @@ void main() {
 	vec3 throughput = vec3(1.0);
 
 	for (int i = 0; i < 5; i++) {
-		intersection it = traceRay(colortex10, r);
+		intersection it = traceRay(colortex10, r, i == 0 ? 1024 : 128);
 		if (it.t < 0.0) {
-			// L += throughput * environmentMap(r);
+			if (i == 0)
+				L += throughput * environmentMap(r);
 			break;
 		}
 		
@@ -52,7 +56,7 @@ void main() {
 
 		float d_pdf;
 		vec3 d_sampleDir = sampleEnvironmentMap(random3(seed), d_pdf);
-		if (dot(d_sampleDir, it.normal) > 0.0) {
+		if (dot(d_sampleDir, it.normal) > 0.0 || d_pdf > 0.0) {
 			vec3 d_brdf = it.albedo.rgb / PI;
 			vec3 d_origin = r.origin + r.direction * it.t + it.normal * 0.001;
 			float visibility = float(!traceShadowRay(colortex10, ray(d_origin, d_sampleDir)));
@@ -65,9 +69,11 @@ void main() {
         r = ray(r.origin + r.direction * it.t + it.normal * (sign(costh) * 0.001), nextDir);
 	}
 	
-	if (any(isnan(L)) || any(isinf(L)) || any(lessThan(L, vec3(0.0)))) {
+	if (any(isnan(L)) || any(isinf(L))) {
 		L = vec3(0.0);
 	}
+
+	L = max(vec3(0.0), L);
 
 	vec3 history = texture(colortex2, texcoord).rgb;
 	color = mix(history, L, 1.0 / float(renderState.frame + 1));

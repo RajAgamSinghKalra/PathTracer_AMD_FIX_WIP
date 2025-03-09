@@ -11,9 +11,9 @@ uniform sampler2D environment;
 vec3 environmentMap(vec3 rayDirection) {
     float u = atan(rayDirection.z, rayDirection.x) / (2.0 * PI);
     float v = acos(rayDirection.y) / PI;
-    u = fract(u + ENVMAP_OFFSET_U);
+    vec2 uv = fract(vec2(u + ENVMAP_OFFSET_U, v));
 
-    return texture(environment, vec2(u, v)).rgb;
+    return texelFetch(environment, ivec2(uv * vec2(environmentMapSize)), 0).rgb;
 }
 
 vec3 environmentMap(ray r) {
@@ -38,7 +38,7 @@ vec3 sampleEnvironmentMap(vec3 u, out float pdf) {
     float phi = mod(uv.x * 2.0 * PI, 2.0 * PI);
     float theta = uv.y * PI;
 
-    float sinTheta = max(sin(theta), 1.0e-6);
+    float sinTheta = max(sin(theta), 1.0e-10);
     vec3 sampleDir = vec3(cos(phi) * sinTheta, cos(theta), sin(phi) * sinTheta);
 
     float binArea = binWidth * binHeight;
