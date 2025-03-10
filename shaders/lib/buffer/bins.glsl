@@ -8,7 +8,7 @@ struct bin_data {
     int y1;
 };
 
-layout (std430, binding = 2) buffer bin_buffer {
+layout (std430, binding = 2) readonly buffer bin_buffer {
     int numBins;
     bin_data bins[1024];
     int binIndexes[];
