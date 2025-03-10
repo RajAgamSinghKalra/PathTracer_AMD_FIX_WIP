@@ -27,7 +27,7 @@ float F0toIOR(float f0) {
 }
 
 vec3 F0toIOR(vec3 f0) {
-    float r = sqrt(f0);
+    vec3 r = sqrt(f0);
     return (1.0 + r) / max(1.0 - r, 1.0e-5);
 }
 
@@ -58,7 +58,8 @@ material decodeMaterial(mat3 tbn, vec4 albedo, vec4 specular, vec4 normal) {
     }
 
     if (normal != vec4(0.0)) {
-        vec3 normalMapping = vec4(normal.xy, sqrt(1.0 - dot(normal.xy, normal.xy)));
+        normal.xy = normal.xy * 2.0 - 1.0;
+        vec3 normalMapping = vec3(normal.xy, sqrt(1.0 - dot(normal.xy, normal.xy)));
         mat.normal = tbn * normalMapping;
         mat.ao = normal.b;
     }

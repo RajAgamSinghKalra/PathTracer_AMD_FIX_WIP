@@ -87,6 +87,7 @@ bool traceVoxel(sampler2D atlas, ray r, uint pointer, inout intersection it) {
 
 		it.t = t;
 		it.normal = -sign(d) * normal;
+		it.tbn = mat3(-sign(d) * entry.tangent.xyz, sign(d) * entry.bitangent.xyz, it.normal);
 		it.albedo = albedo * unpackUnorm4x8(entry.tint);
 		it.uv = uv;
 	}

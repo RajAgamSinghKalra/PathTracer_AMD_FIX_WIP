@@ -1,6 +1,7 @@
 #include "/lib/buffer/state.glsl"
 #include "/lib/lighting/environment.glsl"
 #include "/lib/raytracing/trace.glsl"
+#include "/lib/reflection/bsdf.glsl"
 #include "/lib/utility/color.glsl"
 #include "/lib/utility/projection.glsl"
 #include "/lib/utility/random.glsl"
@@ -9,6 +10,8 @@
 
 uniform sampler2D colortex2;
 uniform sampler2D colortex10;
+uniform sampler2D colortex11;
+uniform sampler2D colortex12;
 
 uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferModelViewInverse;
@@ -44,29 +47,30 @@ void main() {
 			break;
 		}
 		
-		it.albedo.rgb = srgbToLinear(it.albedo.rgb);
+		material mat = decodeMaterial(it.tbn, it.albedo, textureLod(colortex11, it.uv, 0), textureLod(colortex12, it.uv, 0));
 
-		vec3 nextDir;
-		vec3 brdf;
-		float pdf;
+		L += throughput * mat.emission;
 
-		nextDir = sampleCosineWeightedHemisphere(random2(seed), it.normal);
-		brdf = it.albedo.rgb / PI;
-		pdf = cosineWeightedHemispherePDF(nextDir, it.normal);
-
-		float d_pdf;
-		vec3 d_sampleDir = sampleEnvironmentMap(random3(seed), d_pdf);
-		if (dot(d_sampleDir, it.normal) > 0.0 || d_pdf > 0.0) {
-			vec3 d_brdf = it.albedo.rgb / PI;
-			vec3 d_origin = r.origin + r.direction * it.t + it.normal * 0.001;
-			float visibility = float(!traceShadowRay(colortex10, ray(d_origin, d_sampleDir)));
-			L += environmentMap(d_sampleDir) * (d_brdf / d_pdf) * throughput * dot(d_sampleDir, it.normal) * visibility;
+		float pdfDirect;
+		vec3 skyDirection = sampleEnvironmentMap(random3(seed), pdfDirect);
+		if (dot(skyDirection, it.normal) > 0.0 && dot(skyDirection, mat.normal) > 0.0 && pdfDirect > 0.0) {
+			vec3 shadowOrigin = r.origin + r.direction * it.t + it.normal * 0.001;
+			float visibility = float(!traceShadowRay(colortex10, ray(shadowOrigin, skyDirection)));
+			if (visibility > 0.0) {
+				bsdf_value bsdfDirect = evaluateBSDF(mat, seed, skyDirection, -r.direction, false);
+				L += environmentMap(skyDirection) * (bsdfDirect.full / pdfDirect) * throughput * dot(skyDirection, mat.normal) * visibility;
+			}
 		}
 
-		float costh = dot(nextDir, it.normal);
-        
-        throughput *= (brdf / pdf) * abs(costh);
-        r = ray(r.origin + r.direction * it.t + it.normal * (sign(costh) * 0.001), nextDir);
+		bsdf_sample bsdfSample;
+		if (!sampleBSDF(bsdfSample, mat, seed, -r.direction, it.normal)) {
+			break;
+		}
+
+		float costh = dot(bsdfSample.direction, mat.normal);
+
+		throughput *= (bsdfSample.value.full / bsdfSample.pdf) * abs(costh);
+		r = ray(r.origin + r.direction * it.t + it.normal * (sign(costh) * 0.001), bsdfSample.direction);
 	}
 	
 	if (any(isnan(L)) || any(isinf(L))) {
