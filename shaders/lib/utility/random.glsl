@@ -1,6 +1,20 @@
 #ifndef _RANDOM_GLSL
 #define _RANDOM_GLSL 1
 
+struct prng_state {
+    vec3 seed;
+};
+
+prng_state global_prngState;
+
+prng_state initLocalPRNG(vec2 texcoord, int frame) {
+    return prng_state(vec3(texcoord, float(frame)));
+}
+
+void initGlobalPRNG(vec2 texcoord, int frame) {
+    global_prngState = prng_state(vec3(texcoord, float(frame)));
+}
+
 uint hash(uint x) {
     x += (x << 10u);
     x ^= (x >> 6u);
@@ -25,20 +39,41 @@ float floatConstruct(uint m) {
     return fract(f - 1.0);
 }
 
-float random1(inout vec3 v) {
-    return floatConstruct(hash(floatBitsToUint(v += 1.0)));
+void advancePRNG(inout prng_state state) {
+    state.seed += 1.0;
 }
 
-vec2 random2(inout vec3 v) {
-    return vec2(random1(v), random1(v));
+uint hashPRNG(prng_state state) {
+    return hash(floatBitsToUint(state.seed));
 }
 
-vec3 random3(inout vec3 v) {
-    return vec3(random1(v), random1(v), random1(v));
+float random1(inout prng_state state) {
+    advancePRNG(state);
+    return floatConstruct(hashPRNG(state));
+}
+float random1() {
+    return random1(global_prngState);
 }
 
-vec4 random4(inout vec3 v) {
-    return vec4(random2(v), random2(v));
+vec2 random2(inout prng_state state) {
+    return vec2(random1(state), random1(state));
+}
+vec2 random2() {
+    return random2(global_prngState);
+}
+
+vec3 random3(inout prng_state state) {
+    return vec3(random2(state), random1(state));
+}
+vec3 random3() {
+    return random3(global_prngState);
+}
+
+vec4 random4(inout prng_state state) {
+    return vec4(random2(state), random2(state));
+}
+vec4 random4() {
+    return random4(global_prngState);
 }
 
 #endif // _RANDOM_GLSL

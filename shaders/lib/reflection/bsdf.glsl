@@ -19,16 +19,16 @@ struct bsdf_sample {
     bool dirac;
 };
 
-bsdf_value evaluateBSDF(material mat, inout vec3 seed, vec3 lightDirection, vec3 viewDirection, bool dirac) {
+bsdf_value evaluateBSDF(material mat, vec3 lightDirection, vec3 viewDirection, bool dirac) {
     return bsdfLambertian(mat);
 }
 
-bool sampleBSDF(out bsdf_sample bsdfSample, material mat, inout vec3 seed, vec3 viewDirection, vec3 geoNormal) {
-    bsdfSample.direction = sampleCosineWeightedHemisphere(random2(seed), mat.normal);
+bool sampleBSDF(out bsdf_sample bsdfSample, material mat, vec3 viewDirection, vec3 geoNormal) {
+    bsdfSample.direction = sampleCosineWeightedHemisphere(random2(), mat.normal);
     bsdfSample.pdf = cosineWeightedHemispherePDF(bsdfSample.direction, mat.normal);
     bsdfSample.dirac = false;
     
-    bsdfSample.value = evaluateBSDF(mat, seed, bsdfSample.direction, viewDirection, bsdfSample.dirac);
+    bsdfSample.value = evaluateBSDF(mat, bsdfSample.direction, viewDirection, bsdfSample.dirac);
 
     return dot(bsdfSample.direction, geoNormal) > 0.0;
 }
