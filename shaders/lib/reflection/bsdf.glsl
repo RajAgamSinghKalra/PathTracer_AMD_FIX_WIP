@@ -20,7 +20,7 @@ struct bsdf_sample {
 };
 
 bsdf_value evaluateBSDF(material mat, vec3 lightDirection, vec3 viewDirection, bool dirac) {
-    return bsdfLambertian(mat);
+    return bsdfLambertian(mat, lightDirection, viewDirection);
 }
 
 bool sampleBSDF(out bsdf_sample bsdfSample, material mat, vec3 viewDirection, vec3 geoNormal) {
