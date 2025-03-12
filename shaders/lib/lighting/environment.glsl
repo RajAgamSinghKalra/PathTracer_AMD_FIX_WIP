@@ -50,28 +50,11 @@ vec3 sampleEnvironmentMap(vec3 u, out float pdf) {
     return sampleDir;
 }
 
-float environmentMapPDF(vec3 rayDirection) {
-    float u = atan(rayDirection.z, rayDirection.x) / (2.0 * PI);
-    float v = acos(rayDirection.y) / PI;
-    vec2 uv = fract(vec2(u + ENVMAP_OFFSET_U, v));
-
-    ivec2 coord = ivec2(uv * vec2(environmentMapSize));
-    int pixelIndex = environmentMapSize.x * coord.y + coord.x;
-    int binIndex = binBuffer.binIndexes[pixelIndex];
-    bin_data bin = binBuffer.bins[binIndex];
-
-    float binWidth = float(bin.x1 - bin.x0);
-    float binHeight = float(bin.y1 - bin.y0);
-    
-    float theta = uv.y * PI;
-    float sinTheta = max(sin(theta), 1.0e-10);
-
-    float binArea = binWidth * binHeight;
-    float binPDF = float(environmentMapSize.x * environmentMapSize.y) / (float(binBuffer.numBins) * binArea);
-    return binPDF / (2.0 * PI * PI * sinTheta);
+float environmentMapWeight(int lambda, vec3 rayDirection) {
+    return environmentMap(lambda, rayDirection);
 }
-float environmentMapPDF(ray r) {
-    return environmentMapPDF(r.direction);
+float environmentMapWeight(int lambda, ray r) {
+    return environmentMapWeight(lambda, r.direction);
 }
 
 #endif // _ENVIRONMENT_GLSL
