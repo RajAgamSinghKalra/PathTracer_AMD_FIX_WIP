@@ -44,7 +44,7 @@ bool traceShadowRay(sampler2D atlas, ray r) {
 
 	voxel += HALF_VOXEL_VOLUME_SIZE;
 
-    for (int i = 0; i < 128; i++) {
+    for (int i = 0; i < 256; i++) {
 		if (any(lessThan(voxel, ivec3(0, 0, 0))) || any(greaterThanEqual(voxel, VOXEL_VOLUME_SIZE))) {
 			break;
 		}

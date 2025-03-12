@@ -3,21 +3,23 @@
 
 #include "/lib/buffer/bins.glsl"
 #include "/lib/raytracing/ray.glsl"
+#include "/lib/spectral/conversion.glsl"
 #include "/lib/utility/constants.glsl"
 #include "/lib/settings.glsl"
 
 uniform sampler2D environment;
 
-vec3 environmentMap(vec3 rayDirection) {
+float environmentMap(int lambda, vec3 rayDirection) {
     float u = atan(rayDirection.z, rayDirection.x) / (2.0 * PI);
     float v = acos(rayDirection.y) / PI;
     vec2 uv = fract(vec2(u + ENVMAP_OFFSET_U, v));
 
-    return texelFetch(environment, ivec2(uv * vec2(environmentMapSize)), 0).rgb;
+    vec3 rgb = texelFetch(environment, ivec2(uv * vec2(environmentMapSize)), 0).rgb;
+    return lrgbToEmissionSpectrum(lambda, rgb);
 }
 
-vec3 environmentMap(ray r) {
-    return environmentMap(r.direction);
+float environmentMap(int lambda, ray r) {
+    return environmentMap(lambda, r.direction);
 }
 
 vec3 sampleEnvironmentMap(vec3 u, out float pdf) {

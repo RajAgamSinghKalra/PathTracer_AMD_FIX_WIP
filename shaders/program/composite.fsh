@@ -3,7 +3,6 @@
 #include "/lib/settings.glsl"
 
 uniform sampler2D colortex2;
-uniform sampler2D colortex10;
 
 in vec2 texcoord;
 
@@ -19,6 +18,8 @@ void main() {
 	);
 	color = min(color, maxNeighbour);
 #endif
+
+	color = max(XYZ_TO_RGB * color, 0.0);
 
 	color = tonemap(color);
 	color = linearToSrgb(color);

@@ -2,6 +2,8 @@
 #include "/lib/lighting/environment.glsl"
 #include "/lib/raytracing/trace.glsl"
 #include "/lib/reflection/bsdf.glsl"
+#include "/lib/spectral/conversion.glsl"
+#include "/lib/spectral/sampling.glsl"
 #include "/lib/utility/color.glsl"
 #include "/lib/utility/projection.glsl"
 #include "/lib/utility/random.glsl"
@@ -36,18 +38,20 @@ void main() {
 
 	ray r = ray(rayOrigin, rayDirection);
 
-	vec3 L = vec3(0.0);
-	vec3 throughput = vec3(1.0);
+	int lambda = sampleWavelength(random1());
+
+	float L = 0.0;
+	float throughput = 1.0;
 
 	for (int i = 0; i < 5; i++) {
 		intersection it = traceRay(colortex10, r, i == 0 ? 1024 : 128);
 		if (it.t < 0.0) {
 			if (i == 0)
-				L += throughput * environmentMap(r);
+				L += throughput * environmentMap(lambda, r);
 			break;
 		}
 		
-		material mat = decodeMaterial(it.tbn, it.albedo, textureLod(colortex11, it.uv, 0), textureLod(colortex12, it.uv, 0));
+		material mat = decodeMaterial(lambda, it.tbn, it.albedo, textureLod(colortex11, it.uv, 0), textureLod(colortex12, it.uv, 0));
 
 		L += throughput * mat.emission;
 
@@ -58,7 +62,7 @@ void main() {
 			float visibility = float(!traceShadowRay(colortex10, ray(shadowOrigin, skyDirection)));
 			if (visibility > 0.0) {
 				bsdf_value bsdfDirect = evaluateBSDF(mat, skyDirection, -r.direction, false);
-				L += environmentMap(skyDirection) * (bsdfDirect.full / pdfDirect) * throughput * dot(skyDirection, mat.normal) * visibility;
+				L += environmentMap(lambda, skyDirection) * (bsdfDirect.full / pdfDirect) * throughput * dot(skyDirection, mat.normal) * visibility;
 			}
 		}
 
@@ -72,13 +76,15 @@ void main() {
 		throughput *= (bsdfSample.value.full / bsdfSample.pdf) * abs(costh);
 		r = ray(r.origin + r.direction * it.t + it.normal * (sign(costh) * 0.001), bsdfSample.direction);
 	}
-	
-	if (any(isnan(L)) || any(isinf(L))) {
-		L = vec3(0.0);
+
+	L /= wavelengthPDF(lambda);
+
+	if (isnan(L) || isinf(L)) {
+		L = 0.0;
 	}
 
-	L = max(vec3(0.0), L);
+	vec3 L_xyz = spectrumToXYZ(lambda, L);
 
 	vec3 history = texture(colortex2, texcoord).rgb;
-	color = mix(history, L, 1.0 / float(renderState.frame + 1));
+	color = mix(history, L_xyz, 1.0 / float(renderState.frame + 1));
 }

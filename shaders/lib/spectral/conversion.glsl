@@ -4,8 +4,8 @@
 #include "/lib/buffer/spectral.glsl"
 #include "/lib/utility/color.glsl"
 
-vec3 spectrumToXYZ(int lambda, float spectrum) {
-    return (CIE_CMF_XYZ(wavelength) * spectrum) / CIE_Y_Integral();
+vec3 spectrumToXYZ(int lambda, float power) {
+    return (CIE_CMF_XYZ(lambda) * max(power, 0.0)) / CIE_Y_Integral();
 }
 
 float lrgbToReflectanceSpectrum(int lambda, vec3 rgb) {
@@ -21,7 +21,7 @@ float lrgbToEmissionSpectrum(int lambda, vec3 rgb) {
         return 0.0;
     }
 
-    return lrgbToReflectanceSpectrum(lambda, rgb) * Illuminant_D65(lambda);
+    return lrgbToReflectanceSpectrum(lambda, rgb) * Illuminant_D65(lambda) / 100.0;
 }
 
 float srgbToEmissionSpectrum(int lambda, vec3 rgb) {
@@ -29,7 +29,7 @@ float srgbToEmissionSpectrum(int lambda, vec3 rgb) {
         return 0.0;
     }
 
-    return srgbToReflectanceSpectrum(lambda, rgb) * Illuminant_D65(lambda);
+    return srgbToReflectanceSpectrum(lambda, rgb) * Illuminant_D65(lambda) / 100.0;
 }
 
 #endif // _SPECTRAL_CONVERSION_GLSL

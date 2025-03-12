@@ -6,8 +6,8 @@
 #include "/lib/utility/sampling.glsl"
 
 struct bsdf_value {
-    vec3 full;
-    vec3 specular;
+    float full;
+    float specular;
 };
 
 #include "/lib/reflection/lambertian.glsl"
