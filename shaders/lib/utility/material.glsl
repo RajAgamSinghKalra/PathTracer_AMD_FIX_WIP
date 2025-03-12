@@ -3,6 +3,7 @@
 
 #include "/lib/spectral/conversion.glsl"
 #include "/lib/utility/color.glsl"
+#include "/lib/utility/complex.glsl"
 
 #define MATERIAL_DEFAULT   0
 #define MATERIAL_METAL     1
@@ -14,8 +15,8 @@ struct material {
     int type;
     float albedo;
     float emission;
-    float roughness;
-    vec2 ior;
+    vec2 alpha;
+    complex ior;
     vec3 normal;
     float ao;
 };
@@ -31,27 +32,27 @@ material decodeMaterial(int lambda, mat3 tbn, vec4 albedo, vec4 specular, vec4 n
     mat.type = MATERIAL_DEFAULT;
     mat.albedo = srgbToReflectanceSpectrum(lambda, albedo.rgb);
     mat.emission = fract(specular.a) * srgbToEmissionSpectrum(lambda, albedo.rgb) * EMISSION_STRENGTH;
-    mat.roughness = pow(1.0 - specular.r, 2.0);
+    mat.alpha = vec2(pow(1.0 - specular.r, 2.0));
     mat.normal = tbn[2];
     mat.ao = 1.0;
 
-    if (albedo.a < 1.0) {
-        mat.type = MATERIAL_GLASS;
-    }
+    // if (albedo.a < 1.0) {
+    //     mat.type = MATERIAL_GLASS;
+    // }
 
     float f0;
-    if (specular.g > 229.5) {
+    if (specular.g > 229.5 / 255.0) {
         // TODO: Hardcoded metals
         mat.type = MATERIAL_METAL;
-        mat.ior = vec2(F0toIOR(mat.albedo), 0.0);
+        mat.ior = complex(F0toIOR(mat.albedo), 0.0);
     } else {
-        mat.ior = vec2(F0toIOR(specular.g), 0.0);
+        mat.ior = complex(F0toIOR(specular.g), 0.0);
     }
 
     if (normal != vec4(0.0)) {
         normal.xy = normal.xy * 2.0 - 1.0;
         vec3 normalMapping = vec3(normal.xy, sqrt(1.0 - dot(normal.xy, normal.xy)));
-        mat.normal = tbn * normalMapping;
+        // mat.normal = tbn * normalMapping;
         mat.ao = normal.b;
     }
 

@@ -18,6 +18,6 @@ void main() {
     vPosition = (shadowModelViewInverse * (viewPos - vec4(normal * 1.0e-5, 0.0))).xyz;
 
     vMidOffset = at_midBlock.xyz * (1.0 / 64.0);
-    vColor = gl_Color;
+    vColor = vec4(gl_Color.rgb, 1.0);
     vUV = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
 }

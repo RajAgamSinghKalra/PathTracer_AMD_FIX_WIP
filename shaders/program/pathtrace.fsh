@@ -44,7 +44,7 @@ void main() {
 	float throughput = 1.0;
 
 	for (int i = 0; i < 5; i++) {
-		intersection it = traceRay(colortex10, r, i == 0 ? 1024 : 128);
+		intersection it = traceRay(colortex10, r, i == 0 ? 1024 : 64);
 		if (it.t < 0.0) {
 			if (i == 0)
 				L += throughput * environmentMap(lambda, r);

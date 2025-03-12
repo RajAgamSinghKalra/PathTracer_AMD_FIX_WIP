@@ -2,6 +2,7 @@
 #define _SAMPLING_GLSL 1
 
 #include "/lib/utility/constants.glsl"
+#include "/lib/utility/orthonormal.glsl"
 
 vec2 sampleDisk(vec2 rand) {
     float angle = rand.y * 2.0 * PI;
@@ -34,8 +35,10 @@ vec3 sampleCosineWeightedHemisphere(vec2 rand) {
 
 vec3 sampleCosineWeightedHemisphere(vec2 rand, vec3 n) {
     vec3 p = sampleCosineWeightedHemisphere(rand);
-    vec3 t = normalize(cross(vec3(0.0, 1.0, 1.0), n));
-    return t * p.x + cross(t, n) * p.y + n * p.z;
+
+    vec3 w1, w2;
+    buildOrthonormalBasis(n, w1, w2);
+    return w1 * p.x + w2 * p.y + n * p.z;
 }
 
 float cosineWeightedHemispherePDF(vec3 sampleDir, vec3 n) {
