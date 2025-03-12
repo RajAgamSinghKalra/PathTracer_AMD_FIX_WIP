@@ -42,12 +42,13 @@ void main() {
 
 	float L = 0.0;
 	float throughput = 1.0;
+	bsdf_sample bsdfSample;
 
 	for (int i = 0; i < 5; i++) {
 		intersection it = traceRay(colortex10, r, i == 0 ? 1024 : 64);
 		if (it.t < 0.0) {
-			if (i == 0)
-				L += throughput * environmentMap(lambda, r);
+			float misWeight = i == 0 ? 1.0 : bsdfSample.pdf / (bsdfSample.pdf + environmentMapPDF(r));
+			L += misWeight * throughput * environmentMap(lambda, r);
 			break;
 		}
 		
@@ -62,11 +63,11 @@ void main() {
 			float visibility = float(!traceShadowRay(colortex10, ray(shadowOrigin, skyDirection)));
 			if (visibility > 0.0) {
 				bsdf_value bsdfDirect = evaluateBSDF(mat, skyDirection, -r.direction, false);
-				L += environmentMap(lambda, skyDirection) * (bsdfDirect.full / pdfDirect) * throughput * dot(skyDirection, mat.normal) * visibility;
+				float misWeight = pdfDirect / (pdfDirect + evaluateBSDFSamplePDF(mat, skyDirection, -r.direction));
+				L += environmentMap(lambda, skyDirection) * (bsdfDirect.full / pdfDirect) * misWeight * throughput * dot(skyDirection, mat.normal) * visibility;
 			}
 		}
 
-		bsdf_sample bsdfSample;
 		if (!sampleBSDF(bsdfSample, mat, -r.direction, it.normal)) {
 			break;
 		}

@@ -32,6 +32,10 @@ bsdf_value evaluateBSDF(material mat, vec3 lightDirection, vec3 viewDirection, b
     return bsdf_value(evalMicrosurfaceBSDF(mat, wi, wo) / abs(wo.z), 0.0);
 }
 
+float evaluateBSDFSamplePDF(material mat, vec3 lightDirection, vec3 viewDirection) {
+    return dot(lightDirection, mat.normal);
+}
+
 bool sampleBSDF(out bsdf_sample bsdfSample, material mat, vec3 viewDirection, vec3 geoNormal) {
     vec3 w1, w2;
     buildOrthonormalBasis(mat.normal, w1, w2);
@@ -45,10 +49,10 @@ bool sampleBSDF(out bsdf_sample bsdfSample, material mat, vec3 viewDirection, ve
     }
 
     bsdfSample.direction = localToWorld * bsdfSample.direction;
-    bsdfSample.pdf = 1.0;
+    bsdfSample.pdf = evaluateBSDFSamplePDF(mat, bsdfSample.direction, mat.normal);
     bsdfSample.dirac = false;
     
-    bsdfSample.value = bsdf_value(throughput / dot(bsdfSample.direction, mat.normal), 0.0);
+    bsdfSample.value = bsdf_value(bsdfSample.pdf * throughput / dot(bsdfSample.direction, mat.normal), 0.0);
 
     return dot(bsdfSample.direction, geoNormal) > 0.0;
 }
