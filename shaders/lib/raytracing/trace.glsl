@@ -7,7 +7,7 @@
 #include "/lib/raytracing/ray.glsl"
 #include "/lib/settings.glsl"
 
-bool intersectsVoxel(sampler2D atlas, ray r, uint pointer) {
+bool intersectsVoxel(sampler2D atlas, ray r, uint pointer, vec3 voxelPos) {
 	int traversed = 0;
 	while (pointer != 0u && traversed < 64) {
 		quad_entry entry = quadBuffer.list[pointer - 1u];
@@ -22,7 +22,11 @@ bool intersectsVoxel(sampler2D atlas, ray r, uint pointer) {
 		float t = (entry.point.w - dot(normal, r.origin)) / d;
 		if (t <= 0.0) continue;
 
-		vec3 pLocal = (r.origin + r.direction * t - entry.point.xyz) * mat3(entry.tangent.xyz, entry.bitangent.xyz, normal);
+		vec3 point = r.origin + r.direction * t;
+		vec3 pointInVoxel = point - voxelPos;
+		if (clamp(pointInVoxel, -(1.0e-3), 1.0 + 1.0e-3) != pointInVoxel) continue;
+
+		vec3 pLocal = (point - entry.point.xyz) * mat3(entry.tangent.xyz, entry.bitangent.xyz, normal);
 		pLocal.xy /= vec2(entry.tangent.w, entry.bitangent.w);
 		if (clamp(pLocal.xy, 0.0, 1.0) != pLocal.xy) continue;
 
@@ -50,7 +54,7 @@ bool traceShadowRay(sampler2D atlas, ray r) {
 		}
 		
         uint pointer = imageLoad(voxelBuffer, voxel).r;
-		if (intersectsVoxel(atlas, r, pointer)) {
+		if (intersectsVoxel(atlas, r, pointer, vec3(voxel - HALF_VOXEL_VOLUME_SIZE))) {
 			return true;
 		}
 
@@ -62,7 +66,7 @@ bool traceShadowRay(sampler2D atlas, ray r) {
     return false;
 }
 
-bool traceVoxel(sampler2D atlas, ray r, uint pointer, inout intersection it) {
+bool traceVoxel(sampler2D atlas, ray r, uint pointer, vec3 voxelPos, inout intersection it) {
 	int traversed = 0;
 	while (pointer != 0u && traversed < 64) {
 		quad_entry entry = quadBuffer.list[pointer - 1u];
@@ -77,7 +81,11 @@ bool traceVoxel(sampler2D atlas, ray r, uint pointer, inout intersection it) {
 		float t = (entry.point.w - dot(normal, r.origin)) / d;
 		if (t <= 0.0 || (it.t >= 0.0 && t > it.t)) continue;
 
-		vec3 pLocal = (r.origin + r.direction * t - entry.point.xyz) * mat3(entry.tangent.xyz, entry.bitangent.xyz, normal);
+		vec3 point = r.origin + r.direction * t;
+		vec3 pointInVoxel = point - voxelPos;
+		if (clamp(pointInVoxel, -(1.0e-3), 1.0 + 1.0e-3) != pointInVoxel) continue;
+
+		vec3 pLocal = (point - entry.point.xyz) * mat3(entry.tangent.xyz, entry.bitangent.xyz, normal);
 		pLocal.xy /= vec2(entry.tangent.w, entry.bitangent.w);
 		if (clamp(pLocal.xy, 0.0, 1.0) != pLocal.xy) continue;
 
@@ -111,7 +119,7 @@ intersection traceRay(sampler2D atlas, ray r, int voxels) {
 		}
 
         uint pointer = imageLoad(voxelBuffer, voxel).r;
-		if (traceVoxel(atlas, r, pointer, it)) {
+		if (traceVoxel(atlas, r, pointer, vec3(voxel - HALF_VOXEL_VOLUME_SIZE), it)) {
 			return it;
 		}
 
