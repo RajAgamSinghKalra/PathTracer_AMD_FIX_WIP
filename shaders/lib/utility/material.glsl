@@ -1,6 +1,7 @@
 #ifndef _MATERIAL_GLSL
 #define _MATERIAL_GLSL 1
 
+#include "/lib/spectral/blackbody.glsl"
 #include "/lib/spectral/conversion.glsl"
 #include "/lib/utility/color.glsl"
 #include "/lib/utility/complex.glsl"
@@ -8,7 +9,7 @@
 #define MATERIAL_DEFAULT   0
 #define MATERIAL_METAL     1
 #define MATERIAL_GLASS     2
-//#define MATERIAL_BLACKBODY 3
+#define MATERIAL_BLACKBODY 3
 //#define MATERIAL_THINFILM  4
 
 struct material {
@@ -42,9 +43,16 @@ material decodeMaterial(int lambda, mat3 tbn, vec4 albedo, vec4 specular, vec4 n
 
     float f0;
     if (specular.g > 229.5 / 255.0) {
-        // TODO: Hardcoded metals
+        int id = int(round(specular.g * 255.0));
+
         mat.type = MATERIAL_METAL;
         mat.ior = complex(F0toIOR(mat.albedo), 0.0);
+
+        if (id == 238) {
+            mat.type = MATERIAL_BLACKBODY;
+            int temperature = int(round(specular.b * 255.0) * 100.0);
+            mat.emission = blackbodyScaled(lambda, temperature);
+        }
     } else {
         mat.ior = complex(F0toIOR(specular.g), 0.0);
     }

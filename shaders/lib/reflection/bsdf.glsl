@@ -22,6 +22,10 @@ struct bsdf_sample {
 };
 
 bsdf_value evaluateBSDF(material mat, vec3 lightDirection, vec3 viewDirection, bool dirac) {
+    if (mat.type == MATERIAL_BLACKBODY) {
+        return bsdf_value(0.0, 0.0);
+    }
+
     vec3 w1, w2;
     buildOrthonormalBasis(mat.normal, w1, w2);
 
@@ -33,6 +37,10 @@ bsdf_value evaluateBSDF(material mat, vec3 lightDirection, vec3 viewDirection, b
 }
 
 float evaluateBSDFSamplePDF(material mat, vec3 lightDirection, vec3 viewDirection) {
+    if (mat.type == MATERIAL_BLACKBODY) {
+        return 0.0;
+    }
+
     vec3 w1, w2;
     buildOrthonormalBasis(mat.normal, w1, w2);
     mat3 localToWorld = mat3(w1, w2, mat.normal);
@@ -52,6 +60,10 @@ float evaluateBSDFSamplePDF(material mat, vec3 lightDirection, vec3 viewDirectio
 }
 
 bool sampleBSDF(out bsdf_sample bsdfSample, material mat, vec3 viewDirection, vec3 geoNormal) {
+    if (mat.type == MATERIAL_BLACKBODY) {
+        return false;
+    }
+
     vec3 w1, w2;
     buildOrthonormalBasis(mat.normal, w1, w2);
 
