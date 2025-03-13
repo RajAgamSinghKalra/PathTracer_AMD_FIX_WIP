@@ -204,6 +204,38 @@ vec3 sampleDiffuseMicrosurfacePhaseFunction(material m, vec3 wi, out float weigh
     return sampleCosineWeightedHemisphere(random2(), wm);
 }
 
+// Opaque Microsurface
+float evalOpaqueMicrosurfacePhaseFunction(material m, vec3 wi, vec3 wo) {
+    vec3 wh = normalize(wi + wo);
+    if (wh.z < 0.0) {
+        return 0.0;
+    }
+
+    vec3 wm = slope_sampleD_wi(m, wi, random2());
+
+    float fresnelIn = fresnelDielectric(dot(wi, wh), m.ior.x);
+    float fresnelOut = fresnelDielectric(dot(wo, wh), m.ior.x);
+    return fresnelIn * slope_D_wi(m, wi, wh) / (4.0 * dot(wi, wh)) + (1.0 - fresnelIn) * (1.0 - fresnelOut) * m.albedo / PI * max(0.0, dot(wo, wm));
+}
+
+vec3 sampleOpaqueMicrosurfacePhaseFunction(material m, vec3 wi, out float weight) {
+    weight = 1.0;
+
+    vec3 wm = slope_sampleD_wi(m, wi, random2());
+
+    float fresnelIn = fresnelDielectric(dot(wi, wm), m.ior.x);
+    float specularProb = fresnelIn * (1.0 - m.albedo);
+    if (random1() < specularProb) {
+        weight = fresnelIn / specularProb;
+        return reflect(-wi, wm);
+    } else {
+        vec3 wo = sampleCosineWeightedHemisphere(random2(), wm);
+        float fresnelOut = fresnelDielectric(dot(wo, wm), m.ior.x);
+        weight = (1.0 - fresnelIn) * (1.0 - fresnelOut) * m.albedo / (1.0 - specularProb);
+        return wo;
+    }
+}
+
 // Microsurface
 float G1(material m, vec3 wi, float h0) {
     if (wi.z > 0.9999) {
@@ -262,7 +294,7 @@ float evalMicrosurfaceBSDF(material m, vec3 wi, vec3 wo) {
     float sum = 0.0;
 
     float throughput = 1.0;
-    while (true) {
+    for (int i = 0; i < 64; i++) {
         hr = sampleMicrosurfaceHeight(m, wr, hr, random1());
 
         if (hr == 3.402823466e+38) {
@@ -271,7 +303,7 @@ float evalMicrosurfaceBSDF(material m, vec3 wi, vec3 wo) {
 
         float phaseFunction;
         if (m.type == MATERIAL_DEFAULT) {
-            phaseFunction = evalDiffuseMicrosurfacePhaseFunction(m, -wr, wo);
+            phaseFunction = evalOpaqueMicrosurfacePhaseFunction(m, -wr, wo);
         } else if (m.type == MATERIAL_METAL) {
             phaseFunction = evalConductorMicrosurfacePhaseFunction(m, -wr, wo);
         } else {
@@ -286,7 +318,7 @@ float evalMicrosurfaceBSDF(material m, vec3 wi, vec3 wo) {
 
         float weight;
         if (m.type == MATERIAL_DEFAULT) {
-            wr = sampleDiffuseMicrosurfacePhaseFunction(m, -wr, weight);
+            wr = sampleOpaqueMicrosurfacePhaseFunction(m, -wr, weight);
         } else if (m.type == MATERIAL_METAL) {
             wr = sampleConductorMicrosurfacePhaseFunction(m, -wr, weight);
         }
@@ -305,7 +337,7 @@ bool sampleMicrosurfaceBSDF(material m, vec3 wi, out vec3 wo, out float throughp
     float hr = 1.0 + height_invC1(0.999);
 
     throughput = 1.0;
-    while (true) {
+    for (int i = 0; i < 64; i++) {
         hr = sampleMicrosurfaceHeight(m, wr, hr, random1());
 
         if (hr == 3.402823466e+38) {
@@ -315,7 +347,7 @@ bool sampleMicrosurfaceBSDF(material m, vec3 wi, out vec3 wo, out float throughp
 
         float weight;
         if (m.type == MATERIAL_DEFAULT) {
-            wr = sampleDiffuseMicrosurfacePhaseFunction(m, -wr, weight);
+            wr = sampleOpaqueMicrosurfacePhaseFunction(m, -wr, weight);
         } else if (m.type == MATERIAL_METAL) {
             wr = sampleConductorMicrosurfacePhaseFunction(m, -wr, weight);
         } else {

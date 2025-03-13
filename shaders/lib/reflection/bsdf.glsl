@@ -33,18 +33,19 @@ bsdf_value evaluateBSDF(material mat, vec3 lightDirection, vec3 viewDirection, b
 }
 
 float evaluateBSDFSamplePDF(material mat, vec3 lightDirection, vec3 viewDirection) {
+    vec3 w1, w2;
+    buildOrthonormalBasis(mat.normal, w1, w2);
+    mat3 localToWorld = mat3(w1, w2, mat.normal);
+
+    vec3 wi = viewDirection * localToWorld;
+    vec3 wo = lightDirection * localToWorld;
+
+    vec3 halfway = normalize(wi + wo);
     if (mat.type == MATERIAL_DEFAULT) {
-        return dot(lightDirection, mat.normal) / PI + 0.001;
+        float fresnelIn = fresnelDielectric(dot(wi, halfway), mat.ior.x);
+        return fresnelIn * slope_D(mat, halfway) * G1(mat, wi) / abs(4.0 * wi.z) + (1.0 - fresnelIn) * abs(wo.z) / PI;
     } else if (mat.type == MATERIAL_METAL) {
-        vec3 w1, w2;
-        buildOrthonormalBasis(mat.normal, w1, w2);
-        mat3 localToWorld = mat3(w1, w2, mat.normal);
-
-        vec3 wi = viewDirection * localToWorld;
-        vec3 wo = lightDirection * localToWorld;
-
-        vec3 halfway = normalize(wi + wo);
-        return slope_D(mat, halfway) * G1(mat, wi) / abs(4.0 * wi.z) + abs(wo.z) + 0.001;
+        return slope_D(mat, halfway) * G1(mat, wi) / abs(4.0 * wi.z) + abs(wo.z);
     } else {
         return 1.0 / (2.0 * PI);
     }
