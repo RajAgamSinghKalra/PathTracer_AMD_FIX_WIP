@@ -188,9 +188,6 @@ vec3 sampleConductorMicrosurfacePhaseFunction(material m, vec3 wi, out float wei
 
 // Diffuse Microsurface
 float evalDiffuseMicrosurfacePhaseFunction(material m, vec3 wi, vec3 wo) {
-    float U1 = random1();
-    float U2 = random1();
-
     vec3 wm = slope_sampleD_wi(m, wi, random2());
 
     return m.albedo / PI * max(0.0, dot(wo, wm));
@@ -204,35 +201,39 @@ vec3 sampleDiffuseMicrosurfacePhaseFunction(material m, vec3 wi, out float weigh
     return sampleCosineWeightedHemisphere(random2(), wm);
 }
 
-// Layered (Lambertian + Dielectric) Microsurface
-float evalLayeredMicrosurfacePhaseFunction(material m, vec3 wi, vec3 wo) {
-    vec3 wh = normalize(wi + wo);
-    if (wh.z < 0.0) {
-        return 0.0;
-    }
-
+// Interfaced Lambertian Microsurface
+float evalInterfacedMicrosurfacePhaseFunction(material m, vec3 wi, vec3 wo) {
     vec3 wm = slope_sampleD_wi(m, wi, random2());
 
-    float fresnelIn = fresnelDielectric(dot(wi, wh), m.ior.x);
-    float fresnelOut = fresnelDielectric(dot(wo, wh), m.ior.x);
-    return fresnelIn * slope_D_wi(m, wi, wh) / (4.0 * dot(wi, wh)) + (1.0 - fresnelIn) * (1.0 - fresnelOut) * m.albedo / PI * max(0.0, dot(wo, wm));
+    float fresnelIn = fresnelDielectric(dot(wi, wm), m.ior.x);
+    float fresnelOut = fresnelDielectric(dot(wo, wm), m.ior.x);
+
+    float diffuse = (1.0 - fresnelIn) * (1.0 - fresnelOut) * m.albedo / PI * max(0.0, dot(wo, wm)) / (1.0 - m.albedo * fresnelOverHemisphere(m.ior.x));
+
+    vec3 wh = normalize(wi + wo);
+    if (wh.z < 0.0) {
+        return diffuse;
+    }
+
+    float specular = fresnelDielectric(dot(wi, wh), m.ior.x) * slope_D_wi(m, wi, wh) / (4.0 * dot(wi, wh));
+    return specular + diffuse;
 }
 
-vec3 sampleLayeredMicrosurfacePhaseFunction(material m, vec3 wi, out float weight) {
+vec3 sampleInterfacedMicrosurfacePhaseFunction(material m, vec3 wi, out float weight) {
     weight = 1.0;
 
     vec3 wm = slope_sampleD_wi(m, wi, random2());
 
     float fresnelIn = fresnelDielectric(dot(wi, wm), m.ior.x);
     float specularProb = fresnelIn / (fresnelIn + (1.0 - fresnelIn) * m.albedo);
-    
+
     if (random1() < specularProb) {
         weight = fresnelIn / specularProb;
         return reflect(-wi, wm);
     } else {
         vec3 wo = sampleCosineWeightedHemisphere(random2(), wm);
         float fresnelOut = fresnelDielectric(dot(wo, wm), m.ior.x);
-        weight = (1.0 - fresnelIn) * (1.0 - fresnelOut) * m.albedo / (1.0 - specularProb);
+        weight = (1.0 - fresnelIn) * (1.0 - fresnelOut) * m.albedo / (1.0 - specularProb) / (1.0 - m.albedo * fresnelOverHemisphere(m.ior.x));
         return wo;
     }
 }
@@ -304,7 +305,7 @@ float evalMicrosurfaceBSDF(material m, vec3 wi, vec3 wo) {
 
         float phaseFunction;
         if (m.type == MATERIAL_LAYERED) {
-            phaseFunction = evalLayeredMicrosurfacePhaseFunction(m, -wr, wo);
+            phaseFunction = evalInterfacedMicrosurfacePhaseFunction(m, -wr, wo);
         } else if (m.type == MATERIAL_METAL) {
             phaseFunction = evalConductorMicrosurfacePhaseFunction(m, -wr, wo);
         } else {
@@ -319,7 +320,7 @@ float evalMicrosurfaceBSDF(material m, vec3 wi, vec3 wo) {
 
         float weight;
         if (m.type == MATERIAL_LAYERED) {
-            wr = sampleLayeredMicrosurfacePhaseFunction(m, -wr, weight);
+            wr = sampleInterfacedMicrosurfacePhaseFunction(m, -wr, weight);
         } else if (m.type == MATERIAL_METAL) {
             wr = sampleConductorMicrosurfacePhaseFunction(m, -wr, weight);
         }
@@ -338,7 +339,7 @@ bool sampleMicrosurfaceBSDF(material m, vec3 wi, out vec3 wo, out float throughp
     float hr = 1.0 + height_invC1(0.999);
 
     throughput = 1.0;
-    for (int i = 0; i < 64; i++) {
+    for (int i = 0; i <= 64; i++) {
         hr = sampleMicrosurfaceHeight(m, wr, hr, random1());
 
         if (hr == 3.402823466e+38) {
@@ -348,7 +349,7 @@ bool sampleMicrosurfaceBSDF(material m, vec3 wi, out vec3 wo, out float throughp
 
         float weight;
         if (m.type == MATERIAL_LAYERED) {
-            wr = sampleLayeredMicrosurfacePhaseFunction(m, -wr, weight);
+            wr = sampleInterfacedMicrosurfacePhaseFunction(m, -wr, weight);
         } else if (m.type == MATERIAL_METAL) {
             wr = sampleConductorMicrosurfacePhaseFunction(m, -wr, weight);
         } else {
