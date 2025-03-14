@@ -6,7 +6,7 @@
 #include "/lib/utility/color.glsl"
 #include "/lib/utility/complex.glsl"
 
-#define MATERIAL_DEFAULT   0
+#define MATERIAL_LAYERED   0
 #define MATERIAL_METAL     1
 #define MATERIAL_GLASS     2
 #define MATERIAL_BLACKBODY 3
@@ -30,7 +30,7 @@ float F0toIOR(float f0) {
 material decodeMaterial(int lambda, mat3 tbn, vec4 albedo, vec4 specular, vec4 normal) {
     material mat;
 
-    mat.type = MATERIAL_DEFAULT;
+    mat.type = MATERIAL_LAYERED;
     mat.albedo = srgbToReflectanceSpectrum(lambda, albedo.rgb);
     mat.emission = fract(specular.a) * srgbToEmissionSpectrum(lambda, albedo.rgb) * EMISSION_STRENGTH;
     mat.alpha = vec2(pow(1.0 - specular.r, 2.0));

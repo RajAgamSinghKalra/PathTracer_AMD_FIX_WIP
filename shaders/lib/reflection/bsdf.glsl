@@ -49,7 +49,7 @@ float evaluateBSDFSamplePDF(material mat, vec3 lightDirection, vec3 viewDirectio
     vec3 wo = lightDirection * localToWorld;
 
     vec3 halfway = normalize(wi + wo);
-    if (mat.type == MATERIAL_DEFAULT) {
+    if (mat.type == MATERIAL_LAYERED) {
         float fresnelIn = fresnelDielectric(dot(wi, halfway), mat.ior.x);
         return fresnelIn * slope_D(mat, halfway) * G1(mat, wi) / abs(4.0 * wi.z) + (1.0 - fresnelIn) * abs(wo.z) / PI;
     } else if (mat.type == MATERIAL_METAL) {
