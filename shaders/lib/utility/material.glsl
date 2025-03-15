@@ -1,6 +1,7 @@
 #ifndef _MATERIAL_GLSL
 #define _MATERIAL_GLSL 1
 
+#include "/lib/buffer/metals.glsl"
 #include "/lib/spectral/blackbody.glsl"
 #include "/lib/spectral/conversion.glsl"
 #include "/lib/utility/color.glsl"
@@ -47,12 +48,15 @@ material decodeMaterial(int lambda, mat3 tbn, vec4 albedo, vec4 specular, vec4 n
         int id = int(round(specular.g * 255.0));
 
         mat.type = MATERIAL_METAL;
-        mat.ior = complex(F0toIOR(mat.albedo), 0.0);
-
-        if (id == 238) {
+        
+        if (id < 238) {
+            mat.ior = getMeasuredMetalIOR(lambda, id - 230);
+        } else if (id == 238) {
             mat.type = MATERIAL_BLACKBODY;
             int temperature = int(round(specular.b * 255.0) * 100.0);
             mat.emission = blackbodyScaled(lambda, temperature);
+        } else {
+            mat.ior = complex(F0toIOR(mat.albedo), 0.0);
         }
     } else {
         mat.ior = complex(F0toIOR(specular.g), 0.0);
