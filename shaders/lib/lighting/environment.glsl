@@ -9,6 +9,9 @@
 
 uniform sampler2D environment;
 
+// I'll make a path traced atmosphere one day.
+// http://karim.naaji.fr/environment_map_importance_sampling.html
+
 float environmentMap(int lambda, vec3 rayDirection) {
     float u = atan(rayDirection.z, rayDirection.x) / (2.0 * PI);
     float v = acos(rayDirection.y) / PI;

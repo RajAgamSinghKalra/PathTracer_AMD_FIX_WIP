@@ -1,6 +1,9 @@
 #ifndef _HEITZ_GLSL
 #define _HEITZ_GLSL 1
 
+// https://eheitzresearch.wordpress.com/240-2/
+// Most of this code is adapted from the reference implementation.
+
 #include "/lib/reflection/fresnel.glsl"
 #include "/lib/settings.glsl"
 

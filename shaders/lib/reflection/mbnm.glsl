@@ -1,6 +1,8 @@
 #ifndef _MBNM_GLSL
 #define _MBNM_GLSL 1
 
+// https://jo.dreggn.org/home/2017_normalmap.pdf
+
 float mbnm_projectedArea_p(material m, vec3 wi) {
     return max(0.0, dot(wi, m.normal)) / max(0.0, m.normal.z);
 }

@@ -37,6 +37,7 @@ vec3 sampleDiffuseMicrosurfacePhaseFunction(material m, vec3 wi, out float weigh
 }
 
 // Interfaced Lambertian Microsurface
+// https://hal.science/hal-01711532v1/document
 float evalInterfacedMicrosurfacePhaseFunction(material m, vec3 wi, vec3 wo) {
     vec3 wm = slope_sampleD_wi(m, wi, random2());
 

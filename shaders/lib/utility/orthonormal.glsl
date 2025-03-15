@@ -1,6 +1,8 @@
 #ifndef _ORTHONORMAL_GLSL
 #define _ORTHONORMAL_GLSL 1
 
+// https://backend.orbit.dtu.dk/ws/portalfiles/portal/126824972/onb_frisvad_jgt2012_v2.pdf
+
 void buildOrthonormalBasis(vec3 n, out vec3 b1, out vec3 b2) {
     if (n.z < -0.9999999) {
         b1 = vec3(0.0, -1.0, 0.0);
