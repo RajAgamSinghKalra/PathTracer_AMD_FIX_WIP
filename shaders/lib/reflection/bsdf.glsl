@@ -22,6 +22,17 @@ struct bsdf_sample {
     bool dirac;
 };
 
+float evalMBNMicrofacetBSDF(material m, vec3 wi, vec3 wo) {
+    return evalMicrosurfaceBSDF(m, wi, wo);
+}
+
+bool sampleMBNMicrofacetBSDF(material m, vec3 wi, out vec3 wo, out float weight) {
+    return sampleMicrosurfaceBSDF(m, wi, wo, weight);
+}
+float evalMBNMicrofacetPDF(material m, vec3 wi, vec3 wo) {
+    return evalMicrosurfacePDF(m, wi, wo);
+}
+
 bsdf_value evaluateBSDF(material mat, vec3 lightDirection, vec3 viewDirection, vec3 geoNormal, bool dirac) {
     if (mat.type == MATERIAL_BLACKBODY) {
         return bsdf_value(0.0, 0.0);

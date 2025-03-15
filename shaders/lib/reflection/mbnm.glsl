@@ -1,8 +1,6 @@
 #ifndef _MBNM_GLSL
 #define _MBNM_GLSL 1
 
-#include "/lib/reflection/heitz.glsl"
-
 float mbnm_projectedArea_p(material m, vec3 wi) {
     return max(0.0, dot(wi, m.normal)) / max(0.0, m.normal.z);
 }
@@ -26,9 +24,13 @@ float mbnm_G1(material m, vec3 wi, vec3 wt, vec3 wm) {
     return min(1.0, max(0.0, wi.z) / (mbnm_projectedArea_p(m, wi) + mbnm_projectedArea_t(m, wi, wt)));
 }
 
+float evalMBNMicrofacetBSDF(material m, vec3 wi, vec3 wo);
+bool sampleMBNMicrofacetBSDF(material m, vec3 wi, out vec3 wo, out float weight);
+float evalMBNMicrofacetPDF(material m, vec3 wi, vec3 wo);
+
 float evalMicrosurfaceBSDF_MBN(material m, vec3 wi, vec3 wo) {
     if (abs(m.normal.x) + abs(m.normal.y) < 1.0e-5) {
-        return evalMicrosurfaceBSDF(m, wi, wo);
+        return evalMBNMicrofacetBSDF(m, wi, wo);
     }
 
     vec3 wt = normalize(-vec3(m.normal.xy, 0.0));
@@ -54,7 +56,7 @@ float evalMicrosurfaceBSDF_MBN(material m, vec3 wi, vec3 wo) {
         vec3 wm_wr = wr * wmToLocal;
         vec3 wm_wo = wo * wmToLocal;
 
-        float phase = evalMicrosurfaceBSDF(m, -wm_wr, wm_wo);
+        float phase = evalMBNMicrofacetBSDF(m, -wm_wr, wm_wo);
         float shadowing = mbnm_G1(m, wo, wt, wm);
         float I = phase * shadowing;
 
@@ -63,7 +65,7 @@ float evalMicrosurfaceBSDF_MBN(material m, vec3 wi, vec3 wo) {
         }
 
         float weight;
-        if (!sampleMicrosurfaceBSDF(m, -wm_wr, wm_wr, weight)) {
+        if (!sampleMBNMicrofacetBSDF(m, -wm_wr, wm_wr, weight)) {
             break;
         }
         wr = wmToLocal * wm_wr;
@@ -82,7 +84,7 @@ float evalMicrosurfaceBSDF_MBN(material m, vec3 wi, vec3 wo) {
 
 bool sampleMicrosurfaceBSDF_MBN(material m, vec3 wi, out vec3 wo, out float throughput) {
     if (abs(m.normal.x) + abs(m.normal.y) < 1.0e-5) {
-        return sampleMicrosurfaceBSDF(m, wi, wo, throughput);
+        return sampleMBNMicrofacetBSDF(m, wi, wo, throughput);
     }
 
     vec3 wt = normalize(-vec3(m.normal.xy, 0.0));
@@ -106,7 +108,7 @@ bool sampleMicrosurfaceBSDF_MBN(material m, vec3 wi, out vec3 wo, out float thro
     for (int i = 0; i <= 256; i++) {
         float weight;
         vec3 wm_wr = wr * wmToLocal;
-        if (!sampleMicrosurfaceBSDF(m, -wm_wr, wm_wr, weight)) {
+        if (!sampleMBNMicrofacetBSDF(m, -wm_wr, wm_wr, weight)) {
             return false;
         }
         wr = wmToLocal * wm_wr;
@@ -126,7 +128,7 @@ bool sampleMicrosurfaceBSDF_MBN(material m, vec3 wi, out vec3 wo, out float thro
 
 float evalMicrosurfacePDF_MBN(material m, vec3 wi, vec3 wo) {
     if (abs(m.normal.x) + abs(m.normal.y) < 1.0e-5) {
-        return evalMicrosurfacePDF(m, wi, wo);
+        return evalMBNMicrofacetPDF(m, wi, wo);
     }
 
     vec3 wt = normalize(-vec3(m.normal.xy, 0.0));
@@ -137,13 +139,13 @@ float evalMicrosurfacePDF_MBN(material m, vec3 wi, vec3 wo) {
         vec3 w1, w2;
         buildOrthonormalBasis(m.normal, w1, w2);
         mat3 wpToLocal = mat3(w1, w2, m.normal);
-        pdf += p_wp * evalMicrosurfacePDF(m, wi * wpToLocal, wo * wpToLocal);
+        pdf += p_wp * evalMBNMicrofacetPDF(m, wi * wpToLocal, wo * wpToLocal);
     }
     if (p_wp < 1.0) {
         vec3 w1, w2;
         buildOrthonormalBasis(wt, w1, w2);
         mat3 wtToLocal = mat3(w1, w2, wt);
-        pdf += (1.0 - p_wp) * evalMicrosurfacePDF(m, wi * wtToLocal, wo * wtToLocal);
+        pdf += (1.0 - p_wp) * evalMBNMicrofacetPDF(m, wi * wtToLocal, wo * wtToLocal);
     }
 
     pdf *= mbnm_G1(m, wo, wt, m.normal);
