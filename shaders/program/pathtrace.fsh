@@ -51,6 +51,12 @@ void main() {
 			L += misWeight * throughput * environmentMap(lambda, r);
 			break;
 		}
+
+		vec3 w1, w2;
+		buildOrthonormalBasis(it.normal, w1, w2);
+		mat3 localToWorld = mat3(w1, w2, it.normal);
+
+		vec3 wi = -r.direction * localToWorld;
 		
 		material mat = decodeMaterial(lambda, it.tbn, it.albedo, textureLod(colortex11, it.uv, 0), textureLod(colortex12, it.uv, 0));
 
@@ -62,21 +68,22 @@ void main() {
 			vec3 shadowOrigin = r.origin + r.direction * it.t + it.normal * 0.001;
 			float visibility = float(!traceShadowRay(colortex10, ray(shadowOrigin, skyDirection)));
 			if (visibility > 0.0) {
-				bsdf_value bsdfDirect = evaluateBSDF(mat, skyDirection, -r.direction, it.normal, false);
+				vec3 wo = skyDirection * localToWorld;
+				bsdf_value bsdfDirect = evaluateBSDF(mat, wi, wo, false);
 				float environmentWeight = environmentMapWeight(lambda, skyDirection);
-				float misWeight = environmentWeight / (environmentWeight + evaluateBSDFSamplePDF(mat, skyDirection, -r.direction, it.normal));
-				L += environmentMap(lambda, skyDirection) * (bsdfDirect.full / pdfDirect) * misWeight * throughput * dot(skyDirection, it.normal) * visibility;
+				float misWeight = environmentWeight / (environmentWeight + evaluateBSDFSamplePDF(mat, wi, wo));
+				L += environmentMap(lambda, skyDirection) * (bsdfDirect.full / pdfDirect) * misWeight * throughput * wo.z * visibility;
 			}
 		}
 
-		if (!sampleBSDF(bsdfSample, mat, -r.direction, it.normal)) {
+		if (!sampleBSDF(bsdfSample, mat, wi)) {
 			break;
 		}
 
-		float costh = dot(bsdfSample.direction, it.normal);
+		throughput *= (bsdfSample.value.full / bsdfSample.pdf) * abs(bsdfSample.direction.z);
 
-		throughput *= (bsdfSample.value.full / bsdfSample.pdf) * abs(costh);
-		r = ray(r.origin + r.direction * it.t + it.normal * (sign(costh) * 0.001), bsdfSample.direction);
+		vec3 offset = it.normal * (sign(bsdfSample.direction.z) * 0.001);
+		r = ray(r.origin + r.direction * it.t + offset, localToWorld * bsdfSample.direction);
 	}
 
 	L /= wavelengthPDF(lambda);

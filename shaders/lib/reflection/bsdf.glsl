@@ -33,59 +33,40 @@ float evalMBNMicrofacetPDF(material m, vec3 wi, vec3 wo) {
     return evalMicrosurfacePDF(m, wi, wo);
 }
 
-bsdf_value evaluateBSDF(material mat, vec3 lightDirection, vec3 viewDirection, vec3 geoNormal, bool dirac) {
+bsdf_value evaluateBSDF(material mat, vec3 wi, vec3 wo, bool dirac) {
     if (mat.type == MATERIAL_BLACKBODY) {
         return bsdf_value(0.0, 0.0);
     }
 
-    vec3 w1, w2;
-    buildOrthonormalBasis(geoNormal, w1, w2);
-
-    mat3 localToWorld = mat3(w1, w2, geoNormal);
-    vec3 wi = viewDirection * localToWorld;
-    vec3 wo = lightDirection * localToWorld;
-
     return bsdf_value(evalMicrosurfaceBSDF_MBN(mat, wi, wo) / abs(wo.z), 0.0);
 }
 
-float evaluateBSDFSamplePDF(material mat, vec3 lightDirection, vec3 viewDirection, vec3 geoNormal) {
+float evaluateBSDFSamplePDF(material mat, vec3 wi, vec3 wo) {
     if (mat.type == MATERIAL_BLACKBODY) {
         return 0.0;
     }
 
-    vec3 w1, w2;
-    buildOrthonormalBasis(geoNormal, w1, w2);
-    mat3 localToWorld = mat3(w1, w2, geoNormal);
-
-    vec3 wi = viewDirection * localToWorld;
-    vec3 wo = lightDirection * localToWorld;
-
+    // Not a valid PDF, but works fine as a MIS weight
     return evalMicrosurfacePDF_MBN(mat, wi, wo);
 }
 
-bool sampleBSDF(out bsdf_sample bsdfSample, material mat, vec3 viewDirection, vec3 geoNormal) {
+bool sampleBSDF(out bsdf_sample bsdfSample, material mat, vec3 wi) {
     if (mat.type == MATERIAL_BLACKBODY) {
         return false;
     }
-
-    vec3 w1, w2;
-    buildOrthonormalBasis(geoNormal, w1, w2);
-
-    mat3 localToWorld = mat3(w1, w2, geoNormal);
-    vec3 wi = viewDirection * localToWorld;
 
     float throughput;
     if (!sampleMicrosurfaceBSDF_MBN(mat, wi, bsdfSample.direction, throughput)) {
         return false;
     }
 
-    bsdfSample.direction = localToWorld * bsdfSample.direction;
-    bsdfSample.pdf = evaluateBSDFSamplePDF(mat, bsdfSample.direction, viewDirection, geoNormal);
+    bsdfSample.direction = bsdfSample.direction;
+    bsdfSample.pdf = evaluateBSDFSamplePDF(mat, wi, bsdfSample.direction);
     bsdfSample.dirac = false;
     
-    bsdfSample.value = bsdf_value(bsdfSample.pdf * throughput / dot(bsdfSample.direction, geoNormal), 0.0);
+    bsdfSample.value = bsdf_value(bsdfSample.pdf * throughput / abs(bsdfSample.direction.z), 0.0);
 
-    return dot(bsdfSample.direction, geoNormal) > 0.0;
+    return bsdfSample.direction.z > 0.0;
 }
 
 #endif // _BSDF_GLSL
