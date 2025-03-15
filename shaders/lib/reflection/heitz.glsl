@@ -79,7 +79,7 @@ vec3 slope_sampleD_wi(material m, vec3 wi, vec2 U) {
     return wm;
 }
 
-// GGX Distribution //
+// GGX Distribution
 float slope_P22(material m, float slope_x, float slope_y) {
     float tmp = 1.0 + slope_x * slope_x / (m.alpha.x * m.alpha.x) + slope_y * slope_y / (m.alpha.y * m.alpha.y);
     return 1.0 / (PI * m.alpha.x * m.alpha.y * tmp * tmp);
@@ -363,6 +363,18 @@ bool sampleMicrosurfaceBSDF(material m, vec3 wi, out vec3 wo, out float throughp
     }
 
     return false;
+}
+
+float evalMicrosurfacePDF(material m, vec3 wi, vec3 wo) {
+    vec3 wh = normalize(wi + wo);
+    if (m.type == MATERIAL_LAYERED) {
+        float fresnelIn = fresnelDielectric(dot(wi, wh), m.ior.x);
+        return fresnelIn * slope_D(m, wh) * G1(m, wi) / abs(4.0 * wi.z) + (1.0 - fresnelIn) * abs(wo.z) / PI + 0.001;
+    } else if (m.type == MATERIAL_METAL) {
+        return slope_D(m, wh) * G1(m, wi) / abs(4.0 * wi.z) + abs(wo.z) + 0.001;
+    } else {
+        return 1.0 / (2.0 * PI);
+    }
 }
 
 #endif // _HEITZ_GLSL

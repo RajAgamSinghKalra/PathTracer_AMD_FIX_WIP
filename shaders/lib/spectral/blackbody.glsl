@@ -24,7 +24,7 @@ float blackbodyScaled(int lambda, int T) {
     float radiated = mix(RADIATED_POWER[index], RADIATED_POWER[index + 1], t);
 
     float p = blackbody(float(lambda), float(T));
-    return 100.0 * (p / radiated);
+    return 150.0 * (p / radiated);
 }
 
 #endif // _BLACKBODY_GLSL

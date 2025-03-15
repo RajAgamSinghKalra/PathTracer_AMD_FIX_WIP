@@ -13,6 +13,7 @@ struct bsdf_value {
 
 #include "/lib/reflection/lambertian.glsl"
 #include "/lib/reflection/heitz.glsl"
+#include "/lib/reflection/mbnm.glsl"
 
 struct bsdf_sample {
     vec3 direction;
@@ -21,42 +22,34 @@ struct bsdf_sample {
     bool dirac;
 };
 
-bsdf_value evaluateBSDF(material mat, vec3 lightDirection, vec3 viewDirection, bool dirac) {
+bsdf_value evaluateBSDF(material mat, vec3 lightDirection, vec3 viewDirection, vec3 geoNormal, bool dirac) {
     if (mat.type == MATERIAL_BLACKBODY) {
         return bsdf_value(0.0, 0.0);
     }
 
     vec3 w1, w2;
-    buildOrthonormalBasis(mat.normal, w1, w2);
+    buildOrthonormalBasis(geoNormal, w1, w2);
 
-    mat3 localToWorld = mat3(w1, w2, mat.normal);
+    mat3 localToWorld = mat3(w1, w2, geoNormal);
     vec3 wi = viewDirection * localToWorld;
     vec3 wo = lightDirection * localToWorld;
 
-    return bsdf_value(evalMicrosurfaceBSDF(mat, wi, wo) / abs(wo.z), 0.0);
+    return bsdf_value(evalMicrosurfaceBSDF_MBN(mat, wi, wo) / abs(wo.z), 0.0);
 }
 
-float evaluateBSDFSamplePDF(material mat, vec3 lightDirection, vec3 viewDirection) {
+float evaluateBSDFSamplePDF(material mat, vec3 lightDirection, vec3 viewDirection, vec3 geoNormal) {
     if (mat.type == MATERIAL_BLACKBODY) {
         return 0.0;
     }
 
     vec3 w1, w2;
-    buildOrthonormalBasis(mat.normal, w1, w2);
-    mat3 localToWorld = mat3(w1, w2, mat.normal);
+    buildOrthonormalBasis(geoNormal, w1, w2);
+    mat3 localToWorld = mat3(w1, w2, geoNormal);
 
     vec3 wi = viewDirection * localToWorld;
     vec3 wo = lightDirection * localToWorld;
 
-    vec3 halfway = normalize(wi + wo);
-    if (mat.type == MATERIAL_LAYERED) {
-        float fresnelIn = fresnelDielectric(dot(wi, halfway), mat.ior.x);
-        return fresnelIn * slope_D(mat, halfway) * G1(mat, wi) / abs(4.0 * wi.z) + (1.0 - fresnelIn) * abs(wo.z) / PI + 0.001;
-    } else if (mat.type == MATERIAL_METAL) {
-        return slope_D(mat, halfway) * G1(mat, wi) / abs(4.0 * wi.z) + abs(wo.z) + 0.001;
-    } else {
-        return 1.0 / (2.0 * PI);
-    }
+    return evalMicrosurfacePDF_MBN(mat, wi, wo);
 }
 
 bool sampleBSDF(out bsdf_sample bsdfSample, material mat, vec3 viewDirection, vec3 geoNormal) {
@@ -65,21 +58,21 @@ bool sampleBSDF(out bsdf_sample bsdfSample, material mat, vec3 viewDirection, ve
     }
 
     vec3 w1, w2;
-    buildOrthonormalBasis(mat.normal, w1, w2);
+    buildOrthonormalBasis(geoNormal, w1, w2);
 
-    mat3 localToWorld = mat3(w1, w2, mat.normal);
+    mat3 localToWorld = mat3(w1, w2, geoNormal);
     vec3 wi = viewDirection * localToWorld;
 
     float throughput;
-    if (!sampleMicrosurfaceBSDF(mat, wi, bsdfSample.direction, throughput)) {
+    if (!sampleMicrosurfaceBSDF_MBN(mat, wi, bsdfSample.direction, throughput)) {
         return false;
     }
 
     bsdfSample.direction = localToWorld * bsdfSample.direction;
-    bsdfSample.pdf = evaluateBSDFSamplePDF(mat, bsdfSample.direction, viewDirection);
+    bsdfSample.pdf = evaluateBSDFSamplePDF(mat, bsdfSample.direction, viewDirection, geoNormal);
     bsdfSample.dirac = false;
     
-    bsdfSample.value = bsdf_value(bsdfSample.pdf * throughput / dot(bsdfSample.direction, mat.normal), 0.0);
+    bsdfSample.value = bsdf_value(bsdfSample.pdf * throughput / dot(bsdfSample.direction, geoNormal), 0.0);
 
     return dot(bsdfSample.direction, geoNormal) > 0.0;
 }

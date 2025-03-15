@@ -35,7 +35,7 @@ vec3 sampleEnvironmentMap(vec3 u, out float pdf) {
     );
 
     uv /= vec2(environmentMapSize);
-    uv.x += ENVMAP_OFFSET_U;
+    uv.x -= ENVMAP_OFFSET_U;
 
     float phi = mod(uv.x * 2.0 * PI, 2.0 * PI);
     float theta = uv.y * PI;

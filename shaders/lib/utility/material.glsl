@@ -5,6 +5,7 @@
 #include "/lib/spectral/conversion.glsl"
 #include "/lib/utility/color.glsl"
 #include "/lib/utility/complex.glsl"
+#include "/lib/utility/orthonormal.glsl"
 
 #define MATERIAL_LAYERED   0
 #define MATERIAL_METAL     1
@@ -34,7 +35,7 @@ material decodeMaterial(int lambda, mat3 tbn, vec4 albedo, vec4 specular, vec4 n
     mat.albedo = srgbToReflectanceSpectrum(lambda, albedo.rgb);
     mat.emission = fract(specular.a) * srgbToEmissionSpectrum(lambda, albedo.rgb) * EMISSION_STRENGTH;
     mat.alpha = vec2(pow(1.0 - specular.r, 2.0));
-    mat.normal = tbn[2];
+    mat.normal = vec3(0.0, 0.0, 1.0);
     mat.ao = 1.0;
 
     // if (albedo.a < 1.0) {
@@ -59,8 +60,10 @@ material decodeMaterial(int lambda, mat3 tbn, vec4 albedo, vec4 specular, vec4 n
 
     if (normal != vec4(0.0)) {
         normal.xy = normal.xy * 2.0 - 1.0;
-        vec3 normalMapping = vec3(normal.xy, sqrt(1.0 - dot(normal.xy, normal.xy)));
-        // mat.normal = tbn * normalMapping;
+        mat.normal = vec3(normal.x, normal.y, sqrt(1.0 - dot(normal.xy, normal.xy)));
+        vec3 b1, b2;
+        buildOrthonormalBasis(tbn[2], b1, b2);
+        mat.normal = (tbn * mat.normal) * mat3(b1, b2, tbn[2]);
         mat.ao = normal.b;
     }
 

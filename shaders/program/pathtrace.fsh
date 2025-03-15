@@ -58,14 +58,14 @@ void main() {
 
 		float pdfDirect;
 		vec3 skyDirection = sampleEnvironmentMap(random3(), pdfDirect);
-		if (dot(skyDirection, it.normal) > 0.0 && dot(skyDirection, mat.normal) > 0.0 && pdfDirect > 0.0) {
+		if (dot(skyDirection, it.normal) > 0.0 && pdfDirect > 0.0) {
 			vec3 shadowOrigin = r.origin + r.direction * it.t + it.normal * 0.001;
 			float visibility = float(!traceShadowRay(colortex10, ray(shadowOrigin, skyDirection)));
 			if (visibility > 0.0) {
-				bsdf_value bsdfDirect = evaluateBSDF(mat, skyDirection, -r.direction, false);
+				bsdf_value bsdfDirect = evaluateBSDF(mat, skyDirection, -r.direction, it.normal, false);
 				float environmentWeight = environmentMapWeight(lambda, skyDirection);
-				float misWeight = environmentWeight / (environmentWeight + evaluateBSDFSamplePDF(mat, skyDirection, -r.direction));
-				L += environmentMap(lambda, skyDirection) * (bsdfDirect.full / pdfDirect) * misWeight * throughput * dot(skyDirection, mat.normal) * visibility;
+				float misWeight = environmentWeight / (environmentWeight + evaluateBSDFSamplePDF(mat, skyDirection, -r.direction, it.normal));
+				L += environmentMap(lambda, skyDirection) * (bsdfDirect.full / pdfDirect) * misWeight * throughput * dot(skyDirection, it.normal) * visibility;
 			}
 		}
 
@@ -73,7 +73,7 @@ void main() {
 			break;
 		}
 
-		float costh = dot(bsdfSample.direction, mat.normal);
+		float costh = dot(bsdfSample.direction, it.normal);
 
 		throughput *= (bsdfSample.value.full / bsdfSample.pdf) * abs(costh);
 		r = ray(r.origin + r.direction * it.t + it.normal * (sign(costh) * 0.001), bsdfSample.direction);
