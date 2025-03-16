@@ -6,11 +6,6 @@ const int shadowMapResolution = 512;
 
 const ivec2 environmentMapSize = ivec2(4096, 2048);
 
-/*
-const int colortex2Format = RGB32F;
-const bool colortex2Clear = false;
-*/
-
 const ivec3 VOXEL_VOLUME_SIZE = ivec3(512, 386, 512);
 const ivec3 HALF_VOXEL_VOLUME_SIZE = VOXEL_VOLUME_SIZE / 2;
 

@@ -1,16 +1,19 @@
 #include "/lib/buffer/state.glsl"
+#include "/lib/camera/film.glsl"
+#include "/lib/camera/pinhole.glsl"
 #include "/lib/lighting/environment.glsl"
 #include "/lib/raytracing/trace.glsl"
 #include "/lib/reflection/bsdf.glsl"
 #include "/lib/spectral/conversion.glsl"
 #include "/lib/spectral/sampling.glsl"
 #include "/lib/utility/color.glsl"
-#include "/lib/utility/projection.glsl"
 #include "/lib/utility/random.glsl"
 #include "/lib/utility/sampling.glsl"
 #include "/lib/settings.glsl"
 
-uniform sampler2D colortex2;
+layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+const vec2 workGroupsRender = vec2(1.0, 1.0);
+
 uniform sampler2D colortex10;
 uniform sampler2D colortex11;
 uniform sampler2D colortex12;
@@ -22,21 +25,14 @@ uniform vec3 cameraPositionFract;
 uniform float viewWidth;
 uniform float viewHeight;
 
-in vec2 texcoord;
-
-/* RENDERTARGETS: 2 */
-layout(location = 0) out vec3 color;
-
 void main() {
-	initGlobalPRNG(texcoord, renderState.frame);
+	vec2 fragCoord = vec2(gl_GlobalInvocationID.xy);
+	if (fragCoord.x > viewWidth || fragCoord.y > viewHeight) return;
 
-	vec2 filmSample = texcoord + random2() / vec2(viewWidth, viewHeight);
-	vec3 rayOrigin = projectAndDivide(gbufferProjectionInverse, vec3(filmSample * 2.0 - 1.0, 0.0));
-	vec3 rayDirection = projectAndDivide(gbufferProjectionInverse, vec3(filmSample * 2.0 - 1.0, 1.0));
-	rayOrigin = (gbufferModelViewInverse * vec4(rayOrigin, 1.0)).xyz + cameraPositionFract;
-	rayDirection = normalize((gbufferModelViewInverse * vec4(rayDirection, 1.0)).xyz);
+	initGlobalPRNG(fragCoord / vec2(viewWidth, viewHeight), renderState.frame);
 
-	ray r = ray(rayOrigin, rayDirection);
+	vec2 filmSample = (fragCoord + random2()) / vec2(viewWidth, viewHeight) * 2.0 - 1.0;
+	ray r = generateRayPinhole(cameraPositionFract, gbufferProjectionInverse, gbufferModelViewInverse, filmSample);
 
 	float lambdaPDF;
 	int lambda = sampleWavelength(random1(), lambdaPDF);
@@ -103,6 +99,5 @@ void main() {
 
 	vec3 L_xyz = spectrumToXYZ(lambda, L);
 
-	vec3 history = texture(colortex2, texcoord).rgb;
-	color = mix(history, L_xyz, 1.0 / float(renderState.frame + 1));
+	logFilmSample(filmSample, L_xyz, renderState.frame == 0);
 }

@@ -1,8 +1,7 @@
+#include "/lib/camera/film.glsl"
 #include "/lib/post/tonemap.glsl"
 #include "/lib/utility/color.glsl"
 #include "/lib/settings.glsl"
-
-uniform sampler2D colortex2;
 
 in vec2 texcoord;
 
@@ -10,11 +9,12 @@ in vec2 texcoord;
 layout(location = 0) out vec3 color;
 
 void main() {
-	color = texture(colortex2, texcoord).rgb;
+	vec2 filmCoord = texcoord * 2.0 - 1.0;
+	color = getFilmAverageColor(filmCoord);
 #ifdef NEIGHBOURHOOD_CLAMPING
 	vec3 maxNeighbour = max(
-		max(textureOffset(colortex2, texcoord, ivec2(1, 0)).rgb, textureOffset(colortex2, texcoord, ivec2(-1, 0)).rgb),
-		max(textureOffset(colortex2, texcoord, ivec2(0, 1)).rgb, textureOffset(colortex2, texcoord, ivec2(0, -1)).rgb)
+		max(getFilmAverageColor(filmCoord, ivec2(1, 0)).rgb, getFilmAverageColor(filmCoord, ivec2(-1, 0)).rgb),
+		max(getFilmAverageColor(filmCoord, ivec2(0, 1)).rgb, getFilmAverageColor(filmCoord, ivec2(0, -1)).rgb)
 	);
 	color = min(color, maxNeighbour);
 #endif
