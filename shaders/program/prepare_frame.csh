@@ -11,7 +11,9 @@ void main() {
 
     if (hideGUI) {
         renderState.frame++;
+        renderState.clear = false;
     } else {
         renderState.frame = 0;
+        renderState.clear = true;
     }
 }

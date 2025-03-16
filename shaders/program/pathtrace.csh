@@ -94,10 +94,10 @@ void main() {
 	L /= lambdaPDF;
 
 	if (isnan(L) || isinf(L)) {
-		L = 0.0;
+		return;
 	}
 
 	vec3 L_xyz = spectrumToXYZ(lambda, L);
 
-	logFilmSample(filmSample, L_xyz, renderState.frame == 0);
+	logFilmSample(filmSample, L_xyz);
 }

@@ -16,19 +16,19 @@ vec3 getFilmAverageColor(ivec2 coord) {
     return texelFetch(filmSampler, coord, 0).xyz;
 }
 
-void logFilmSample(ivec2 coord, vec3 L, bool reset) {
+void logFilmSample(ivec2 coord, vec3 L) {
     vec4 data = imageLoad(filmBuffer, coord);
-    data.w = (reset ? 0.0 : data.w) + 1.0;
+    data.w += 1.0;
 
 	data.xyz = mix(data.xyz, L, 1.0 / float(data.w));
     imageStore(filmBuffer, coord, data);
 }
 
-void logFilmSample(vec2 coord, vec3 L, bool reset) {
+void logFilmSample(vec2 coord, vec3 L) {
     ivec2 size = imageSize(filmBuffer);
     ivec2 imageCoord = ivec2((coord * 0.5 + 0.5) * size);
 
-    logFilmSample(imageCoord, L, reset);
+    logFilmSample(imageCoord, L);
 }
 
 #endif // _FILM_GLSL
