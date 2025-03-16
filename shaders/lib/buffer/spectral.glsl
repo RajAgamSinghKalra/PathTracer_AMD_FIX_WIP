@@ -6,7 +6,7 @@
 
 layout (std430, binding = 3) readonly buffer spectral_data {
     vec3 cie_cmf_xyz[441];
-    vec3 cie_bt709_basis[391];
+    vec3 cie_bt709_basis[391]; // https://github.com/geometrian/simple-spectral/blob/master/data/cie2006-basis-bt709-390%2B1%2B780.csv
     float illuminant_d65[97];
     float cie_y_integral;
 } spectralData;

@@ -38,7 +38,8 @@ void main() {
 
 	ray r = ray(rayOrigin, rayDirection);
 
-	int lambda = sampleWavelength(random1());
+	float lambdaPDF;
+	int lambda = sampleWavelength(random1(), lambdaPDF);
 
 	float L = 0.0;
 	float throughput = 1.0;
@@ -86,7 +87,7 @@ void main() {
 		r = ray(r.origin + r.direction * it.t + offset, localToWorld * bsdfSample.direction);
 	}
 
-	L /= wavelengthPDF(lambda);
+	L /= lambdaPDF;
 
 	if (isnan(L) || isinf(L)) {
 		L = 0.0;
