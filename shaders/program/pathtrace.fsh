@@ -45,7 +45,7 @@ void main() {
 	float throughput = 1.0;
 	bsdf_sample bsdfSample;
 
-	for (int i = 0; i < 5; i++) {
+	for (int i = 0; i < 25; i++) {
 		intersection it = traceRay(colortex10, r, i == 0 ? 1024 : 64);
 		if (it.t < 0.0) {
 			float misWeight = i == 0 ? 1.0 : bsdfSample.pdf / (bsdfSample.pdf + environmentMapWeight(lambda, r));
@@ -76,6 +76,14 @@ void main() {
 				L += environmentMap(lambda, skyDirection) * (bsdfDirect.full / pdfDirect) * misWeight * throughput * wo.z * visibility;
 			}
 		}
+
+#ifdef RUSSIAN_ROULETTE
+		float probability = min(1.0, throughput);
+		if (random1() > probability) {
+			break;
+		}
+		throughput /= probability;
+#endif
 
 		if (!sampleBSDF(bsdfSample, mat, wi)) {
 			break;

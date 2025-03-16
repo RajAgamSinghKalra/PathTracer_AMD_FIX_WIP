@@ -66,6 +66,14 @@ float evalMicrosurfaceBSDF_MBN(material m, vec3 wi, vec3 wo) {
             sum += throughput * I;
         }
 
+#ifdef BSDF_EVAL_RUSSIAN_ROULETTE
+        float probability = min(1.0, throughput);
+		if (random1() > probability) {
+			break;
+		}
+		throughput /= probability;
+#endif
+
         float weight;
         if (!sampleMBNMicrofacetBSDF(m, -wm_wr, wm_wr, weight)) {
             break;
@@ -111,7 +119,7 @@ bool sampleMicrosurfaceBSDF_MBN(material m, vec3 wi, out vec3 wo, out float thro
         float weight;
         vec3 wm_wr = wr * wmToLocal;
         if (!sampleMBNMicrofacetBSDF(m, -wm_wr, wm_wr, weight)) {
-            return false;
+            break;
         }
         wr = wmToLocal * wm_wr;
         throughput *= weight;
@@ -123,6 +131,14 @@ bool sampleMicrosurfaceBSDF_MBN(material m, vec3 wi, out vec3 wo, out float thro
             wmToLocal = wm == wt ? wpToLocal : wtToLocal;
             wm = wm == wt ? m.normal : wt;
         }
+
+#ifdef BSDF_SAMPLE_RUSSIAN_ROULETTE
+        float probability = min(1.0, throughput);
+		if (random1() > probability) {
+			break;
+		}
+		throughput /= probability;
+#endif
     }
 
     return false;

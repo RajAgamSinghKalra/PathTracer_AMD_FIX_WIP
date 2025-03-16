@@ -5,6 +5,7 @@
 #include "/lib/utility/orthonormal.glsl"
 #include "/lib/utility/random.glsl"
 #include "/lib/utility/sampling.glsl"
+#include "/lib/settings.glsl"
 
 struct bsdf_value {
     float full;
