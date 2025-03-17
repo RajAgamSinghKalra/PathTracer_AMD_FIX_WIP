@@ -41,4 +41,9 @@ void main() {
     entry.next = imageAtomicExchange(voxelBuffer, voxelPos, index + 1u);
 
     quadBuffer.list[index] = entry;
+
+    extendSceneBounds(
+        min(min(vPosition[0], vPosition[1]), min(vPosition[2], vPos3)),
+        max(max(vPosition[0], vPosition[1]), max(vPosition[2], vPos3))
+    );
 }
