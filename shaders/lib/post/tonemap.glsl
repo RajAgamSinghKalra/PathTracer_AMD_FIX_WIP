@@ -3,9 +3,10 @@
 
 #include "/lib/post/aces.glsl"
 #include "/lib/post/agx.glsl"
+#include "/lib/post/camera_tonemap.glsl"
 
 vec3 tonemap(vec3 color) {
-    return agxTonemap(color);
+    return cameraTonemap(color, 1.5);
 }
 
 #endif // _TONEMAP_GLSL
