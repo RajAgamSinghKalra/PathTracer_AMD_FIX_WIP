@@ -5,6 +5,12 @@
 
 in vec2 texcoord;
 
+/*
+const bool colortex2MipmapEnabled = true;
+*/
+
+uniform sampler2D colortex2;
+
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec3 color;
 
@@ -20,6 +26,9 @@ void main() {
 #endif
 
 	color = max(XYZ_TO_RGB * color, 0.0);
+
+	float avgLum = texelFetch(colortex2, ivec2(0, 0), 10).r;
+	color /= clamp(avgLum * 120.0 / 12.5, 1.0e-30, 1.0e1);
 
 	color = tonemap(color);
 	color = linearToSrgb(color);

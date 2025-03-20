@@ -4,6 +4,10 @@
 const float sunPathRotation = 30.0;
 const int shadowMapResolution = 512;
 
+/*
+const int colortex2Format = R32F;
+*/
+
 const ivec2 environmentMapSize = ivec2(4096, 2048);
 
 const ivec3 VOXEL_VOLUME_SIZE = ivec3(512, 386, 512);

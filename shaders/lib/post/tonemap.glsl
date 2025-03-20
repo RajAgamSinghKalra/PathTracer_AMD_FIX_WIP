@@ -6,7 +6,7 @@
 #include "/lib/post/camera_tonemap.glsl"
 
 vec3 tonemap(vec3 color) {
-    return cameraTonemap(color, 1.5);
+    return cameraTonemap(color, 1.0);
 }
 
 #endif // _TONEMAP_GLSL
