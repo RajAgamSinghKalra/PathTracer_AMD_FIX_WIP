@@ -11,7 +11,7 @@
 #include "/lib/utility/sampling.glsl"
 #include "/lib/settings.glsl"
 
-layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
+layout (local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
 const vec2 workGroupsRender = vec2(1.0, 1.0);
 
 uniform sampler2D colortex10;
@@ -32,7 +32,9 @@ void main() {
 	initGlobalPRNG(fragCoord / vec2(viewWidth, viewHeight), renderState.frame);
 
 	vec2 filmSample = (fragCoord + random2()) / vec2(viewWidth, viewHeight) * 2.0 - 1.0;
-	ray r = generateRayPinhole(cameraPositionFract, gbufferProjectionInverse, gbufferModelViewInverse, filmSample);
+	ray r = generateCameraRay(cameraPositionFract, gbufferProjectionInverse, gbufferModelViewInverse, filmSample);
+	
+    ivec3 voxelOffset = ivec3(mat3(gbufferModelViewInverse) * vec3(0.0, 0.0, 128.0));
 
 	float lambdaPDF;
 	int lambda = sampleWavelength(random1(), lambdaPDF);
@@ -42,7 +44,7 @@ void main() {
 	bsdf_sample bsdfSample;
 
 	for (int i = 0; i < 25; i++) {
-		intersection it = traceRay(colortex10, r, i == 0 ? 1024 : 64);
+		intersection it = traceRay(voxelOffset, colortex10, r, i == 0 ? 1024 : 64);
 		if (it.t < 0.0) {
 			float misWeight = i == 0 ? 1.0 : bsdfSample.pdf / (bsdfSample.pdf + environmentMapWeight(lambda, r));
 			L += misWeight * throughput * environmentMap(lambda, r);
@@ -63,7 +65,7 @@ void main() {
 		vec3 skyDirection = sampleEnvironmentMap(random3(), pdfDirect);
 		if (dot(skyDirection, it.normal) > 0.0 && pdfDirect > 0.0) {
 			vec3 shadowOrigin = r.origin + r.direction * it.t + it.normal * 0.001;
-			float visibility = float(!traceShadowRay(colortex10, ray(shadowOrigin, skyDirection)));
+			float visibility = float(!traceShadowRay(voxelOffset, colortex10, ray(shadowOrigin, skyDirection)));
 			if (visibility > 0.0) {
 				vec3 wo = skyDirection * localToWorld;
 				bsdf_value bsdfDirect = evaluateBSDF(mat, wi, wo, false);
