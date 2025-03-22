@@ -1,11 +1,14 @@
 #ifndef _RAYTRACE_GLSL
 #define _RAYTRACE_GLSL 1
 
+#include "/lib/buffer/octree.glsl"
 #include "/lib/buffer/voxel.glsl"
 #include "/lib/buffer/quad.glsl"
 #include "/lib/raytracing/intersection.glsl"
 #include "/lib/raytracing/ray.glsl"
 #include "/lib/settings.glsl"
+
+// TODO: Octree traversal stuff
 
 bool intersectsVoxel(sampler2D atlas, ray r, uint pointer, vec3 voxelPos) {
 	int traversed = 0;

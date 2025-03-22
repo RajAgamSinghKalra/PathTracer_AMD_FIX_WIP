@@ -1,3 +1,4 @@
+#include "/lib/buffer/octree.glsl"
 #include "/lib/buffer/quad.glsl"
 #include "/lib/buffer/voxel.glsl"
 #include "/lib/settings.glsl"
@@ -48,4 +49,6 @@ void main() {
         min(min(vPosition[0], vPosition[1]), min(vPosition[2], vPos3)),
         max(max(vPosition[0], vPosition[1]), max(vPosition[2], vPos3))
     );
+
+    occupyOctreeVoxel(voxelPos);
 }
