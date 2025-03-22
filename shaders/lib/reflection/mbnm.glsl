@@ -49,9 +49,6 @@ float evalMicrosurfaceBSDF_MBN(material m, vec3 wi, vec3 wo) {
 
     mat3 wmToLocal = wp_first ? wpToLocal : wtToLocal;
 
-    int wpType = m.type;
-    vec2 wpIOR = m.ior;
-
     float sum = 0.0;
     float throughput = 1.0;
     for (int i = 0; i < 256; i++) {
@@ -110,9 +107,6 @@ bool sampleMicrosurfaceBSDF_MBN(material m, vec3 wi, out vec3 wo, out float thro
     mat3 wpToLocal = mat3(b1, b2, m.normal);
 
     mat3 wmToLocal = wp_first ? wpToLocal : wtToLocal;
-
-    int wpType = m.type;
-    vec2 wpIOR = m.ior;
 
     throughput = 1.0;
     for (int i = 0; i <= 256; i++) {
