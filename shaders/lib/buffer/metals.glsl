@@ -10,7 +10,7 @@
 // metals/platinum: 89 entries
 // metals/silver: 89 entries
 
-layout (std430, binding = 4) buffer metal_data {
+layout (std430, binding = 4) readonly buffer metal_data {
     vec2 iors[];
 } metalData;
 
