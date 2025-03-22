@@ -36,6 +36,7 @@ void main() {
 
     vec3 center = vPosition[0] + vMidOffset[0] + cameraPositionFract;
     ivec3 voxelOffset = ivec3(mat3(gbufferModelViewInverse) * vec3(0.0, 0.0, 128.0));
+    ivec3 voxelPos = ivec3(floor(center)) + HALF_VOXEL_VOLUME_SIZE + voxelOffset;
     if (clamp(voxelPos, ivec3(0, 0, 0), VOXEL_VOLUME_SIZE - 1) != voxelPos) return;
 
     uint index = atomicAdd(quadBuffer.count, 1u);
