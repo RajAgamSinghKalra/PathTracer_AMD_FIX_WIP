@@ -1,6 +1,6 @@
 #include "/lib/buffer/state.glsl"
 #include "/lib/camera/film.glsl"
-#include "/lib/camera/pinhole.glsl"
+#include "/lib/camera/thinlens.glsl"
 #include "/lib/lighting/environment.glsl"
 #include "/lib/raytracing/trace.glsl"
 #include "/lib/reflection/bsdf.glsl"
