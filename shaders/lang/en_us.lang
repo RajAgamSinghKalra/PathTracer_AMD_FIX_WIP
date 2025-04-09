@@ -1,0 +1,10 @@
+value.TONEMAP.0 = AgX
+value.TONEMAP.1 = Camera Tonemap
+
+value.APERTURE_SHAPE.0 = Circular
+value.APERTURE_SHAPE.1 = Hexagonal
+
+value.LENS_TYPE.0 = Double Gauss
+value.LENS_TYPE.1 = Fisheye
+value.LENS_TYPE.2 = Tessar
+value.LENS_TYPE.3 = Cooke Triplet

@@ -10,7 +10,7 @@
 
 // TODO: Octree traversal stuff
 
-bool intersectsVoxel(sampler2D atlas, ray r, uint pointer, vec3 voxelPos) {
+bool intersectsVoxel(sampler2D atlas, ray r, uint pointer, vec3 voxelPos, float tMax) {
 	int traversed = 0;
 	while (pointer != 0u && traversed < 64) {
 		quad_entry entry = quadBuffer.list[pointer - 1u];
@@ -23,7 +23,7 @@ bool intersectsVoxel(sampler2D atlas, ray r, uint pointer, vec3 voxelPos) {
 		if (abs(d) < 1.0e-6) continue;
 
 		float t = (entry.point.w - dot(normal, r.origin)) / d;
-		if (t <= 0.0) continue;
+		if (t <= 0.0 || t > tMax) continue;
 
 		vec3 point = r.origin + r.direction * t;
 		vec3 pointInVoxel = point - voxelPos;
@@ -43,7 +43,7 @@ bool intersectsVoxel(sampler2D atlas, ray r, uint pointer, vec3 voxelPos) {
 	return false;
 }
 
-bool traceShadowRay(ivec3 voxelOffset, sampler2D atlas, ray r) {
+bool traceShadowRay(ivec3 voxelOffset, sampler2D atlas, ray r, float tMax) {
     ivec3 voxel = ivec3(floor(r.origin));
     vec3 delta = abs(1.0 / r.direction);
     ivec3 rayStep = ivec3(sign(r.direction));
@@ -51,13 +51,13 @@ bool traceShadowRay(ivec3 voxelOffset, sampler2D atlas, ray r) {
 
 	voxel += HALF_VOXEL_VOLUME_SIZE + voxelOffset;
 
-    for (int i = 0; i < 64; i++) {
+    for (int i = 0; i < 512; i++) {
 		if (any(lessThan(voxel, ivec3(0, 0, 0))) || any(greaterThanEqual(voxel, VOXEL_VOLUME_SIZE))) {
 			break;
 		}
 		
         uint pointer = imageLoad(voxelBuffer, voxel).r;
-		if (intersectsVoxel(atlas, r, pointer, vec3(voxel - HALF_VOXEL_VOLUME_SIZE - voxelOffset))) {
+		if (intersectsVoxel(atlas, r, pointer, vec3(voxel - HALF_VOXEL_VOLUME_SIZE - voxelOffset), tMax)) {
 			return true;
 		}
 

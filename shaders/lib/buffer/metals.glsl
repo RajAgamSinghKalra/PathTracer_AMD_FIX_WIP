@@ -1,6 +1,8 @@
 #ifndef _METALS_GLSL
 #define _METALS_GLSL 1
 
+#include "/lib/buffer/spectral.glsl"
+
 // metals/iron: 89 entries
 // metals/gold: 89 entries
 // metals/aluminium: 89 entries
@@ -21,4 +23,4 @@ vec2 getMeasuredMetalIOR(int lambda, int id) {
     return mix(metalData.iors[lowerIndex + id * 89], metalData.iors[upperIndex + id * 89], t);
 }
 
-#endif
+#endif // _METALS_GLSL

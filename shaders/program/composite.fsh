@@ -1,4 +1,6 @@
+#include "/lib/buffer/state.glsl"
 #include "/lib/camera/film.glsl"
+#include "/lib/debug/debug_text.glsl"
 #include "/lib/post/tonemap.glsl"
 #include "/lib/utility/color.glsl"
 #include "/lib/settings.glsl"
@@ -10,6 +12,8 @@ const bool colortex2MipmapEnabled = true;
 */
 
 uniform sampler2D colortex2;
+
+uniform float viewHeight;
 
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec3 color;
@@ -28,8 +32,12 @@ void main() {
 	color = max(XYZ_TO_RGB * color, 0.0);
 
 	float avgLum = texelFetch(colortex2, ivec2(0, 0), 10).r;
-	color /= clamp(avgLum * 120.0 / 12.5, 1.0e-30, 1.0e1);
+	color /= 1.2 * SHUTTER_SPEED * 100.0 / ISO;
 
 	color = tonemap(color);
 	color = linearToSrgb(color);
+
+	if (renderState.frame == 0) {
+		renderDebugText(color, ivec2(gl_FragCoord.xy) / 2, ivec2(1, viewHeight / 2 - 1));
+	}
 }

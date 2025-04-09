@@ -1,3 +1,3 @@
 #version 460 compatibility
 
-#include "/program/focal_distance.csh"
+#include "/program/lens_focus.csh"

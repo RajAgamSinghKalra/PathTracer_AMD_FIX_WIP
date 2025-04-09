@@ -7,18 +7,13 @@
 #include "/lib/utility/sampling.glsl"
 #include "/lib/settings.glsl"
 
-struct bsdf_value {
-    float full;
-    float specular;
-};
-
 #include "/lib/reflection/lambertian.glsl"
 #include "/lib/reflection/heitz.glsl"
 #include "/lib/reflection/mbnm.glsl"
 
 struct bsdf_sample {
     vec3 direction;
-    bsdf_value value;
+    float value;
     float pdf;
     bool dirac;
 };
@@ -34,12 +29,12 @@ float evalMBNMicrofacetPDF(material m, vec3 wi, vec3 wo) {
     return evalMicrosurfacePDF(m, wi, wo);
 }
 
-bsdf_value evaluateBSDF(material mat, vec3 wi, vec3 wo, bool dirac) {
+float evaluateBSDF(material mat, vec3 wi, vec3 wo, bool dirac) {
     if (mat.type == MATERIAL_BLACKBODY) {
-        return bsdf_value(0.0, 0.0);
+        return 0.0;
     }
 
-    return bsdf_value(evalMicrosurfaceBSDF_MBN(mat, wi, wo) / abs(wo.z), 0.0);
+    return evalMicrosurfaceBSDF_MBN(mat, wi, wo) / abs(wo.z);
 }
 
 float evaluateBSDFSamplePDF(material mat, vec3 wi, vec3 wo) {
@@ -65,7 +60,7 @@ bool sampleBSDF(out bsdf_sample bsdfSample, material mat, vec3 wi) {
     bsdfSample.pdf = evaluateBSDFSamplePDF(mat, wi, bsdfSample.direction);
     bsdfSample.dirac = false;
     
-    bsdfSample.value = bsdf_value(bsdfSample.pdf * throughput / abs(bsdfSample.direction.z), 0.0);
+    bsdfSample.value = bsdfSample.pdf * throughput / abs(bsdfSample.direction.z), 0.0;
 
     return bsdfSample.direction.z > 0.0;
 }

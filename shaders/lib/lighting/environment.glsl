@@ -8,6 +8,7 @@
 #include "/lib/utility/constants.glsl"
 #include "/lib/utility/orthonormal.glsl"
 #include "/lib/utility/random.glsl"
+#include "/lib/utility/sampling.glsl"
 #include "/lib/settings.glsl"
 
 uniform sampler2D environment;
@@ -21,7 +22,7 @@ float environmentMap(int lambda, vec3 rayDirection) {
     vec2 uv = fract(vec2(u + ENVMAP_OFFSET_U, v));
 
     vec3 rgb = texelFetch(environment, ivec2(uv * vec2(environmentMapSize)), 0).rgb;
-    return lrgbToEmissionSpectrum(lambda, rgb);
+    return lrgbToEmissionSpectrum(lambda, rgb) * 2.0e4;
 }
 
 float environmentMap(int lambda, ray r) {
@@ -89,10 +90,9 @@ void projectBoundingBox(vec3 corner, vec3 u, vec3 v, inout vec2 minuv, inout vec
     maxuv = max(maxuv, dotuv);
 }
 
-ray generateEnvironmentRay(int lambda, out float L) {
+ray generateEnvironmentRay(int lambda, out float L, out float L_pdf) {
     float p;
     vec3 omega = -sampleEnvironmentMap(random3(), p);
-    float inv_p = 1.0 / p;
     
     L = environmentMap(lambda, -omega);
 
@@ -114,10 +114,14 @@ ray generateEnvironmentRay(int lambda, out float L) {
     projectBoundingBox(vec3(aabbMax.x, aabbMax.y, aabbMax.z), u, v, minuv, maxuv);
 
     float dist = dot((aabbMin + aabbMax) * 0.5, -omega) + dot(vec3(1.0), aabbMax - aabbMin);
-    vec3 y = -dist * omega + u * (minuv.x + (maxuv.x - minuv.x) * random1()) + v * (minuv.y + (maxuv.y - minuv.y) * random1());
-    inv_p *= (maxuv.x - minuv.x) * (maxuv.y - minuv.y);
+    vec3 y = -dist * omega + normalize(u) * mix(minuv.x, maxuv.x, random1()) + normalize(v) * mix(minuv.y, maxuv.y, random1());
 
-    L *= inv_p;
+    vec3 tMin = (aabbMin - y) / omega;
+    vec3 tMax = (aabbMax - y) / omega;
+    vec3 t1 = min(tMin, tMax);
+    y += omega * (max(max(t1.x, t1.y), t1.z) - 1.0);
+
+    L_pdf = p / ((maxuv.x - minuv.x) * (maxuv.y - minuv.y));
     return ray(y, omega);
 }
 

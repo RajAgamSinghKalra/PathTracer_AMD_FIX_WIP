@@ -8,13 +8,13 @@ uniform bool hideGUI;
 
 void main() {
     quadBuffer.count = 0u;
-    quadBuffer.aabb = scene_aabb(0, 0, 0, 0, 0, 0);
+    quadBuffer.aabb = scene_aabb(10000, 10000, 10000, -10000, -10000, -10000);
 
     if (hideGUI) {
         renderState.frame++;
-        renderState.clear = false;
     } else {
         renderState.frame = 0;
-        renderState.clear = true;
     }
+
+    renderState.clear = (renderState.frame <= 1);
 }

@@ -36,7 +36,7 @@ void main() {
     entry.point.w = dot(cross(entry.tangent.xyz, entry.bitangent.xyz), entry.point.xyz);
 
     vec3 center = vPosition[0] + vMidOffset[0] + cameraPositionFract;
-    ivec3 voxelOffset = ivec3(mat3(gbufferModelViewInverse) * vec3(0.0, 0.0, 128.0));
+    ivec3 voxelOffset = ivec3(mat3(gbufferModelViewInverse) * vec3(0.0, 0.0, VOXEL_OFFSET));
     ivec3 voxelPos = ivec3(floor(center)) + HALF_VOXEL_VOLUME_SIZE + voxelOffset;
     if (clamp(voxelPos, ivec3(0, 0, 0), VOXEL_VOLUME_SIZE - 1) != voxelPos) return;
 
@@ -50,5 +50,5 @@ void main() {
         max(max(vPosition[0], vPosition[1]), max(vPosition[2], vPos3))
     );
 
-    occupyOctreeVoxel(voxelPos);
+    // occupyOctreeVoxel(voxelPos);
 }

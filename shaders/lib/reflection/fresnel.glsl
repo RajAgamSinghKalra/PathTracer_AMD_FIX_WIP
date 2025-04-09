@@ -1,21 +1,56 @@
 #ifndef _FRESNEL_GLSL
 #define _FRESNEL_GLSL 1
 
+#include "/lib/utility/constants.glsl"
 #include "/lib/utility/complex.glsl"
 
-float fresnelDielectric(float cosTheta_i, float eta) {
+float fresnelR_sp(float n0, float cos0, float n1, float cos1) {
+    return (n0 * cos0 - n1 * cos1) / (n0 * cos0 + n1 * cos1); 
+} 
+
+float fresnelR_pp(float n0, float cos0, float n1, float cos1) { 
+    return (n1 * cos0 - n0 * cos1) / (n0 * cos1 + n1 * cos0); 
+} 
+
+float fresnelT_sp(float n0, float cos0, float n1, float cos1) {
+    return 2.0 * n0 * cos0 / (n0 * cos0 + n1 * cos1); 
+} 
+
+float fresnelT_pp(float n0, float cos0, float n1, float cos1) { 
+    return 2.0 * n0 * cos0 / (n0 * cos1 + n1 * cos0); 
+} 
+
+float fresnelThinFilm(float cos0, float wl, vec3 n, float thickness) {
+    vec2 sin12 = (1.0 - cos0 * cos0) * n[0] * n[0] / vec2(n[1] * n[1], n[2] * n[2]);
+    if (sin12.x > 1.0 || sin12.y > 1.0) return 1.0;
+
+    vec2 cos12 = sqrt(1.0 - sin12);
+
+    float rs = fresnelR_sp(n[1], cos12.x, n[0], cos0) * fresnelR_sp(n[1], cos12.x, n[2], cos12.y); 
+    float rp = fresnelR_pp(n[1], cos12.x, n[0], cos0) * fresnelR_pp(n[1], cos12.x, n[2], cos12.y); 
+    float ts = fresnelT_sp(n[0], cos0, n[1], cos12.x) * fresnelT_sp(n[1], cos12.x, n[2], cos12.y); 
+    float tp = fresnelT_pp(n[0], cos0, n[1], cos12.x) * fresnelT_pp(n[1], cos12.x, n[2], cos12.y);
+
+    float t = cos(4.0 * PI * thickness * n[1] * cos12.x / wl);
+    float Ts = (ts * ts) / pow(1.0 - rs * t, 2.0); 
+    float Tp = (tp * tp) / pow(1.0 - rp * t, 2.0); 
+
+    return 1.0 - (n[2] * cos12.y) / (n[0] * cos0) * (Ts + Tp) * 0.5; 
+}
+
+float fresnelDielectric(float cosTheta_i, float n1, float n2) {
     cosTheta_i = clamp(cosTheta_i, 0.0, 1.0);
 
-    float sin2Theta_i = max(0.0, 1.0 - cosTheta_i * cosTheta_i);
-    float sin2Theta_t = sin2Theta_i / (eta * eta);
+    float sin2Theta_i = 1.0 - cosTheta_i * cosTheta_i;
+    float sin2Theta_t = sin2Theta_i * (n1 * n1) / (n2 * n2);
     if (sin2Theta_t >= 1.0) return 1.0;
 
     float cosTheta_t = sqrt(1.0 - sin2Theta_t);
-    float rp = (eta * cosTheta_i - cosTheta_t) /
-               (eta * cosTheta_i + cosTheta_t);
-    float rs = (cosTheta_i - eta * cosTheta_t) /
-               (cosTheta_i + eta * cosTheta_t);
-    return 0.5 * (rp * rp + rs * rs);
+
+    float rs = fresnelR_sp(n1, cosTheta_i, n2, cosTheta_t);
+    float rp = fresnelR_pp(n1, cosTheta_i, n2, cosTheta_t);
+
+    return 0.5 * (rs * rs + rp * rp);
 }
 
 float fresnelOverHemisphere(float n) {

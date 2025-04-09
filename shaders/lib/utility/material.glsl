@@ -7,12 +7,13 @@
 #include "/lib/utility/color.glsl"
 #include "/lib/utility/complex.glsl"
 #include "/lib/utility/orthonormal.glsl"
+#include "/lib/settings.glsl"
 
-#define MATERIAL_LAYERED   0
-#define MATERIAL_METAL     1
-#define MATERIAL_GLASS     2
-#define MATERIAL_BLACKBODY 3
-//#define MATERIAL_THINFILM  4
+#define MATERIAL_INTERFACED 0
+#define MATERIAL_METAL      1
+#define MATERIAL_GLASS      2
+#define MATERIAL_BLACKBODY  3
+// #define MATERIAL_THINFILM   4
 
 struct material {
     int type;
@@ -24,17 +25,17 @@ struct material {
     float ao;
 };
 
-float F0toIOR(float f0) {
+float F0toIOR(float f0, float n0) {
     float r = sqrt(f0);
-    return (1.0 + r) / max(1.0 - r, 1.0e-5);
+    return (n0 + r) / max(n0 - r, 1.0e-5);
 }
 
 material decodeMaterial(int lambda, mat3 tbn, vec4 albedo, vec4 specular, vec4 normal) {
     material mat;
 
-    mat.type = MATERIAL_LAYERED;
+    mat.type = MATERIAL_INTERFACED;
     mat.albedo = srgbToReflectanceSpectrum(lambda, albedo.rgb);
-    mat.emission = fract(specular.a) * srgbToEmissionSpectrum(lambda, albedo.rgb) * EMISSION_STRENGTH;
+    mat.emission = fract(specular.a) * srgbToEmissionSpectrum(lambda, albedo.rgb) * EMISSION_STRENGTH * 1.0e4;
     mat.alpha = vec2(pow(1.0 - specular.r, 2.0));
     mat.normal = vec3(0.0, 0.0, 1.0);
     mat.ao = 1.0;
@@ -56,10 +57,10 @@ material decodeMaterial(int lambda, mat3 tbn, vec4 albedo, vec4 specular, vec4 n
             int temperature = int(round(specular.b * 255.0) * 100.0);
             mat.emission = blackbodyScaled(lambda, temperature);
         } else {
-            mat.ior = complex(F0toIOR(mat.albedo), 0.0);
+            mat.ior = complex(F0toIOR(mat.albedo, 1.0), 0.0);
         }
     } else {
-        mat.ior = complex(F0toIOR(specular.g), 0.0);
+        mat.ior = complex(F0toIOR(specular.g, 1.0), 0.0);
     }
 
     if (normal != vec4(0.0)) {

@@ -45,6 +45,7 @@ vec3 agxEotf(vec3 val) {
     val = agx_mat_inv * val;
 
     // sRGB IEC 61966-2-1 2.2 Exponent Reference EOTF Display
+    // (Should I replace this with the actual sRGB conversion function?)
     val = pow(val, vec3(2.2));
 
     return val;
@@ -66,6 +67,7 @@ vec3 agxLook(vec3 val) {
 }
 
 vec3 agxTonemap(vec3 color) {
+    color = max(color, 1.0e-3);
     color = agx(color);
     color = agxLook(color);
     color = agxEotf(color);
