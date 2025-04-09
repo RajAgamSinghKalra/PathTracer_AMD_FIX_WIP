@@ -29,9 +29,6 @@ void main() {
                     continue;
                 }
 
-                float weight = 0.0;
-                bool reflected;
-
                 vec3 direction = normalize(pointRear - filmPoint);
                 ray r = ray(filmPoint, direction);
                 if (rayExitsLensSystem(550, r) || rayExitsLensSystem(WL_MIN, r) || rayExitsLensSystem(WL_MAX, r)) {
