@@ -35,7 +35,7 @@ void printCameraSettings() {
 	text.fpPrecision = 2;
 
 	printString((_space, _space, _f, _slash));
-	printFloat(ceil(renderState.fNumber * 100.0) / 100.0);
+	printFloat(round(renderState.fNumber * 100.0) / 100.0);
 	printLine();
 }
 
