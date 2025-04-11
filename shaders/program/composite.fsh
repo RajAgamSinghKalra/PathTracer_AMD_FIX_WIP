@@ -37,7 +37,7 @@ void main() {
 	color = tonemap(color);
 	color = linearToSrgb(color);
 
-	if (renderState.frame == 0) {
+	if (renderState.frame == 0 || KEEP_DEBUG_TEXT) {
 		renderDebugText(color, ivec2(gl_FragCoord.xy) / 2, ivec2(1, viewHeight / 2 - 1));
 	}
 }

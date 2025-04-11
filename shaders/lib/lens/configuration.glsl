@@ -7,17 +7,17 @@
 #if (LENS_TYPE == 0)
 
 const lens_element LENS_ELEMENTS[] = lens_element[](
-    lens_element(58.950  * 0.001, 7.520  * 0.001, N_BAF10, 50.4 * 0.0005, true),
-    lens_element(169.660 * 0.001, 0.240  * 0.001, AIR    , 50.4 * 0.0005, true),
-    lens_element(38.550  * 0.001, 8.050  * 0.001, N_BAF10, 46.0 * 0.0005, true),
-    lens_element(81.540  * 0.001, 6.550  * 0.001, N_BAF4 , 46.0 * 0.0005, true),
-    lens_element(25.500  * 0.001, 11.410 * 0.001, AIR    , 36.0 * 0.0005, true),
-    lens_element(0.0     * 0.001, 9.0    * 0.001, AIR    , 20.2 * 0.0005, true),
-    lens_element(-28.990 * 0.001, 2.360  * 0.001, F5     , 34.0 * 0.0005, true),
-    lens_element(81.540  * 0.001, 12.130 * 0.001, N_SSK5 , 40.0 * 0.0005, true),
-    lens_element(-40.770 * 0.001, 0.380  * 0.001, AIR    , 40.0 * 0.0005, true),
-    lens_element(874.130 * 0.001, 6.440  * 0.001, SF1    , 40.0 * 0.0005, true),
-    lens_element(-79.460 * 0.001, 0.0    * 0.001, AIR    , 40.0 * 0.0005, true)
+    lens_element( 58.950  * 0.001, 7.520  * 0.001, N_BAF10, 50.4 * 0.0005, true),
+    lens_element( 169.660 * 0.001, 0.240  * 0.001, AIR    , 50.4 * 0.0005, true),
+    lens_element( 38.550  * 0.001, 8.050  * 0.001, N_BAF10, 46.0 * 0.0005, true),
+    lens_element( 81.540  * 0.001, 6.550  * 0.001, N_BAF4 , 46.0 * 0.0005, true),
+    lens_element( 25.500  * 0.001, 11.410 * 0.001, AIR    , 36.0 * 0.0005, true),
+    lens_element( 0.0     * 0.001, 9.0    * 0.001, AIR    , 20.2 * 0.0005, true),
+    lens_element(-28.990  * 0.001, 2.360  * 0.001, F5     , 34.0 * 0.0005, true),
+    lens_element( 81.540  * 0.001, 12.130 * 0.001, N_SSK5 , 40.0 * 0.0005, true),
+    lens_element(-40.770  * 0.001, 0.380  * 0.001, AIR    , 40.0 * 0.0005, true),
+    lens_element( 874.130 * 0.001, 6.440  * 0.001, SF1    , 40.0 * 0.0005, true),
+    lens_element(-79.460  * 0.001, 0.0    * 0.001, AIR    , 40.0 * 0.0005, true)
 );
 const sensor_data CAMERA_SENSOR = sensor_data(40.0);
 
@@ -42,25 +42,25 @@ const sensor_data CAMERA_SENSOR = sensor_data(135.0);
 #elif (LENS_TYPE == 2)
 
 const lens_element LENS_ELEMENTS[] = lens_element[](
-    lens_element(42.970  * 0.001, 9.8    * 0.001, N_LAK9, 19.2 * 0.001, true),
-    lens_element(-115.33 * 0.001, 2.1    * 0.001, LLF1  , 19.2 * 0.001, true),
-    lens_element(306.840 * 0.001, 4.16   * 0.001, AIR   , 19.2 * 0.001, true),
-    lens_element(0.0     * 0.001, 4.0    * 0.001, AIR   , 15.0 * 0.001, true),
-    lens_element(-59.060 * 0.001, 1.870  * 0.001, SF2   , 17.3 * 0.001, true),
-    lens_element(40.930  * 0.001, 10.640 * 0.001, AIR   , 17.3 * 0.001, true),
-    lens_element(183.920 * 0.001, 7.050  * 0.001, N_LAK9, 16.5 * 0.001, true),
-    lens_element(-48.910 * 0.001, 0.0    * 0.001, AIR   , 16.5 * 0.001, true)
+    lens_element(42.970   * 0.001, 9.8    * 0.001, N_LAK9, 19.2 * 0.001, true),
+    lens_element(-115.33  * 0.001, 2.1    * 0.001, LLF1  , 19.2 * 0.001, true),
+    lens_element( 306.840 * 0.001, 4.16   * 0.001, AIR   , 19.2 * 0.001, true),
+    lens_element( 0.0     * 0.001, 4.0    * 0.001, AIR   , 15.0 * 0.001, true),
+    lens_element(-59.060  * 0.001, 1.870  * 0.001, SF2   , 17.3 * 0.001, true),
+    lens_element( 40.930  * 0.001, 10.640 * 0.001, AIR   , 17.3 * 0.001, true),
+    lens_element( 183.920 * 0.001, 7.050  * 0.001, N_LAK9, 16.5 * 0.001, true),
+    lens_element(-48.910  * 0.001, 0.0    * 0.001, AIR   , 16.5 * 0.001, true)
 );
 const sensor_data CAMERA_SENSOR = sensor_data(45.0);
 
 #elif (LENS_TYPE == 3)
 
 const lens_element LENS_ELEMENTS[] = lens_element[](
-    lens_element(26.585199  * 0.001, 7.736537 * 0.001, N_LASF31A, 11.676172 * 0.001, true),
-    lens_element(43.429037  * 0.001, 3.435887 * 0.001, AIR,       8.940243  * 0.001, true),
+    lens_element( 26.585199 * 0.001, 7.736537 * 0.001, N_LASF31A, 11.676172 * 0.001, true),
+    lens_element( 43.429037 * 0.001, 3.435887 * 0.001, AIR,       8.940243  * 0.001, true),
     lens_element(-55.415591 * 0.001, 3.999980 * 0.001, N_SF14,    7.469473  * 0.001, true),
-    lens_element(29.198443  * 0.001, 2.127319 * 0.001, AIR,       6.034548  * 0.001, true),
-    lens_element(55.521418  * 0.001, 5.365190 * 0.001, N_LASF31A, 7.457009  * 0.001, true),
+    lens_element( 29.198443 * 0.001, 2.127319 * 0.001, AIR,       6.034548  * 0.001, true),
+    lens_element( 55.521418 * 0.001, 5.365190 * 0.001, N_LASF31A, 7.457009  * 0.001, true),
     lens_element(-43.266572 * 0.001, 0.0      * 0.001, AIR,       8.595248  * 0.001, true)
 );
 const sensor_data CAMERA_SENSOR = sensor_data(45.0);

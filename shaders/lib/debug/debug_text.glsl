@@ -3,6 +3,8 @@
 
 #include "/lib/buffer/state.glsl"
 #include "/lib/debug/text_renderer.glsl"
+#include "/lib/lens/configuration.glsl"
+#include "/lib/lens/reflection.glsl"
 #include "/lib/settings.glsl"
 
 void printLensType() {
@@ -33,8 +35,38 @@ void printCameraSettings() {
 	text.fpPrecision = 2;
 
 	printString((_space, _space, _f, _slash));
-	printFloat(renderState.fNumber);
+	printFloat(ceil(renderState.fNumber * 100.0) / 100.0);
 	printLine();
+}
+
+void printCoatingInfo() {
+    printString((_A, _R, _space, _C, _o, _a, _t, _i, _n, _g, _colon, _space));
+
+    int coatedElements = 0;
+    int totalElements = 0;
+    for (int i = 0; i < LENS_ELEMENTS.length(); i++) {
+        if (LENS_ELEMENTS[i].curvature == 0.0) {
+            continue;
+        }
+        if (LENS_ELEMENTS[i].coated && (i == 0 || LENS_ELEMENTS[i].glass == AIR || LENS_ELEMENTS[i - 1].glass == AIR)) {
+            coatedElements++;
+        }
+        totalElements++;
+    }
+
+    printInt(coatedElements);
+    printChar(_slash);
+    printInt(totalElements);
+
+    printChar(_space);
+    printInt(int(getLensCoatingThickness()));
+    printString((_n, _m, _space));
+
+    if (AR_COATING_MATERIAL == MgF2) {
+        printString((_M, _g, _F, _2));
+    }
+
+    printLine();
 }
 
 void renderDebugText(inout vec3 color, ivec2 resolution, ivec2 position) {
@@ -42,6 +74,7 @@ void renderDebugText(inout vec3 color, ivec2 resolution, ivec2 position) {
 
     printLensType();
     printCameraSettings();
+    printCoatingInfo();
 
 	endText(color);
 }
