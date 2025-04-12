@@ -20,6 +20,9 @@ void printLensType() {
 #elif (LENS_TYPE == 3)
     printString((_L, _e, _n, _s, _colon, _space, _C, _o, _o, _k, _e, _space, _T, _r, _i, _p, _l, _e, _t));
     printLine();
+#elif (LENS_TYPE == 4)
+    printString((_L, _e, _n, _s, _colon, _space, _P, _e, _t, _z, _v, _a, _l));
+    printLine();
 #endif
 }
 

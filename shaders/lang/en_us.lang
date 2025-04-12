@@ -8,3 +8,4 @@ value.LENS_TYPE.0 = Double Gauss
 value.LENS_TYPE.1 = Fisheye
 value.LENS_TYPE.2 = Tessar
 value.LENS_TYPE.3 = Cooke Triplet
+value.LENS_TYPE.4 = Petzval

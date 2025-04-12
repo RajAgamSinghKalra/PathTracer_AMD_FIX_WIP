@@ -146,6 +146,7 @@ const sellmeier_coeffs K5G20 = sellmeier_coeffs(vec3(1.140943960, 0.145001190, 3
 const sellmeier_coeffs LAK9G15 = sellmeier_coeffs(vec3(1.287736670, 0.518244853, 26.175610900), vec3(0.005575419, 0.0223679524, 1892.25330000));
 const sellmeier_coeffs LF5G19 = sellmeier_coeffs(vec3(1.346113270, 0.142428018, 0.900477176), vec3(0.009717439, 0.0501911619, 111.95970300));
 const sellmeier_coeffs SF6G05 = sellmeier_coeffs(vec3(1.621139420, 0.506586092, 10.403229800), vec3(0.011347899, 0.0535840223, 1118.83658000));
+const sellmeier_coeffs LF7 = sellmeier_coeffs(vec3(1.26879731, 0.156697051, 0.887676301), vec3(0.00919553925, 0.0447256764, 106.8203610));
 
 const sellmeier_coeffs MgF2 = sellmeier_coeffs(vec3(0.48755108, 0.39875031, 2.3120353), pow(vec3(0.04338408, 0.09461442, 23.793604), vec3(2.0)));
 

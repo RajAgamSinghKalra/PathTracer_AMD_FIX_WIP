@@ -27,7 +27,7 @@ const ivec3 HALF_VOXEL_VOLUME_SIZE = VOXEL_VOLUME_SIZE / 2;
 #define TONEMAP 0 // [0 1]
 
 #define APERTURE_SHAPE 0 // [0 1]
-#define LENS_TYPE 0 // [0 1 2 3]
+#define LENS_TYPE 0 // [0 1 2 3 4]
 
 #define VOXEL_OFFSET 0.0
 

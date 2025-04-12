@@ -37,8 +37,8 @@ ray generateCameraRay(int lambda, vec3 position, mat4 projection, mat4 viewInver
         weight = 0.0;
     }
 
-    r.origin = (mat3(viewInverse) * r.origin).xyz + position;
-    r.direction = normalize((mat3(viewInverse) * r.direction).xyz);
+    r.origin = (mat3(viewInverse) * r.origin) + position;
+    r.direction = normalize(mat3(viewInverse) * r.direction);
 
     return r;
 }
