@@ -39,6 +39,7 @@ void main() {
 
     ivec3 voxelOffset = ivec3(mat3(gbufferModelViewInverse) * vec3(0.0, 0.0, VOXEL_OFFSET));
 
+#ifdef SKY_CONTRIBUTION
 	if ((renderState.frame % 2) == 1) {
 		prng_state prngLocal = initLocalPRNG(floor(fragCoord / 8.0) / viewWidth, renderState.frame);
 
@@ -51,6 +52,7 @@ void main() {
 			estimateLensFlares(lambda, -direction, gbufferProjection, gbufferModelView, point, weight);
 		}
 	}
+#endif
 
 	vec2 filmSample = (fragCoord + random2()) / vec2(viewWidth, viewHeight) * 2.0 - 1.0;
 
@@ -69,8 +71,10 @@ void main() {
 	for (int i = 0; i < 25; i++) {
 		intersection it = traceRay(voxelOffset, colortex10, r, i == 0 ? 1024 : 128);
 		if (it.t < 0.0) {
+#ifdef SKY_CONTRIBUTION
 			float misWeight = i == 0 ? float(!lensFlare) : bsdfSample.pdf / (bsdfSample.pdf + environmentMapWeight(lambda, r));
 			L += misWeight * throughput * environmentMap(lambda, r);
+#endif
 			break;
 		}
 
@@ -84,6 +88,7 @@ void main() {
 
 		L += throughput * mat.emission;
 
+#ifdef SKY_CONTRIBUTION
 		float pdfDirect;
 		vec3 skyDirection = sampleEnvironmentMap(random3(), pdfDirect);
 		if (dot(skyDirection, it.normal) > 0.0 && pdfDirect > 0.0) {
@@ -97,6 +102,7 @@ void main() {
 				L += environmentMap(lambda, skyDirection) * (bsdfDirect / pdfDirect) * misWeight * throughput * wo.z * visibility;
 			}
 		}
+#endif
 
 #ifdef RUSSIAN_ROULETTE
 		float probability = min(1.0, throughput);

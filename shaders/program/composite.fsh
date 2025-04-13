@@ -7,6 +7,9 @@
 
 in vec2 texcoord;
 
+uniform ivec3 currentDate;
+uniform ivec2 currentYearTime;
+
 /*
 const bool colortex2MipmapEnabled = true;
 */
@@ -38,6 +41,7 @@ void main() {
 	color = linearToSrgb(color);
 
 	if (renderState.frame == 0 || KEEP_DEBUG_TEXT) {
-		renderDebugText(color, ivec2(gl_FragCoord.xy) / 2, ivec2(1, viewHeight / 2 - 1));
+		ivec2 time = ivec2(currentDate.x, currentYearTime.x);
+		renderDebugText(color, ivec2(gl_FragCoord.xy) / 2, ivec2(1, viewHeight / 2 - 1), time);
 	}
 }

@@ -68,13 +68,13 @@ const sensor_data CAMERA_SENSOR = sensor_data(45.0);
 #elif (LENS_TYPE == 4)
 
 const lens_element LENS_ELEMENTS[] = lens_element[](
-    lens_element( 55.9  * 0.001, 5.2  * 0.001, N_BK7HT, 16.1 * 0.001, false),
-    lens_element(-43.7  * 0.001, 0.8  * 0.001, LF7    , 16.1 * 0.001, false),
-    lens_element( 460.4 * 0.001, 33.6 * 0.001, AIR    , 16.1 * 0.001, false),
-    lens_element( 110.6 * 0.001, 1.5  * 0.001, LF7    , 16.1 * 0.001, false),
-    lens_element( 38.9  * 0.001, 3.3  * 0.001, AIR    , 16.1 * 0.001, false),
-    lens_element( 48.0  * 0.001, 3.6  * 0.001, N_BK7HT, 16.1 * 0.001, false),
-    lens_element(-157.8 * 0.001, 30.0 * 0.001, AIR    , 16.1 * 0.001, false)
+    lens_element( 55.9  * 0.001, 5.2  * 0.001, N_BK7HT, 16.0 * 0.001, true),
+    lens_element(-43.7  * 0.001, 0.8  * 0.001, LF7    , 16.0 * 0.001, true),
+    lens_element( 460.4 * 0.001, 33.6 * 0.001, AIR    , 16.0 * 0.001, true),
+    lens_element( 110.6 * 0.001, 1.5  * 0.001, LF7    , 16.0 * 0.001, true),
+    lens_element( 38.9  * 0.001, 3.3  * 0.001, AIR    , 16.0 * 0.001, true),
+    lens_element( 48.0  * 0.001, 3.6  * 0.001, N_BK7HT, 16.0 * 0.001, true),
+    lens_element(-157.8 * 0.001, 30.0 * 0.001, AIR    , 16.0 * 0.001, true)
 );
 const sensor_data CAMERA_SENSOR = sensor_data(50.0);
 

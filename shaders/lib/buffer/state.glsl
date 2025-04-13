@@ -20,6 +20,7 @@ layout (std430, binding = 1) buffer render_state {
     float focalLength;
     float fNumber;
     mat2 rayTransferMatrix;
+    ivec2 startTime;
 } renderState;
 
 #endif // _STATE_GLSL

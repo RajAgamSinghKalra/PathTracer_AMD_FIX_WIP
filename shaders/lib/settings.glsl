@@ -36,4 +36,6 @@ const ivec3 HALF_VOXEL_VOLUME_SIZE = VOXEL_VOLUME_SIZE / 2;
 
 #define KEEP_DEBUG_TEXT false // [false true]
 
+#define SKY_CONTRIBUTION
+
 #endif // _SETTINGS_GLSL

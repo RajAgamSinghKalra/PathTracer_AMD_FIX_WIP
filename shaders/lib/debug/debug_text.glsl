@@ -72,12 +72,51 @@ void printCoatingInfo() {
     printLine();
 }
 
-void renderDebugText(inout vec3 color, ivec2 resolution, ivec2 position) {
+int getLeapYears(int year) {
+    year--;
+    return year / 4 - year / 100 + year / 400;
+}
+
+ivec3 getRenderTime(ivec2 time) {
+    ivec2 startTime = renderState.startTime;
+    int years = time.x - startTime.x;
+    int leapYears = getLeapYears(time.x) - getLeapYears(startTime.x);
+    int seconds = time.y - startTime.y;
+    seconds += years * (365 * 24 * 60 * 60);
+    seconds += leapYears * 24 * 60 * 60;
+
+    int hours = seconds / 3600;
+    int minutes = (seconds - hours * 3600) / 60;
+    seconds -= minutes * 60;
+
+    return ivec3(hours, minutes, seconds);
+}
+
+void printRenderTime(ivec2 time) {
+    ivec3 renderTime = getRenderTime(time);
+
+    printString((_R, _e, _n, _d, _e, _r, _space, _T, _i, _m, _e, _colon, _space));
+
+    for (int i = 0; i < 3; i++) {
+        if (renderTime[i] < 10) {
+            printChar(_0);
+        }
+        printInt(renderTime[i]);
+        if (i != 2) {
+            printChar(_colon);
+        }
+    }
+
+    printLine();
+}
+
+void renderDebugText(inout vec3 color, ivec2 resolution, ivec2 position, ivec2 time) {
     beginText(resolution, position);
 
     printLensType();
     printCameraSettings();
     printCoatingInfo();
+    printRenderTime(time);
 
 	endText(color);
 }
