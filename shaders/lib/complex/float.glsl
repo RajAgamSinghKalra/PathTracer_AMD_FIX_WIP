@@ -30,8 +30,17 @@ complexFloat complexDiv(complexFloat a, complexFloat b) {
 }
 
 complexFloat complexSqrt(complexFloat a) {
-    float m = complexAbs(a);
-    return complexFloat(sqrt((m + a.x) * 0.5), sign(a.y) * sqrt((m - a.x) * 0.5));
+	float n = complexAbs(a);
+    float t1 = sqrt(0.5 * (n + abs(a.x)));
+    float t2 = 0.5 * a.y / t1;
+
+    if (n == 0.0) {
+        return complexFloat(0.0, 0.0);
+    } else if (a.x >= 0.0) {
+        return complexFloat(t1, t2);
+    } else {
+        return complexFloat(abs(t2), sign(a.y) * t1);
+    }
 }
 
 complexFloat complexExp(complexFloat a) {

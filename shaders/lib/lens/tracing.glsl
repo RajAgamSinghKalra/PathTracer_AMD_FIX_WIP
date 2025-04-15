@@ -53,23 +53,23 @@ bool traceLensSystem(int lambda, const bool fromScene, bool canReflect, inout ra
             }
             
             float transmittedEta = r.direction.z <= 0.0 ? sellmeier((i > 0) ? LENS_ELEMENTS[i - 1].glass : AIR, lambda) : sellmeier(element.glass, lambda);
-            float reflectance = computeLensElementReflectance(dot(-r.direction, normal), lambda, currentEta, transmittedEta, element.coated);
+            vec2 intensities = computeLensElementReflectance(dot(-r.direction, normal), lambda, currentEta, transmittedEta, element.coated);
             
             float reflectionProbability = 0.5 / float(nR + 3);
-            if (reflectance == 0.0 || reflectance == 1.0) {
-                reflectionProbability = reflectance;
+            if (intensities.x == 0.0 || intensities.x == 1.0) {
+                reflectionProbability = intensities.x;
             }
             if (!canReflect) {
                 reflectionProbability = 0.0;
             }
 
             if (random1() < reflectionProbability) {
-                weight *= reflectance / reflectionProbability;
+                weight *= intensities.x / reflectionProbability;
                 r.direction = reflect(r.direction, normal);
                 reflected = true;
                 nR++;
             } else {
-                weight *= (1.0 - reflectance) / (1.0 - reflectionProbability);
+                weight *= intensities.y / (1.0 - reflectionProbability);
                 r.direction = refract(r.direction, normal, currentEta / transmittedEta);
                 if (r.direction == vec3(0.0)) {
                     return false;

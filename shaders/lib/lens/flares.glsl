@@ -44,22 +44,22 @@ void traceReflectedLensFlarePath(vec2 sensorExtent, int lambda, ray r, float wei
             }
             
             float transmittedEta = r.direction.z < 0.0 ? sellmeier((i > 0) ? LENS_ELEMENTS[i - 1].glass : AIR, lambda) : sellmeier(element.glass, lambda);
-            float reflectance = computeLensElementReflectance(dot(-r.direction, normal), lambda, currentEta, transmittedEta, element.coated);
+            vec2 intensities = computeLensElementReflectance(dot(-r.direction, normal), lambda, currentEta, transmittedEta, element.coated);
             
             float reflectionProbability = 0.5 / float(nR + 3);
             if (i == 0 || (nR == 0 && i == LENS_ELEMENTS.length() - 1)) {
                 reflectionProbability = 1.0;
             }
-            if (reflectance == 0.0 || reflectance == 1.0) {
-                reflectionProbability = reflectance;
+            if (intensities.x == 0.0 || intensities.x == 1.0) {
+                reflectionProbability = intensities.x;
             }
 
             if (random1() < reflectionProbability) {
-                weight *= reflectance / reflectionProbability;
+                weight *= intensities.x / reflectionProbability;
                 r.direction = reflect(r.direction, normal);
                 nR++;
             } else {
-                weight *= (1.0 - reflectance) / (1.0 - reflectionProbability);
+                weight *= intensities.y / (1.0 - reflectionProbability);
                 r.direction = refract(r.direction, normal, currentEta / transmittedEta);
                 if (r.direction == vec3(0.0)) {
                     return;
@@ -115,17 +115,17 @@ void traceLensFlarePaths(vec2 sensorExtent, int lambda, ray r, float weight) {
             }
 
             float transmittedEta = sellmeier(element.glass, lambda);
-            float reflectance = computeLensElementReflectance(dot(-r.direction, normal), lambda, currentEta, transmittedEta, element.coated);
+            vec2 intensities = computeLensElementReflectance(dot(-r.direction, normal), lambda, currentEta, transmittedEta, element.coated);
 
-            if (reflectance != 0.0 && i > 0) {
+            if (intensities.x != 0.0 && i > 0) {
                 ray reflectedRay = r;
                 reflectedRay.direction = reflect(r.direction, normal);
-                traceReflectedLensFlarePath(sensorExtent, lambda, reflectedRay, weight * reflectance, z, i - 1, currentEta);
+                traceReflectedLensFlarePath(sensorExtent, lambda, reflectedRay, weight * intensities.x, z, i - 1, currentEta);
             }
 
-            weight *= (1.0 - reflectance);
+            weight *= intensities.y;
             r.direction = refract(r.direction, normal, currentEta / transmittedEta);
-            if (reflectance == 1.0 || r.direction == vec3(0.0)) {
+            if (weight == 0.0 || r.direction == vec3(0.0)) {
                 return;
             }
 

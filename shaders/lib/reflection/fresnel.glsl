@@ -36,24 +36,6 @@ complexFloat fresnelTp(complexFloat n0, complexFloat cos0, complexFloat n1, comp
     return complexDiv(complexMul(complexMul(complexFloat(2.0, 0.0), n0), cos0), complexAdd(complexMul(n0, cos1), complexMul(n1, cos0)));
 }
 
-float fresnelThinFilm(float cos0, float wl, vec3 n, float thickness) {
-    vec2 sin12 = (1.0 - cos0 * cos0) * n[0] * n[0] / vec2(n[1] * n[1], n[2] * n[2]);
-    if (sin12.x > 1.0 || sin12.y > 1.0) return 1.0;
-
-    vec2 cos12 = sqrt(1.0 - sin12);
-
-    float rs = fresnelRs(n[1], cos12.x, n[0], cos0) * fresnelRs(n[1], cos12.x, n[2], cos12.y); 
-    float rp = fresnelRp(n[1], cos12.x, n[0], cos0) * fresnelRp(n[1], cos12.x, n[2], cos12.y); 
-    float ts = fresnelTs(n[0], cos0, n[1], cos12.x) * fresnelTs(n[1], cos12.x, n[2], cos12.y); 
-    float tp = fresnelTp(n[0], cos0, n[1], cos12.x) * fresnelTp(n[1], cos12.x, n[2], cos12.y);
-
-    float t = cos(4.0 * PI * thickness * n[1] * cos12.x / wl);
-    float Ts = (ts * ts) / pow(1.0 - rs * t, 2.0); 
-    float Tp = (tp * tp) / pow(1.0 - rp * t, 2.0); 
-
-    return 1.0 - (n[2] * cos12.y) / (n[0] * cos0) * (Ts + Tp) * 0.5; 
-}
-
 float fresnelDielectric(float cosTheta0, float n0, float n1) {
     float sin2Theta0 = 1.0 - cosTheta0 * cosTheta0;
     float sin2Theta1 = sin2Theta0 * (n0 * n0) / (n1 * n1);

@@ -43,6 +43,7 @@ void printCameraSettings() {
 }
 
 void printCoatingInfo() {
+    /*
     printString((_A, _R, _space, _C, _o, _a, _t, _i, _n, _g, _colon, _space));
 
     int coatedElements = 0;
@@ -70,6 +71,7 @@ void printCoatingInfo() {
     }
 
     printLine();
+    */
 }
 
 int getLeapYears(int year) {

@@ -148,6 +148,9 @@ const sellmeier_coeffs LF5G19 = sellmeier_coeffs(vec3(1.346113270, 0.142428018, 
 const sellmeier_coeffs SF6G05 = sellmeier_coeffs(vec3(1.621139420, 0.506586092, 10.403229800), vec3(0.011347899, 0.0535840223, 1118.83658000));
 const sellmeier_coeffs LF7 = sellmeier_coeffs(vec3(1.26879731, 0.156697051, 0.887676301), vec3(0.00919553925, 0.0447256764, 106.8203610));
 
-const sellmeier_coeffs MgF2 = sellmeier_coeffs(vec3(0.48755108, 0.39875031, 2.3120353), pow(vec3(0.04338408, 0.09461442, 23.793604), vec3(2.0)));
+const sellmeier_coeffs MgF2 = sellmeier_coeffs(vec3(0.48755108, 0.39875031, 2.3120353), vec3(0.04338408 * 0.04338408, 0.09461442 * 0.09461442, 23.793604 * 23.793604));
+const sellmeier_coeffs SiO2 = sellmeier_coeffs(vec3(0.6961663, 0.4079426, 0.8974794), vec3(0.0684043 * 0.0684043, 0.1162414 * 0.1162414, 9.896161 * 9.896161));
+const sellmeier_coeffs Al2O3 = sellmeier_coeffs(vec3(1.4313493, 0.65054713, 5.3414021), vec3(0.0726631 * 0.0726631, 0.1193242 * 0.1193242, 18.028251 * 18.028251));
+const sellmeier_coeffs ZrO2 = sellmeier_coeffs(vec3(1.347091, 2.117788, 9.452943), vec3(0.062543 * 0.062543, 0.166739 * 0.166739, 24.320570 * 24.320570));
 
 #endif // _SELLMEIER_GLSL
