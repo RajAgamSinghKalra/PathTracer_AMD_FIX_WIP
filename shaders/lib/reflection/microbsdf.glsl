@@ -8,14 +8,14 @@ float evalConductorMicrosurfacePhaseFunction(material m, vec3 wi, vec3 wo) {
         return 0.0;
     }
 
-    return fresnelConductor(dot(wi, wh), m.ior) * slope_D_wi(m, wi, wh) / (4.0 * dot(wi, wh));
+    return fresnelConductor(dot(wi, wh), complexFloat(1.0, 0.0), m.ior) * slope_D_wi(m, wi, wh) / (4.0 * dot(wi, wh));
 }
 
 vec3 sampleConductorMicrosurfacePhaseFunction(material m, vec3 wi, out float weight) {
     vec3 wm = slope_sampleD_wi(m, wi, random2());
     vec3 wo = reflect(-wi, wm);
 
-    weight = fresnelConductor(dot(wi, wm), m.ior);
+    weight = fresnelConductor(dot(wi, wm), complexFloat(1.0, 0.0), m.ior);
 
     return wo;
 }

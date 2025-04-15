@@ -2,10 +2,10 @@
 #define _MATERIAL_GLSL 1
 
 #include "/lib/buffer/metals.glsl"
+#include "/lib/complex/float.glsl"
 #include "/lib/spectral/blackbody.glsl"
 #include "/lib/spectral/conversion.glsl"
 #include "/lib/utility/color.glsl"
-#include "/lib/utility/complex.glsl"
 #include "/lib/utility/orthonormal.glsl"
 #include "/lib/settings.glsl"
 
@@ -20,7 +20,7 @@ struct material {
     float albedo;
     float emission;
     vec2 alpha;
-    complex ior;
+    complexFloat ior;
     vec3 normal;
     float ao;
 };
@@ -57,10 +57,10 @@ material decodeMaterial(int lambda, mat3 tbn, vec4 albedo, vec4 specular, vec4 n
             int temperature = int(round(specular.b * 255.0) * 100.0);
             mat.emission = blackbodyScaled(lambda, temperature);
         } else {
-            mat.ior = complex(F0toIOR(mat.albedo, 1.0), 0.0);
+            mat.ior = complexFloat(F0toIOR(mat.albedo, 1.0), 0.0);
         }
     } else {
-        mat.ior = complex(F0toIOR(specular.g, 1.0), 0.0);
+        mat.ior = complexFloat(F0toIOR(specular.g, 1.0), 0.0);
     }
 
     if (normal != vec4(0.0)) {
