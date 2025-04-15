@@ -12,9 +12,6 @@ float evalConductorMicrosurfacePhaseFunction(material m, vec3 wi, vec3 wo) {
 }
 
 vec3 sampleConductorMicrosurfacePhaseFunction(material m, vec3 wi, out float weight) {
-    float U1 = random1();
-    float U2 = random1();
-
     vec3 wm = slope_sampleD_wi(m, wi, random2());
     vec3 wo = reflect(-wi, wm);
 
