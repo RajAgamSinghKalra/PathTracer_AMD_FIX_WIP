@@ -72,7 +72,14 @@ void main() {
 		intersection it = traceRay(voxelOffset, colortex10, r, i == 0 ? 1024 : 128);
 		if (it.t < 0.0) {
 #ifdef SKY_CONTRIBUTION
-			float misWeight = i == 0 ? float(!lensFlare) : bsdfSample.pdf / (bsdfSample.pdf + environmentMapWeight(lambda, r));
+			float misWeight;
+			if (i == 0) {
+				misWeight = float(!lensFlare);
+			} else if (bsdfSample.dirac) {
+				misWeight = 1.0;
+			} else {
+				misWeight = bsdfSample.pdf / (bsdfSample.pdf + environmentMapWeight(lambda, r));
+			}
 			L += misWeight * throughput * environmentMap(lambda, r);
 #endif
 			break;

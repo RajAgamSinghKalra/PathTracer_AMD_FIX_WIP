@@ -27,7 +27,7 @@ float mbnm_G1(material m, vec3 wi, vec3 wt, vec3 wm) {
 }
 
 float evalMBNMicrofacetBSDF(material m, vec3 wi, vec3 wo);
-bool sampleMBNMicrofacetBSDF(material m, vec3 wi, out vec3 wo, out float weight);
+bool sampleMBNMicrofacetBSDF(material m, vec3 wi, out vec3 wo, out float weight, out bool dirac);
 float evalMBNMicrofacetPDF(material m, vec3 wi, vec3 wo);
 
 float evalMicrosurfaceBSDF_MBN(material m, vec3 wi, vec3 wo) {
@@ -71,8 +71,9 @@ float evalMicrosurfaceBSDF_MBN(material m, vec3 wi, vec3 wo) {
 		throughput /= probability;
 #endif
 
+        bool dirac;
         float weight;
-        if (!sampleMBNMicrofacetBSDF(m, -wm_wr, wm_wr, weight)) {
+        if (!sampleMBNMicrofacetBSDF(m, -wm_wr, wm_wr, weight, dirac)) {
             break;
         }
         wr = wmToLocal * wm_wr;
@@ -89,9 +90,9 @@ float evalMicrosurfaceBSDF_MBN(material m, vec3 wi, vec3 wo) {
     return sum;
 }
 
-bool sampleMicrosurfaceBSDF_MBN(material m, vec3 wi, out vec3 wo, out float throughput) {
+bool sampleMicrosurfaceBSDF_MBN(material m, vec3 wi, out vec3 wo, out float throughput, out bool dirac) {
     if (abs(m.normal.x) + abs(m.normal.y) < 1.0e-5) {
-        return sampleMBNMicrofacetBSDF(m, wi, wo, throughput);
+        return sampleMBNMicrofacetBSDF(m, wi, wo, throughput, dirac);
     }
 
     vec3 wt = normalize(-vec3(m.normal.xy, 0.0));
@@ -112,7 +113,7 @@ bool sampleMicrosurfaceBSDF_MBN(material m, vec3 wi, out vec3 wo, out float thro
     for (int i = 0; i <= 256; i++) {
         float weight;
         vec3 wm_wr = wr * wmToLocal;
-        if (!sampleMBNMicrofacetBSDF(m, -wm_wr, wm_wr, weight)) {
+        if (!sampleMBNMicrofacetBSDF(m, -wm_wr, wm_wr, weight, dirac)) {
             break;
         }
         wr = wmToLocal * wm_wr;
