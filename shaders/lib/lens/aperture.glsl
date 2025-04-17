@@ -1,6 +1,7 @@
 #ifndef _APERTURE_GLSL
 #define _APERTURE_GLSL 1
 
+#include "/lib/utility/constants.glsl"
 #include "/lib/settings.glsl"
 
 bool insideHexagonalAperture(vec2 p, float radius, float rotation) {

@@ -23,10 +23,10 @@ ray generateCameraRay(int lambda, vec3 position, mat4 projection, mat4 viewInver
 
     vec3 targetPoint = vec3(pointOnRearElement, rearLensElementZ());
     vec3 originPoint = vec3(pointOnSensor, 0.0);
-    float distanceTerm = length(targetPoint - originPoint);
+    float ppDistance = length(targetPoint - originPoint);
 
-    ray r = ray(originPoint, (targetPoint - originPoint) / distanceTerm);
-    weight *= (r.direction.z * r.direction.z) / (distanceTerm * distanceTerm);
+    ray r = ray(originPoint, (targetPoint - originPoint) / ppDistance);
+    weight *= (r.direction.z * r.direction.z) / (ppDistance * ppDistance);
 
     if (!traceLensSystemFromFilm(lambda, !samplePupil, r, weight, lensFlare)) {
         weight = 0.0;

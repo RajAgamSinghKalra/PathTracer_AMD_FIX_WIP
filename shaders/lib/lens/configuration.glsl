@@ -76,7 +76,7 @@ const lens_element LENS_ELEMENTS[] = lens_element[](
     lens_element( 48.0  * 0.001, 3.6  * 0.001, N_BK7HT, 16.0 * 0.001, true),
     lens_element(-157.8 * 0.001, 30.0 * 0.001, AIR    , 16.0 * 0.001, true)
 );
-const sensor_data CAMERA_SENSOR = sensor_data(50.0);
+const sensor_data CAMERA_SENSOR = sensor_data(35.0);
 
 #endif
 
