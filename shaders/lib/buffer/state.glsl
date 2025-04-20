@@ -21,6 +21,7 @@ layout (std430, binding = 1) buffer render_state {
     float fNumber;
     mat2 rayTransferMatrix;
     ivec2 startTime;
+    vec3 sunDirection;
 } renderState;
 
 #endif // _STATE_GLSL

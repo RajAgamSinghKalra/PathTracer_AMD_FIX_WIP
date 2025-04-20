@@ -1,8 +1,8 @@
+#include "/lib/atmosphere/pathtracer.glsl"
 #include "/lib/buffer/state.glsl"
 #include "/lib/camera/film.glsl"
 #include "/lib/camera/lens.glsl"
 #include "/lib/lens/flares.glsl"
-#include "/lib/lighting/environment.glsl"
 #include "/lib/raytracing/trace.glsl"
 #include "/lib/reflection/bsdf.glsl"
 #include "/lib/spectral/conversion.glsl"
@@ -25,6 +25,8 @@ uniform mat4 gbufferProjectionInverse;
 uniform mat4 gbufferModelViewInverse;
 
 uniform vec3 cameraPositionFract;
+uniform float eyeAltitude;
+
 uniform float viewWidth;
 uniform float viewHeight;
 
@@ -40,16 +42,27 @@ void main() {
     ivec3 voxelOffset = ivec3(mat3(gbufferModelViewInverse) * vec3(0.0, 0.0, VOXEL_OFFSET));
 
 #ifdef SKY_CONTRIBUTION
+	vec3 sunPosition = getSunPosition(renderState.sunDirection);
+	float sunRadiance = getSunRadiance(float(lambda));
+	vec3 extinctionBeta = atmosphereExtinctionBeta(float(lambda));
+
 	if ((renderState.frame % 2) == 1) {
 		prng_state prngLocal = initLocalPRNG(floor(fragCoord / 8.0) / viewWidth, renderState.frame);
 
-		float pdf, lensPDFinv;
-		vec3 direction = sampleEnvironmentMap(random3(prngLocal), pdf);
+		float sampleWeight, lensPDFinv;
 		vec3 point = samplePointOnFrontElement(random2(), lensPDFinv);
 		vec3 origin = cameraPositionFract + (mat3(gbufferModelViewInverse) * point);
-		if (!traceShadowRay(voxelOffset, colortex10, ray(origin + direction * 256.0, -direction), 256.0)) {
-			float weight = 2.0 * lensPDFinv / lambdaPDF * environmentMap(lambda, direction) / pdf;
-			estimateLensFlares(lambda, -direction, gbufferProjection, gbufferModelView, point, weight);
+
+		vec3 earthPosition = convertToEarthSpace(origin, cameraPositionFract, eyeAltitude);
+		vec3 direction = sampleSunDirection(random2(prngLocal), sunPosition, earthPosition, sampleWeight);
+		vec3 viewDirection = normalize(mat3(gbufferModelView) * direction);
+
+		if (viewDirection.z < 0.0 && !traceShadowRay(voxelOffset, colortex10, ray(origin + direction * 256.0, -direction), 256.0)) {
+			float transmittance = estimateTransmittance(ray(earthPosition, direction), extinctionBeta);
+			float weight = 2.0 * lensPDFinv / lambdaPDF * transmittance * sunRadiance * sampleWeight;
+			if (!isnan(weight) && !isinf(weight) && weight != 0.0) {
+				estimateLensFlares(lambda, -viewDirection, gbufferProjection, point, weight);
+			}
 		}
 	}
 #endif
@@ -68,19 +81,18 @@ void main() {
 	float throughput = 1.0;
 	bsdf_sample bsdfSample;
 
-	for (int i = 0; i < 25; i++) {
+	const int maxBounces = 25;
+	for (int i = 0;; i++) {
 		intersection it = traceRay(voxelOffset, colortex10, r, i == 0 ? 1024 : 128);
 		if (it.t < 0.0) {
 #ifdef SKY_CONTRIBUTION
-			float misWeight;
-			if (i == 0) {
-				misWeight = float(!lensFlare);
-			} else if (bsdfSample.dirac) {
-				misWeight = 1.0;
-			} else {
-				misWeight = bsdfSample.pdf / (bsdfSample.pdf + environmentMapWeight(lambda, r));
+			if ((i == 0 && !lensFlare) || (i > 0 && bsdfSample.dirac)) {
+				ray earthRay = convertToEarthSpace(r, cameraPositionFract, eyeAltitude);
+				if (intersectSphere(earthRay, sunPosition, sunRadius).x >= 0.0) {
+					float transmittance = estimateTransmittance(earthRay, extinctionBeta);
+					L += throughput * transmittance * sunRadiance;
+				}
 			}
-			L += misWeight * throughput * environmentMap(lambda, r);
 #endif
 			break;
 		}
@@ -96,30 +108,38 @@ void main() {
 		L += throughput * mat.emission;
 
 #ifdef SKY_CONTRIBUTION
-		float pdfDirect;
-		vec3 skyDirection = sampleEnvironmentMap(random3(), pdfDirect);
-		if (dot(skyDirection, it.normal) > 0.0 && pdfDirect > 0.0) {
+		float sampleWeight;
+		ray sunRay = convertToEarthSpace(r, cameraPositionFract, eyeAltitude);
+		sunRay.direction = sampleSunDirection(random2(), sunPosition, sunRay.origin, sampleWeight);
+		if (dot(sunRay.direction, it.normal) > 0.0) {
 			vec3 shadowOrigin = r.origin + r.direction * it.t + it.normal * 0.001;
-			float visibility = float(!traceShadowRay(voxelOffset, colortex10, ray(shadowOrigin, skyDirection), 1024.0));
+			float visibility = float(!traceShadowRay(voxelOffset, colortex10, ray(shadowOrigin, sunRay.direction), 1024.0));
 			if (visibility > 0.0) {
-				vec3 wo = skyDirection * localToWorld;
+				vec3 wo = sunRay.direction * localToWorld;
 				float bsdfDirect = evaluateBSDF(mat, wi, wo, false);
-				float environmentWeight = environmentMapWeight(lambda, skyDirection);
-				float misWeight = environmentWeight / (environmentWeight + evaluateBSDFSamplePDF(mat, wi, wo));
-				L += environmentMap(lambda, skyDirection) * (bsdfDirect / pdfDirect) * misWeight * throughput * wo.z * visibility;
+				
+				float transmittance = estimateTransmittance(sunRay, extinctionBeta);
+				L += sampleWeight * transmittance * sunRadiance * bsdfDirect * throughput * wo.z;
 			}
 		}
 #endif
 
+		if (i >= maxBounces) {
+			throughput = 0.0;
+			break;
+		}
+
 #ifdef RUSSIAN_ROULETTE
 		float probability = min(1.0, throughput);
 		if (random1() > probability) {
+			throughput = 0.0;
 			break;
 		}
 		throughput /= probability;
 #endif
 
 		if (!sampleBSDF(bsdfSample, mat, wi)) {
+			throughput = 0.0;
 			break;
 		}
 
@@ -127,6 +147,11 @@ void main() {
 
 		vec3 offset = it.normal * (sign(bsdfSample.direction.z) * 0.001);
 		r = ray(r.origin + r.direction * it.t + offset, localToWorld * bsdfSample.direction);
+	}
+
+	if (throughput != 0.0) {
+		ray earthRay = convertToEarthSpace(r, cameraPositionFract, eyeAltitude);
+		L += throughput * pathTraceAtmosphere(earthRay, sunPosition, sunRadiance, extinctionBeta, float(lambda));
 	}
 
 	L /= lambdaPDF;

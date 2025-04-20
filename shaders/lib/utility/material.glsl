@@ -35,7 +35,7 @@ material decodeMaterial(int lambda, mat3 tbn, vec4 albedo, vec4 specular, vec4 n
 
     mat.type = MATERIAL_INTERFACED;
     mat.albedo = srgbToReflectanceSpectrum(lambda, albedo.rgb);
-    mat.emission = fract(specular.a) * srgbToEmissionSpectrum(lambda, albedo.rgb) * EMISSION_STRENGTH * 1.0e4;
+    mat.emission = fract(specular.a) * srgbToEmissionSpectrum(lambda, albedo.rgb) * EMISSION_STRENGTH;
     mat.alpha = vec2(pow(1.0 - specular.r, 2.0));
     mat.normal = vec3(0.0, 0.0, 1.0);
     mat.ao = 1.0;

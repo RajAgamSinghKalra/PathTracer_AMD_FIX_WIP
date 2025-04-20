@@ -134,14 +134,9 @@ void traceLensFlarePaths(vec2 sensorExtent, int lambda, ray r, float weight) {
     }
 }
 
-void estimateLensFlares(int lambda, vec3 direction, mat4 projection, mat4 view, vec3 position, float weight) {
+void estimateLensFlares(int lambda, vec3 direction, mat4 projection, vec3 position, float weight) {
     vec2 sensorExtent = getSensorPhysicalExtent(CAMERA_SENSOR, projection);
     weight /= (sensorExtent.x * sensorExtent.y * 4.0);
-
-    direction = normalize(mat3(view) * direction);
-    if (direction.z <= 0.0) {
-        return;
-    }
 
     ray r = ray(position, direction);
     r.origin -= 0.1 * direction;

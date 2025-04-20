@@ -5,7 +5,7 @@
 #include "/lib/utility/color.glsl"
 
 vec3 spectrumToXYZ(int lambda, float power) {
-    return (CIE_CMF_XYZ(lambda) * max(power, 0.0)) / CIE_Y_Integral();
+    return (CIE_CMF_XYZ(lambda) * max(power, 0.0) * 683.0);
 }
 
 float lrgbToReflectanceSpectrum(int lambda, vec3 rgb) {
