@@ -22,30 +22,30 @@ uniform float viewHeight;
 layout(location = 0) out vec3 color;
 
 void main() {
-	vec2 filmCoord = texcoord * 2.0 - 1.0;
-	color = getFilmAverageColor(filmCoord);
+    vec2 filmCoord = texcoord * 2.0 - 1.0;
+    color = getFilmAverageColor(filmCoord);
 #ifdef NEIGHBOURHOOD_CLAMPING
-	vec3 maxNeighbour = max(
-		max(getFilmAverageColor(filmCoord, ivec2(1, 0)).rgb, getFilmAverageColor(filmCoord, ivec2(-1, 0)).rgb),
-		max(getFilmAverageColor(filmCoord, ivec2(0, 1)).rgb, getFilmAverageColor(filmCoord, ivec2(0, -1)).rgb)
-	);
-	color = min(color, maxNeighbour);
+    vec3 maxNeighbour = max(
+        max(getFilmAverageColor(filmCoord, ivec2(1, 0)).rgb, getFilmAverageColor(filmCoord, ivec2(-1, 0)).rgb),
+        max(getFilmAverageColor(filmCoord, ivec2(0, 1)).rgb, getFilmAverageColor(filmCoord, ivec2(0, -1)).rgb)
+    );
+    color = min(color, maxNeighbour);
 #endif
 
-	color = max(XYZ_TO_RGB * color, 0.0);
+    color = max(XYZ_TO_RGB * color, 0.0);
 
-	float avgLum = texelFetch(colortex2, ivec2(0, 0), 10).r;
-	color /= 1.2 * SHUTTER_SPEED * 100.0 / ISO;
+    float avgLum = texelFetch(colortex2, ivec2(0, 0), 10).r;
+    color /= 1.2 * SHUTTER_SPEED * 100.0 / ISO;
 
-	color = tonemap(color);
-	color = linearToSrgb(color);
+    color = tonemap(color);
+    color = linearToSrgb(color);
 
 #ifndef KEEP_DEBUG_TEXT
-	if (renderState.frame == 0) {
+    if (renderState.frame == 0) {
 #else
-	{
+    {
 #endif
-		ivec2 time = ivec2(currentDate.x, currentYearTime.x);
-		renderDebugText(color, ivec2(gl_FragCoord.xy) / 2, ivec2(1, viewHeight / 2 - 1), time);
-	}
+        ivec2 time = ivec2(currentDate.x, currentYearTime.x);
+        renderDebugText(color, ivec2(gl_FragCoord.xy) / 2, ivec2(1, viewHeight / 2 - 1), time);
+    }
 }

@@ -54,7 +54,7 @@ void logFilmSample(ivec2 coord, vec3 L) {
 
     data.w += 1.0;
 
-	data.xyz = mix(data.xyz, L, 1.0 / float(data.w));
+    data.xyz = mix(data.xyz, L, 1.0 / float(data.w));
     imageStore(filmBuffer, coord, data);
 }
 

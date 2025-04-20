@@ -244,10 +244,10 @@ float evalMicrosurfaceBSDF(material m, vec3 wi, vec3 wo) {
 
 #ifdef BSDF_EVAL_RUSSIAN_ROULETTE
         float probability = min(1.0, throughput);
-		if (random1() > probability) {
-			break;
-		}
-		throughput /= probability;
+        if (random1() > probability) {
+            break;
+        }
+        throughput /= probability;
 #endif
 
         float weight;
@@ -289,10 +289,10 @@ bool sampleMicrosurfaceBSDF(material m, vec3 wi, out vec3 wo, out float throughp
 
 #ifdef BSDF_SAMPLE_RUSSIAN_ROULETTE
         float probability = min(1.0, throughput);
-		if (random1() > probability) {
-			break;
-		}
-		throughput /= probability;
+        if (random1() > probability) {
+            break;
+        }
+        throughput /= probability;
 #endif
     }
 

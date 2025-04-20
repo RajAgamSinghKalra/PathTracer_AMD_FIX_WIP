@@ -30,7 +30,7 @@ complexFloat complexDiv(complexFloat a, complexFloat b) {
 }
 
 complexFloat complexSqrt(complexFloat a) {
-	float n = complexAbs(a);
+    float n = complexAbs(a);
     float t1 = sqrt(0.5 * (n + abs(a.x)));
     float t2 = 0.5 * a.y / t1;
 

@@ -9,11 +9,11 @@
 
 void printLensType() {
 #if (LENS_TYPE == 0)
-	printString((_L, _e, _n, _s, _colon, _space, _D, _o, _u, _b, _l, _e, _space, _G, _a, _u, _s, _s));
-	printLine();
+    printString((_L, _e, _n, _s, _colon, _space, _D, _o, _u, _b, _l, _e, _space, _G, _a, _u, _s, _s));
+    printLine();
 #elif (LENS_TYPE == 1)
-	printString((_L, _e, _n, _s, _colon, _space, _F, _i, _s, _h, _e, _y, _e));
-	printLine();
+    printString((_L, _e, _n, _s, _colon, _space, _F, _i, _s, _h, _e, _y, _e));
+    printLine();
 #elif (LENS_TYPE == 2)
     printString((_L, _e, _n, _s, _colon, _space, _T, _e, _s, _s, _a, _r));
     printLine();
@@ -28,18 +28,18 @@ void printLensType() {
 
 void printCameraSettings() {
     printString((_S, _h, _u, _t, _t, _e, _r, _space, _s, _p, _e, _e, _d, _colon, _space,  _1, _slash));
-	printInt(int(SHUTTER_SPEED));
-	printChar(_s);
-	printLine();
+    printInt(int(SHUTTER_SPEED));
+    printChar(_s);
+    printLine();
 
-	printString((_I, _S, _O, _space));
-	printInt(int(ISO));
+    printString((_I, _S, _O, _space));
+    printInt(int(ISO));
 
-	text.fpPrecision = 2;
+    text.fpPrecision = 2;
 
-	printString((_space, _space, _f, _slash));
-	printFloat(round(renderState.fNumber * 100.0) / 100.0);
-	printLine();
+    printString((_space, _space, _f, _slash));
+    printFloat(round(renderState.fNumber * 100.0) / 100.0);
+    printLine();
 }
 
 void printCoatingInfo() {
@@ -141,7 +141,7 @@ void renderDebugText(inout vec3 color, ivec2 resolution, ivec2 position, ivec2 t
         printRenderTime(time);
     }
 
-	endText(color);
+    endText(color);
 }
 
 #endif // _DEBUG_TEXT_GLSL
