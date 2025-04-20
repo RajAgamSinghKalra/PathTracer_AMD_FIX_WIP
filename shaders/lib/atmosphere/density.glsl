@@ -25,7 +25,7 @@ float aerosolDensity(float x) {
     return 1.0e-3 * c * 1.0e-4;
 }
 
-// Ozone desnity fit by FordPerfect
+// Ozone density fit by FordPerfect
 // https://www.shadertoy.com/view/XcKSzd
 float ozoneDensity(float x) {
     if (x < 0.0 || x > 74000.0) {
