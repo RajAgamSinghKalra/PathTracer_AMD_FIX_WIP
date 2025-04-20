@@ -31,7 +31,7 @@ const ivec3 HALF_VOXEL_VOLUME_SIZE = VOXEL_VOLUME_SIZE / 2;
 #define ISO 200.0 // [50.0 100.0 200.0 400.0 800.0 1600.0 3200.0]
 #define SHUTTER_SPEED 1500.0 // [1500.0 1000.0 500.0 250.0 125.0 60.0 30.0 15.0 8.0]
 
-#define KEEP_DEBUG_TEXT false // [false true]
+// #define KEEP_DEBUG_TEXT
 
 #define SKY_CONTRIBUTION
 

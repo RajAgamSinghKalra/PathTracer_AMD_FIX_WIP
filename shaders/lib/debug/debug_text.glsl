@@ -43,8 +43,34 @@ void printCameraSettings() {
 }
 
 void printCoatingInfo() {
-    /*
-    printString((_A, _R, _space, _C, _o, _a, _t, _i, _n, _g, _colon, _space));
+    printString((_A, _R, _space, _C, _o, _a, _t, _i, _n, _g, _space, _l, _a, _y, _e, _r, _s, _colon));
+    printLine();
+
+    text.fpPrecision = 2;
+
+    for (int i = 0; i < COATING_LAYERS.length(); i++) {
+        coating_layer layer = COATING_LAYERS[i];
+        printString((_minus, _space));
+
+        if (layer.material == MgF2) {
+            printString((_M, _g, _F, _2));
+        } else if (layer.material == SiO2) {
+            printString((_S, _i, _O, _2));
+        } else if (layer.material == Al2O3) {
+            printString((_A, _l, _2, _O, _3));
+        } else if (layer.material == ZrO2) {
+            printString((_Z, _r, _O, _2));
+        }
+
+        printChar(_space);
+        printFloat(getLensCoatingThickness(layer.material, layer.wavelength, layer.tDenom));
+        printString((_n, _m, _space, _opprn, _lambda, _slash));
+        printInt(int(layer.tDenom));
+        printString((_comma, _space, _lambda, _equal));
+        printInt(int(layer.wavelength));
+        printChar(_clprn);
+        printLine();
+    }
 
     int coatedElements = 0;
     int totalElements = 0;
@@ -58,20 +84,13 @@ void printCoatingInfo() {
         totalElements++;
     }
 
+    printString((_C, _o, _a, _t, _e, _d, _space, _e, _l, _e, _m, _e, _n, _t, _s, _colon, _space));
+
     printInt(coatedElements);
     printChar(_slash);
     printInt(totalElements);
 
-    printChar(_space);
-    printInt(int(getLensCoatingThickness()));
-    printString((_n, _m, _space));
-
-    if (AR_COATING_MATERIAL == MgF2) {
-        printString((_M, _g, _F, _2));
-    }
-
     printLine();
-    */
 }
 
 int getLeapYears(int year) {
@@ -118,7 +137,9 @@ void renderDebugText(inout vec3 color, ivec2 resolution, ivec2 position, ivec2 t
     printLensType();
     printCameraSettings();
     printCoatingInfo();
-    printRenderTime(time);
+    if (time != renderState.startTime) {
+        printRenderTime(time);
+    }
 
 	endText(color);
 }
