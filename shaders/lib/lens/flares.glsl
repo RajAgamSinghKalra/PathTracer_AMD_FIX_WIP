@@ -84,7 +84,7 @@ void traceReflectedLensFlarePath(vec2 sensorExtent, int lambda, ray r, float wei
     logFilmSplat(pointOnSensor.xy, spectrumToXYZ(lambda, weight));
 }
 
-void traceLensFlarePaths(vec2 sensorExtent, int lambda, ray r, float weight) {
+void traceLensFlarePaths(inout prng_state prngLocal, vec2 sensorExtent, int lambda, ray r, float weight) {
     float z = frontLensElementZ();
 
     float currentEta = 1.0;
@@ -117,10 +117,11 @@ void traceLensFlarePaths(vec2 sensorExtent, int lambda, ray r, float weight) {
             float transmittedEta = sellmeier(element.glass, lambda);
             vec2 intensities = computeLensElementReflectance(dot(-r.direction, normal), lambda, currentEta, transmittedEta, element.coated);
 
-            if (intensities.x != 0.0 && i > 0) {
+            float pathProbability = min(1.0, 7.0 / LENS_ELEMENTS.length());
+            if (intensities.x != 0.0 && i > 0 && random1(prngLocal) < pathProbability) {
                 ray reflectedRay = r;
                 reflectedRay.direction = reflect(r.direction, normal);
-                traceReflectedLensFlarePath(sensorExtent, lambda, reflectedRay, weight * intensities.x, z, i - 1, currentEta);
+                traceReflectedLensFlarePath(sensorExtent, lambda, reflectedRay, weight * intensities.x / pathProbability, z, i - 1, currentEta);
             }
 
             weight *= intensities.y;
@@ -134,14 +135,14 @@ void traceLensFlarePaths(vec2 sensorExtent, int lambda, ray r, float weight) {
     }
 }
 
-void estimateLensFlares(int lambda, vec3 direction, mat4 projection, vec3 position, float weight) {
+void estimateLensFlares(inout prng_state prngLocal, int lambda, vec3 direction, mat4 projection, vec3 position, float weight) {
     vec2 sensorExtent = getSensorPhysicalExtent(CAMERA_SENSOR, projection);
     weight /= (sensorExtent.x * sensorExtent.y * 4.0);
 
     ray r = ray(position, direction);
     r.origin -= 0.1 * direction;
 
-    traceLensFlarePaths(sensorExtent, lambda, r, weight);
+    traceLensFlarePaths(prngLocal, sensorExtent, lambda, r, weight);
 }
 
 #endif // _LENS_FLARES_GLSL

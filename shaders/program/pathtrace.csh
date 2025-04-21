@@ -41,6 +41,8 @@ void main() {
 
     ivec3 voxelOffset = ivec3(mat3(gbufferModelViewInverse) * vec3(0.0, 0.0, VOXEL_OFFSET));
 
+    vec2 filmSample = (fragCoord + random2()) / vec2(viewWidth, viewHeight) * 2.0 - 1.0;
+
 #ifdef SKY_CONTRIBUTION
     vec3 sunPosition = getSunPosition(renderState.sunDirection);
     float sunRadiance = getSunRadiance(float(lambda));
@@ -50,7 +52,7 @@ void main() {
         prng_state prngLocal = initLocalPRNG(floor(fragCoord / 8.0) / viewWidth, renderState.frame);
 
         float sampleWeight, lensPDFinv;
-        vec3 point = samplePointOnFrontElement(random2(), lensPDFinv);
+        vec3 point = samplePointOnFrontElement(filmSample * 0.5 + 0.5, lensPDFinv);
         vec3 origin = cameraPositionFract + (mat3(gbufferModelViewInverse) * point);
 
         vec3 earthPosition = convertToEarthSpace(origin, cameraPositionFract, eyeAltitude);
@@ -61,13 +63,11 @@ void main() {
             float transmittance = estimateTransmittance(ray(earthPosition, direction), extinctionBeta);
             float weight = 2.0 * lensPDFinv / lambdaPDF * transmittance * sunRadiance * sampleWeight;
             if (!isnan(weight) && !isinf(weight) && weight != 0.0) {
-                estimateLensFlares(lambda, -viewDirection, gbufferProjection, point, weight);
+                estimateLensFlares(prngLocal, lambda, -viewDirection, gbufferProjection, point, weight);
             }
         }
     }
 #endif
-
-    vec2 filmSample = (fragCoord + random2()) / vec2(viewWidth, viewHeight) * 2.0 - 1.0;
 
     float cameraWeight = 1.0;
     bool lensFlare;
