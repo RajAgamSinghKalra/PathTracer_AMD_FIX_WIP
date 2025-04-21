@@ -20,6 +20,7 @@ void main() {
         renderState.frame++;
     } else {
         renderState.frame = 0;
+        renderState.invalidSplat = 0;
         renderState.startTime = ivec2(currentDate.x, currentYearTime.x);
         renderState.sunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition);
     }

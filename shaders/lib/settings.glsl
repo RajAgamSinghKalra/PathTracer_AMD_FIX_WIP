@@ -1,8 +1,6 @@
 #ifndef _SETTINGS_GLSL
 #define _SETTINGS_GLSL 1
 
-#extension GL_NV_shader_atomic_float : require
-
 const float sunPathRotation = 30.0;
 const int shadowMapResolution = 512;
 

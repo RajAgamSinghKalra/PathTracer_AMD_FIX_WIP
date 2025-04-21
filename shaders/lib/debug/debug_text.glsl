@@ -134,6 +134,13 @@ void printRenderTime(ivec2 time) {
 void renderDebugText(inout vec3 color, ivec2 resolution, ivec2 position, ivec2 time) {
     beginText(resolution, position);
 
+    text.fgCol = vec4(1.0, 0.0, 0.0, 1.0);
+    if (renderState.invalidSplat > 0) {
+        printString((_I, _n, _v, _a, _l, _i, _d, _space, _S, _p, _l, _a, _t, _exclm));
+        printLine();
+    }
+    text.fgCol = vec4(1.0);
+
     printLensType();
     printCameraSettings();
     printCoatingInfo();

@@ -5,48 +5,49 @@
 #include "/lib/settings.glsl"
 
 layout (rgba32f) uniform image2D filmBuffer;
-layout (r32f) uniform image2D splatBufferX; // Is there a better way to do this?...
-layout (r32f) uniform image2D splatBufferY;
-layout (r32f) uniform image2D splatBufferZ;
+layout (rgba32f) uniform image2D splatBuffer;
+layout (r32ui) uniform uimage2D lockBuffer;
 
 uniform sampler2D filmSampler;
-uniform sampler2D splatSamplerX;
-uniform sampler2D splatSamplerY;
-uniform sampler2D splatSamplerZ;
+uniform sampler2D splatSampler;
 
 vec3 getFilmAverageColor(vec2 coord) {
     coord = coord * 0.5 + 0.5;
-    vec3 splat = vec3(
-        texture(splatSamplerX, coord).x, 
-        texture(splatSamplerY, coord).x, 
-        texture(splatSamplerZ, coord).x
-    ) / float(max(renderState.frame, 1));
+    vec3 splat = texture(splatSampler, coord).xyz / float(max(renderState.frame, 1));
     return texture(filmSampler, coord).xyz + splat;
 }
 
 vec3 getFilmAverageColor(vec2 coord, ivec2 offset) {
     coord = coord * 0.5 + 0.5;
-    vec3 splat = vec3(
-        textureOffset(splatSamplerX, coord, offset).x, 
-        textureOffset(splatSamplerY, coord, offset).x, 
-        textureOffset(splatSamplerZ, coord, offset).x
-    ) / float(max(renderState.frame, 1));
+    vec3 splat = textureOffset(splatSampler, coord, offset).xyz / float(max(renderState.frame, 1));
     return textureOffset(filmSampler, coord, offset).xyz + splat;
 }
 
 vec3 getFilmAverageColor(ivec2 coord) {
-    vec3 splat = vec3(
-        texelFetch(splatSamplerX, coord, 0).x, 
-        texelFetch(splatSamplerY, coord, 0).x, 
-        texelFetch(splatSamplerZ, coord, 0).x
-    ) / float(max(renderState.frame, 1));
+    vec3 splat = texelFetch(splatSampler, coord, 0).xyz / float(max(renderState.frame, 1));
     return texelFetch(filmSampler, coord, 0).xyz;
 }
 
+bool spinlockAcquire(ivec2 coord) {
+    return imageAtomicCompSwap(lockBuffer, coord, 0u, 1u) == 0u;
+}
+
+void spinlockRelease(ivec2 coord) {
+    imageAtomicExchange(lockBuffer, coord, 0u);
+}
+
 void logFilmSplat(ivec2 coord, vec3 L) {
-    imageAtomicAdd(splatBufferX, coord, L.x);
-    imageAtomicAdd(splatBufferY, coord, L.y);
-    imageAtomicAdd(splatBufferZ, coord, L.z);
+    for (int i = 0;; i++) {
+        if (spinlockAcquire(coord)) {
+            imageStore(splatBuffer, coord, vec4(imageLoad(splatBuffer, coord).xyz + L, 0.0));
+            spinlockRelease(coord);
+            return;
+        }
+        if (i >= 512) {
+            renderState.invalidSplat = 1;
+            return;
+        }
+    }
 }
 
 void logFilmSample(ivec2 coord, vec3 L) {

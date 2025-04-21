@@ -22,6 +22,7 @@ layout (std430, binding = 1) buffer render_state {
     mat2 rayTransferMatrix;
     ivec2 startTime;
     vec3 sunDirection;
+    int invalidSplat;
 } renderState;
 
 #endif // _STATE_GLSL
