@@ -149,10 +149,12 @@ void main() {
         r = ray(r.origin + r.direction * it.t + offset, localToWorld * bsdfSample.direction);
     }
 
+#ifdef SKY_CONTRIBUTION
     if (throughput != 0.0) {
         ray earthRay = convertToEarthSpace(r, cameraPositionFract, eyeAltitude);
         L += throughput * pathTraceAtmosphere(earthRay, sunPosition, sunRadiance, extinctionBeta, float(lambda));
     }
+#endif
 
     L /= lambdaPDF;
 

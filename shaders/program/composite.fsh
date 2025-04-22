@@ -40,12 +40,6 @@ void main() {
     color = tonemap(color);
     color = linearToSrgb(color);
 
-#ifndef KEEP_DEBUG_TEXT
-    if (renderState.frame == 0) {
-#else
-    {
-#endif
-        ivec2 time = ivec2(currentDate.x, currentYearTime.x);
-        renderDebugText(color, ivec2(gl_FragCoord.xy) / 2, ivec2(1, viewHeight / 2 - 1), time);
-    }
+    ivec2 time = ivec2(currentDate.x, currentYearTime.x);
+    renderDebugText(color, ivec2(gl_FragCoord.xy) / 2, ivec2(1, viewHeight / 2 - 1), time);
 }

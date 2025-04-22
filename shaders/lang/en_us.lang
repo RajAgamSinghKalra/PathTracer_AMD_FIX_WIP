@@ -1,3 +1,25 @@
+option.EMISSION_STRENGTH = Emission Strength
+option.SKY_CONTRIBUTION = Enable Sky Contribution
+
+option.RUSSIAN_ROULETTE = Russian Roulette
+option.BSDF_EVAL_RUSSIAN_ROULETTE = BSDF Evaluation RR
+option.BSDF_SAMPLE_RUSSIAN_ROULETTE = BSDF Sampling RR
+
+option.NEIGHBOURHOOD_CLAMPING = Neighbourhood Clamping
+option.TONEMAP = Tonemap
+
+option.APERTURE_SHAPE = Aperture Shape
+option.LENS_TYPE = Lens Type
+option.ISO = ISO
+option.SHUTTER_SPEED = Shutter Speed
+
+option.DEBUG_INFO = Debug Info
+option.PRINT_LENS_TYPE = Print Lens Type
+option.PRINT_CAMERA_SETTINGS = Print Camera Settings
+option.PRINT_COATING_INFO = Print Coating Info
+option.PRINT_RENDER_TIME = Print Render Time
+option.PRINT_SAMPLES = Print Samples
+
 value.TONEMAP.0 = AgX
 value.TONEMAP.1 = Camera Tonemap
 
@@ -9,3 +31,7 @@ value.LENS_TYPE.1 = Fisheye
 value.LENS_TYPE.2 = Tessar
 value.LENS_TYPE.3 = Cooke Triplet
 value.LENS_TYPE.4 = Petzval
+
+value.DEBUG_INFO.0 = Off
+value.DEBUG_INFO.1 = On
+value.DEBUG_INFO.2 = Keep

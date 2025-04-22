@@ -131,7 +131,21 @@ void printRenderTime(ivec2 time) {
     printLine();
 }
 
+void printSamples() {
+    printString((_S, _a, _m, _p, _l, _e, _s, _colon, _space));
+    printInt(renderState.frame);
+    printLine();
+}
+
 void renderDebugText(inout vec3 color, ivec2 resolution, ivec2 position, ivec2 time) {
+#if (DEBUG_INFO == 0)
+    return;
+#elif (DEBUG_INFO == 1)
+    if (renderState.frame != 0) {
+        return;
+    }
+#endif
+
     beginText(resolution, position);
 
     text.fgCol = vec4(1.0, 0.0, 0.0, 1.0);
@@ -141,12 +155,29 @@ void renderDebugText(inout vec3 color, ivec2 resolution, ivec2 position, ivec2 t
     }
     text.fgCol = vec4(1.0);
 
+#ifdef PRINT_LENS_TYPE
     printLensType();
+#endif
+
+#ifdef PRINT_CAMERA_SETTINGS
     printCameraSettings();
+#endif
+
+#ifdef PRINT_COATING_INFO
     printCoatingInfo();
+#endif
+
+#ifdef PRINT_RENDER_TIME
     if (time != renderState.startTime) {
         printRenderTime(time);
     }
+#endif
+
+#ifdef PRINT_SAMPLES
+    if (renderState.frame != 0) {
+        printSamples();
+    }
+#endif
 
     endText(color);
 }
