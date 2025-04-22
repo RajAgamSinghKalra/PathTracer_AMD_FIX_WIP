@@ -1,5 +1,5 @@
-#ifndef _REALISTIC_CAMERA_GLSL
-#define _REALISTIC_CAMERA_GLSL 1
+#ifndef _CAMERA_CONFIGURATION_GLSL
+#define _CAMERA_CONFIGURATION_GLSL 1
 
 #include "/lib/lens/common.glsl"
 #include "/lib/settings.glsl"
@@ -100,4 +100,4 @@ float frontLensElementZ() {
     return -sum;
 }
 
-#endif // _REALISTIC_CAMERA_GLSL
+#endif // _CAMERA_CONFIGURATION_GLSL

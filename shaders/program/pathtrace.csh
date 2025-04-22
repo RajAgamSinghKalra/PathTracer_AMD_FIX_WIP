@@ -1,7 +1,7 @@
 #include "/lib/atmosphere/pathtracer.glsl"
 #include "/lib/buffer/state.glsl"
 #include "/lib/camera/film.glsl"
-#include "/lib/camera/lens.glsl"
+#include "/lib/camera/lens_system.glsl"
 #include "/lib/lens/flares.glsl"
 #include "/lib/raytracing/trace.glsl"
 #include "/lib/reflection/bsdf.glsl"

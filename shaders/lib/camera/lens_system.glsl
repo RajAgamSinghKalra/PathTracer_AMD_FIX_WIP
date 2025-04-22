@@ -1,5 +1,5 @@
-#ifndef _LENS_CAMERA_GLSL
-#define _LENS_CAMERA_GLSL 1
+#ifndef _CAMERA_LENS_SYSTEM_GLSL
+#define _CAMERA_LENS_SYSTEM_GLSL 1
 
 #include "/lib/lens/tracing.glsl"
 #include "/lib/lens/sampling.glsl"
@@ -73,4 +73,4 @@ vec3 connectLightRayToFilm(int lambda, vec3 direction, mat4 projection, mat4 vie
     return vec3(-pointOnSensor, weight);
 }
 
-#endif // _LENS_CAMERA_GLSL
+#endif // _CAMERA_LENS_SYSTEM_GLSL
