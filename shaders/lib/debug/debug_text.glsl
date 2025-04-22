@@ -137,7 +137,7 @@ void printSamples() {
     printLine();
 }
 
-void renderDebugText(inout vec3 color, ivec2 resolution, ivec2 position, ivec2 time) {
+void renderTextOverlay(inout vec3 color, ivec2 resolution, ivec2 position, ivec2 time) {
 #if (DEBUG_INFO == 0)
     return;
 #elif (DEBUG_INFO == 1)
@@ -147,6 +147,11 @@ void renderDebugText(inout vec3 color, ivec2 resolution, ivec2 position, ivec2 t
 #endif
 
     beginText(resolution, position);
+
+    if (renderState.frame == 0) {
+        printString((_P, _r, _e, _s, _s, _space, _F, _1, _space, _t, _o, _space, _b, _e, _g, _i, _n, _space, _r, _e, _n, _d, _e, _r, _i, _n, _g, _dot));
+        printLine();
+    }
 
     text.fgCol = vec4(1.0, 0.0, 0.0, 1.0);
     if (renderState.invalidSplat > 0) {

@@ -41,5 +41,5 @@ void main() {
     color = linearToSrgb(color);
 
     ivec2 time = ivec2(currentDate.x, currentYearTime.x);
-    renderDebugText(color, ivec2(gl_FragCoord.xy) / 2, ivec2(1, viewHeight / 2 - 1), time);
+    renderTextOverlay(color, ivec2(gl_FragCoord.xy) / 2, ivec2(1.0, viewHeight * 0.5 - 1.0), time);
 }
