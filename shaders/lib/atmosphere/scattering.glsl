@@ -156,9 +156,9 @@ vec3 atmosphereExtinctionBeta(float wavelength) {
 
     float betaR = rayleighScatteringBeta(wavelength, ns);
     float betaM = mieScatteringBeta(wavelength, atmosphereTurbidity);
-    float omegaO = ozoneAbsorption(wavelength);
+    float sigmaO = ozoneAbsorption(wavelength);
 
-    return vec3(betaR, 1.1 * betaM, 0.0001 * omegaO);
+    return vec3(betaR, 1.1 * betaM, 0.0001 * sigmaO);
 }
 
 #endif // _ATMOSPHERE_SCATTERING_GLSL
