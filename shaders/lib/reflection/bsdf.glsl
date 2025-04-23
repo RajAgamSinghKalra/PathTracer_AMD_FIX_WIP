@@ -7,7 +7,6 @@
 #include "/lib/utility/sampling.glsl"
 #include "/lib/settings.glsl"
 
-#include "/lib/reflection/lambertian.glsl"
 #include "/lib/reflection/heitz.glsl"
 #include "/lib/reflection/mbnm.glsl"
 
