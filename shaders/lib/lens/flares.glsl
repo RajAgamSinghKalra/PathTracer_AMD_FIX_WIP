@@ -71,6 +71,10 @@ void traceReflectedLensFlarePath(vec2 sensorExtent, int lambda, ray r, float wei
 
         i += (r.direction.z <= 0.0 ? -1 : 1);
     }
+    
+    if (r.origin.z > 0.0) {
+        return;
+    }
 
     float t = -r.origin.z / r.direction.z;
     r.origin += t * r.direction;

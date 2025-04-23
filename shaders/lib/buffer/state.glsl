@@ -13,6 +13,7 @@ struct exit_pupil_data {
 layout (std430, binding = 1) buffer render_state {
     bool clear;
     int frame;
+    float lensFrontZ;
     float focusDistance;
     float rearThicknessDelta;
     exit_pupil_data exitPupil;

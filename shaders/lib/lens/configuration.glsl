@@ -93,11 +93,7 @@ float rearLensElementZ() {
 }
 
 float frontLensElementZ() {
-    float sum = renderState.rearThicknessDelta;
-    for (int i = 0; i < LENS_ELEMENTS.length(); i++) {
-        sum += LENS_ELEMENTS[i].thickness; // TODO: Precompute this?
-    }
-    return -sum;
+    return -renderState.rearThicknessDelta - renderState.lensFrontZ;
 }
 
 #endif // _CAMERA_CONFIGURATION_GLSL
