@@ -38,6 +38,39 @@ bool rayEscapedScene(vec3 voxel, vec3 boundMin, vec3 boundMax) {
     return any(lessThan(voxel, boundMin)) || any(greaterThan(voxel, boundMax));
 }
 
+bool intersectQuad(quad_entry entry, sampler2D atlas, ray r, vec3 voxelPos, float tMax, out vec3 normal, out float d, out float t, out vec2 uv, out vec4 albedo) {
+    normal = cross(entry.tangent.xyz, entry.bitangent.xyz);
+    d = dot(normal, r.direction);
+    if (abs(d) < 1.0e-6) {
+        return false;
+    }
+
+    t = (entry.point.w - dot(normal, r.origin)) / d;
+    if (t <= 0.0 || t > tMax) {
+        return false;
+    }
+
+    vec3 point = r.origin + r.direction * t;
+    vec3 pLocal = point - voxelPos;
+    if (clamp(pLocal, -0.001, 1.001) != pLocal) {
+        return false;
+    }
+
+    vec3 pTangent = (point - entry.point.xyz) * mat3(entry.tangent.xyz, entry.bitangent.xyz, normal);
+    pTangent.xy /= vec2(entry.tangent.w, entry.bitangent.w);
+    if (clamp(pTangent.xy, 0.0, 1.0) != pTangent.xy) {
+        return false;
+    }
+
+    uv = mix(entry.uv0, entry.uv1, pTangent.xy);
+    albedo = textureLod(atlas, uv, 0);
+    if (albedo.a < 0.1) {
+        return false;
+    }
+
+    return true;
+}
+
 bool intersectsVoxel(sampler2D atlas, ray r, uint pointer, vec3 voxelPos, float tMax) {
     int traversed = 0;
     while (pointer != 0u && traversed < 64) {
@@ -46,24 +79,13 @@ bool intersectsVoxel(sampler2D atlas, ray r, uint pointer, vec3 voxelPos, float 
         pointer = entry.next;
         traversed++;
 
-        vec3 normal = cross(entry.tangent.xyz, entry.bitangent.xyz);
-        float d = dot(normal, r.direction);
-        if (abs(d) < 1.0e-6) continue;
-
-        float t = (entry.point.w - dot(normal, r.origin)) / d;
-        if (t <= 0.0 || t > tMax) continue;
-
-        vec3 point = r.origin + r.direction * t;
-        vec3 pointInVoxel = point - voxelPos;
-        if (clamp(pointInVoxel, -(1.0e-3), 1.0 + 1.0e-3) != pointInVoxel) continue;
-
-        vec3 pLocal = (point - entry.point.xyz) * mat3(entry.tangent.xyz, entry.bitangent.xyz, normal);
-        pLocal.xy /= vec2(entry.tangent.w, entry.bitangent.w);
-        if (clamp(pLocal.xy, 0.0, 1.0) != pLocal.xy) continue;
-
-        vec2 uv = mix(entry.uv0, entry.uv1, pLocal.xy);
-        vec4 albedo = textureLod(atlas, uv, 0);
-        if (albedo.a < 0.1) continue;
+        vec3 normal;
+        float d, t;
+        vec2 uv;
+        vec4 albedo;
+        if (!intersectQuad(entry, atlas, r, voxelPos, tMax, normal, d, t, uv, albedo)) {
+            continue;
+        }
 
         return true;
     }
@@ -118,39 +140,32 @@ bool traceShadowRay(ivec3 voxelOffset, sampler2D atlas, ray r, float tMax) {
 
 bool traceVoxel(sampler2D atlas, ray r, uint pointer, vec3 voxelPos, inout intersection it) {
     int traversed = 0;
+
+    bool hasIntersection = false;
     while (pointer != 0u && traversed < 64) {
         quad_entry entry = quadBuffer.list[pointer - 1u];
 
         pointer = entry.next;
         traversed++;
 
-        vec3 normal = cross(entry.tangent.xyz, entry.bitangent.xyz);
-        float d = dot(normal, r.direction);
-        if (abs(d) < 1.0e-6) continue;
-
-        float t = (entry.point.w - dot(normal, r.origin)) / d;
-        if (t <= 0.0 || (it.t >= 0.0 && t > it.t)) continue;
-
-        vec3 point = r.origin + r.direction * t;
-        vec3 pointInVoxel = point - voxelPos;
-        if (clamp(pointInVoxel, -(1.0e-3), 1.0 + 1.0e-3) != pointInVoxel) continue;
-
-        vec3 pLocal = (point - entry.point.xyz) * mat3(entry.tangent.xyz, entry.bitangent.xyz, normal);
-        pLocal.xy /= vec2(entry.tangent.w, entry.bitangent.w);
-        if (clamp(pLocal.xy, 0.0, 1.0) != pLocal.xy) continue;
-
-        vec2 uv = mix(entry.uv0, entry.uv1, pLocal.xy);
-        vec4 albedo = textureLod(atlas, uv, 0);
-        if (albedo.a < 0.1) continue;
+        vec3 normal;
+        float d, t;
+        vec2 uv;
+        vec4 albedo;
+        if (!intersectQuad(entry, atlas, r, voxelPos, it.t, normal, d, t, uv, albedo)) {
+            continue;
+        }
 
         it.t = t;
         it.normal = -sign(d) * normal;
         it.tbn = mat3(-sign(d) * entry.tangent.xyz, sign(d) * entry.bitangent.xyz, it.normal);
         it.albedo = albedo * unpackUnorm4x8(entry.tint);
         it.uv = uv;
+
+        hasIntersection = true;
     }
 
-    return it.t >= 0.0;
+    return hasIntersection;
 }
 
 bool traceRay(inout intersection it, ivec3 voxelOffset, sampler2D atlas, ray r) {
@@ -165,7 +180,7 @@ bool traceRay(inout intersection it, ivec3 voxelOffset, sampler2D atlas, ray r) 
     vec3 boundMin, boundMax;
     getSceneBounds(aabb, voxelOffset, boundMin, boundMax);
 
-    it.t = -1.0;
+    it.t = 1.0e16;
     int octreeLevel = 5;
     for (int i = 0; i < 1024; i++) {
         if (octreeLevel == 0) {
