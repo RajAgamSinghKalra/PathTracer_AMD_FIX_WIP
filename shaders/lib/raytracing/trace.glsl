@@ -9,6 +9,35 @@
 #include "/lib/raytracing/ray.glsl"
 #include "/lib/settings.glsl"
 
+float intersectSceneBounds(scene_aabb aabb, ray r) {
+    vec3 bMin = (vec3(aabb.xMin, aabb.yMin, aabb.zMin) - r.origin) / r.direction;
+    vec3 bMax = (vec3(aabb.xMax, aabb.yMax, aabb.zMax) - r.origin) / r.direction;
+    vec3 t1 = min(bMin, bMax);
+
+    return max(max(max(t1.x, t1.y), t1.z) - 0.5, 0.0);
+}
+
+void getSceneBounds(scene_aabb aabb, ivec3 voxelOffset, out vec3 minBound, out vec3 maxBound) {
+    minBound = vec3(aabb.xMin, aabb.yMin, aabb.zMin) + vec3(voxelOffset) - 1.0;
+    maxBound = vec3(aabb.xMax, aabb.yMax, aabb.zMax) + vec3(voxelOffset) + 1.0;
+}
+
+float stepVoxel(inout vec3 voxel, inout vec3 origin, vec3 direction, float voxelSize, ivec3 offset) {
+    vec3 dist = ((floor(voxel / voxelSize) + max(sign(direction), 0.0)) * voxelSize - origin - vec3(offset)) / direction;
+    float t = min(dist.x, min(dist.y, dist.z));
+
+    origin += direction * t;
+
+    vec3 voxelDirection = step(dist, vec3(t)) * sign(direction);
+    voxel = vec3(offset) + floor(origin + 0.5 * voxelDirection);
+
+    return t;
+}
+
+bool rayEscapedScene(vec3 voxel, vec3 boundMin, vec3 boundMax) {
+    return any(lessThan(voxel, boundMin)) || any(greaterThan(voxel, boundMax));
+}
+
 bool intersectsVoxel(sampler2D atlas, ray r, uint pointer, vec3 voxelPos, float tMax) {
     int traversed = 0;
     while (pointer != 0u && traversed < 64) {
@@ -44,23 +73,18 @@ bool intersectsVoxel(sampler2D atlas, ray r, uint pointer, vec3 voxelPos, float 
 
 bool traceShadowRay(ivec3 voxelOffset, sampler2D atlas, ray r, float tMax) {
     scene_aabb aabb = quadBuffer.aabb;
-
-    vec3 bMin = (vec3(aabb.xMin, aabb.yMin, aabb.zMin) - r.origin) / r.direction;
-    vec3 bMax = (vec3(aabb.xMax, aabb.yMax, aabb.zMax) - r.origin) / r.direction;
-    vec3 t1 = min(bMin, bMax);
-    r.origin += r.direction * max(max(max(t1.x, t1.y), t1.z) - 0.5, 0.0);
+    r.origin += r.direction * intersectSceneBounds(aabb, r);
 
     vec3 voxel = floor(r.origin);
 
     voxelOffset += HALF_VOXEL_VOLUME_SIZE;
     voxel += vec3(voxelOffset);
 
-    int octreeLevel = 5;
-
-    vec3 boundMin = vec3(aabb.xMin, aabb.yMin, aabb.zMin) + voxelOffset - 1.0;
-    vec3 boundMax = vec3(aabb.xMax, aabb.yMax, aabb.zMax) + voxelOffset + 1.0;
+    vec3 boundMin, boundMax;
+    getSceneBounds(aabb, voxelOffset, boundMin, boundMax);
 
     float t = 0.0;
+    int octreeLevel = 5;
     for (int i = 0; i < 1024; i++) {
         if (octreeLevel == 0) {
             uint pointer = imageLoad(voxelBuffer, ivec3(voxel)).r;
@@ -72,20 +96,16 @@ bool traceShadowRay(ivec3 voxelOffset, sampler2D atlas, ray r, float tMax) {
             continue;
         }
 
-        if (any(lessThan(voxel, boundMin)) || any(greaterThan(voxel, boundMax))) {
+        if (rayEscapedScene(voxel, boundMin, boundMax)) {
             return false;
         }
 
-        float voxelSize = float(1 << octreeLevel);
-        vec3 dist = ((floor(voxel / voxelSize) + max(sign(r.direction), 0.0)) * voxelSize - r.origin - voxelOffset) / r.direction;
-        float closest = min(dist.x, min(dist.y, dist.z));
         vec3 prevVoxel = voxel;
-        r.origin += r.direction * closest;
-        voxel = voxelOffset + floor(r.origin + 0.5 * step(dist, vec3(closest)) * sign(r.direction));
+        float voxelSize = float(1 << octreeLevel);
         
-        t += closest;
+        t += stepVoxel(voxel, r.origin, r.direction, voxelSize, voxelOffset);
         if (t > tMax) {
-            return false;;
+            return false;
         }
 
         if (floor(prevVoxel / (voxelSize * 2.0)) != floor(voxel / (voxelSize * 2.0))) {
@@ -134,26 +154,19 @@ bool traceVoxel(sampler2D atlas, ray r, uint pointer, vec3 voxelPos, inout inter
 }
 
 bool traceRay(inout intersection it, ivec3 voxelOffset, sampler2D atlas, ray r) {
-    vec3 rayPosition = r.origin;
-
     scene_aabb aabb = quadBuffer.aabb;
 
-    vec3 tMin = (vec3(aabb.xMin, aabb.yMin, aabb.zMin) - rayPosition) / r.direction;
-    vec3 tMax = (vec3(aabb.xMax, aabb.yMax, aabb.zMax) - rayPosition) / r.direction;
-    vec3 t1 = min(tMin, tMax);
-    rayPosition += r.direction * max(max(max(t1.x, t1.y), t1.z) - 0.5, 0.0);
-
-    vec3 voxel = floor(rayPosition);
+    vec3 rayPosition = r.origin;
+    rayPosition += r.direction * intersectSceneBounds(aabb, r);
 
     voxelOffset += HALF_VOXEL_VOLUME_SIZE;
-    voxel += vec3(voxelOffset);
+    vec3 voxel = floor(rayPosition) + vec3(voxelOffset);
 
-    int octreeLevel = 5;
+    vec3 boundMin, boundMax;
+    getSceneBounds(aabb, voxelOffset, boundMin, boundMax);
 
     it.t = -1.0;
-
-    vec3 boundMin = vec3(aabb.xMin, aabb.yMin, aabb.zMin) + voxelOffset - 1.0;
-    vec3 boundMax = vec3(aabb.xMax, aabb.yMax, aabb.zMax) + voxelOffset + 1.0;
+    int octreeLevel = 5;
     for (int i = 0; i < 1024; i++) {
         if (octreeLevel == 0) {
             uint pointer = imageLoad(voxelBuffer, ivec3(voxel)).r;
@@ -165,16 +178,14 @@ bool traceRay(inout intersection it, ivec3 voxelOffset, sampler2D atlas, ray r) 
             continue;
         }
 
-        if (any(lessThan(voxel, boundMin)) || any(greaterThan(voxel, boundMax))) {
+        if (rayEscapedScene(voxel, boundMin, boundMax)) {
             return false;
         }
 
-        float voxelSize = float(1 << octreeLevel);
-        vec3 dist = ((floor(voxel / voxelSize) + max(sign(r.direction), 0.0)) * voxelSize - rayPosition - voxelOffset) / r.direction;
-        float closest = min(dist.x, min(dist.y, dist.z));
         vec3 prevVoxel = voxel;
-        rayPosition += r.direction * closest;
-        voxel = voxelOffset + floor(rayPosition + 0.5 * step(dist, vec3(closest)) * sign(r.direction));
+        float voxelSize = float(1 << octreeLevel);
+
+        stepVoxel(voxel, rayPosition, r.direction, voxelSize, voxelOffset);
 
         if (floor(prevVoxel / (voxelSize * 2.0)) != floor(voxel / (voxelSize * 2.0))) {
             octreeLevel = min(octreeLevel + 1, 5);

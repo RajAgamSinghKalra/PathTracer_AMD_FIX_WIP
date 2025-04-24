@@ -37,7 +37,7 @@ vec2 sampleExitPupil(vec2 rand, vec2 pointOnSensor, vec2 sensorExtent, out float
     float sinTheta = pointOnSensor.y / sampleRadius;
     float cosTheta = pointOnSensor.x / sampleRadius;
 
-    return mix(bounds.minBound, bounds.maxBound, rand) * mat2(cosTheta, -sinTheta, sinTheta, cosTheta);;
+    return mix(bounds.minBound, bounds.maxBound, rand) * mat2(cosTheta, -sinTheta, sinTheta, cosTheta);
 }
 
 #endif // _LENS_SAMPLING_GLSL
