@@ -24,7 +24,7 @@ void main() {
     ivec3 voxelOffset = ivec3(mat3(gbufferModelViewInverse) * vec3(0.0, 0.0, VOXEL_OFFSET));
     
     intersection it;
-    if (traceRay(it, voxelOffset, colortex10, r, 1024)) {
+    if (traceRay(it, voxelOffset, colortex10, r)) {
         renderState.focusDistance = it.t;
     } else {
         renderState.focusDistance = 1024.0;

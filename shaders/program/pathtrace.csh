@@ -84,7 +84,7 @@ void main() {
 
     const int maxBounces = 25;
     for (int i = 0;; i++) {
-        if (!traceRay(it, voxelOffset, colortex10, r, i == 0 ? 1024 : 128)) {
+        if (!traceRay(it, voxelOffset, colortex10, r)) {
 #ifdef SKY_CONTRIBUTION
             if ((i == 0 && !lensFlare) || (i > 0 && bsdfSample.dirac)) {
                 ray earthRay = convertToEarthSpace(r, cameraPositionFract, eyeAltitude);

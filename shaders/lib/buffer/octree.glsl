@@ -40,7 +40,6 @@ void occupyOctreeVoxel(ivec3 voxelPos) {
     occupyOctreeVoxel(3, voxelPos);
     occupyOctreeVoxel(4, voxelPos);
     occupyOctreeVoxel(5, voxelPos);
-    occupyOctreeVoxel(6, voxelPos);
 }
 
 #endif // _OCTREE_GLSL

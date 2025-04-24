@@ -4,11 +4,10 @@
 #include "/lib/buffer/octree.glsl"
 #include "/lib/buffer/voxel.glsl"
 #include "/lib/buffer/quad.glsl"
+#include "/lib/buffer/state.glsl"
 #include "/lib/raytracing/intersection.glsl"
 #include "/lib/raytracing/ray.glsl"
 #include "/lib/settings.glsl"
-
-// TODO: Octree traversal stuff
 
 bool intersectsVoxel(sampler2D atlas, ray r, uint pointer, vec3 voxelPos, float tMax) {
     int traversed = 0;
@@ -44,26 +43,54 @@ bool intersectsVoxel(sampler2D atlas, ray r, uint pointer, vec3 voxelPos, float 
 }
 
 bool traceShadowRay(ivec3 voxelOffset, sampler2D atlas, ray r, float tMax) {
-    ivec3 voxel = ivec3(floor(r.origin));
-    vec3 delta = abs(1.0 / r.direction);
-    ivec3 rayStep = ivec3(sign(r.direction));
-    vec3 side = (sign(r.direction) * (vec3(voxel) - r.origin) + (sign(r.direction) * 0.5) + 0.5) * delta;
+    scene_aabb aabb = quadBuffer.aabb;
 
-    voxel += HALF_VOXEL_VOLUME_SIZE + voxelOffset;
+    vec3 bMin = (vec3(aabb.xMin, aabb.yMin, aabb.zMin) - r.origin) / r.direction;
+    vec3 bMax = (vec3(aabb.xMax, aabb.yMax, aabb.zMax) - r.origin) / r.direction;
+    vec3 t1 = min(bMin, bMax);
+    r.origin += r.direction * max(max(max(t1.x, t1.y), t1.z) - 0.5, 0.0);
 
-    for (int i = 0; i < 512; i++) {
-        if (any(lessThan(voxel, ivec3(0, 0, 0))) || any(greaterThanEqual(voxel, VOXEL_VOLUME_SIZE))) {
-            break;
+    vec3 voxel = floor(r.origin);
+
+    voxelOffset += HALF_VOXEL_VOLUME_SIZE;
+    voxel += vec3(voxelOffset);
+
+    int octreeLevel = 5;
+
+    vec3 boundMin = vec3(aabb.xMin, aabb.yMin, aabb.zMin) + voxelOffset - 1.0;
+    vec3 boundMax = vec3(aabb.xMax, aabb.yMax, aabb.zMax) + voxelOffset + 1.0;
+
+    float t = 0.0;
+    for (int i = 0; i < 1024; i++) {
+        if (octreeLevel == 0) {
+            uint pointer = imageLoad(voxelBuffer, ivec3(voxel)).r;
+            if (intersectsVoxel(atlas, r, pointer, voxel - vec3(voxelOffset), tMax)) {
+                return true;
+            }
+        } else if (octree.data[getOctreeIndex(octreeLevel - 1, ivec3(voxel) >> octreeLevel)] != 0u) {
+            octreeLevel--;
+            continue;
         }
+
+        if (any(lessThan(voxel, boundMin)) || any(greaterThan(voxel, boundMax))) {
+            return false;
+        }
+
+        float voxelSize = float(1 << octreeLevel);
+        vec3 dist = ((floor(voxel / voxelSize) + max(sign(r.direction), 0.0)) * voxelSize - r.origin - voxelOffset) / r.direction;
+        float closest = min(dist.x, min(dist.y, dist.z));
+        vec3 prevVoxel = voxel;
+        r.origin += r.direction * closest;
+        voxel = voxelOffset + floor(r.origin + 0.5 * step(dist, vec3(closest)) * sign(r.direction));
         
-        uint pointer = imageLoad(voxelBuffer, voxel).r;
-        if (intersectsVoxel(atlas, r, pointer, vec3(voxel - HALF_VOXEL_VOLUME_SIZE - voxelOffset), tMax)) {
-            return true;
+        t += closest;
+        if (t > tMax) {
+            return false;;
         }
 
-        bvec3 mask = lessThanEqual(side.xyz, min(side.yzx, side.zxy));
-        side += vec3(mask) * delta;
-        voxel += ivec3(mask) * rayStep;
+        if (floor(prevVoxel / (voxelSize * 2.0)) != floor(voxel / (voxelSize * 2.0))) {
+            octreeLevel = min(octreeLevel + 1, 5);
+        }
     }
     
     return false;
@@ -106,29 +133,52 @@ bool traceVoxel(sampler2D atlas, ray r, uint pointer, vec3 voxelPos, inout inter
     return it.t >= 0.0;
 }
 
-bool traceRay(inout intersection it, ivec3 voxelOffset, sampler2D atlas, ray r, int voxels) {
-    ivec3 voxel = ivec3(floor(r.origin));
-    vec3 delta = abs(1.0 / r.direction);
-    ivec3 rayStep = ivec3(sign(r.direction));
-    vec3 side = (sign(r.direction) * (vec3(voxel) - r.origin) + (sign(r.direction) * 0.5) + 0.5) * delta;
+bool traceRay(inout intersection it, ivec3 voxelOffset, sampler2D atlas, ray r) {
+    vec3 rayPosition = r.origin;
 
-    voxel += HALF_VOXEL_VOLUME_SIZE + voxelOffset;
+    scene_aabb aabb = quadBuffer.aabb;
+
+    vec3 tMin = (vec3(aabb.xMin, aabb.yMin, aabb.zMin) - rayPosition) / r.direction;
+    vec3 tMax = (vec3(aabb.xMax, aabb.yMax, aabb.zMax) - rayPosition) / r.direction;
+    vec3 t1 = min(tMin, tMax);
+    rayPosition += r.direction * max(max(max(t1.x, t1.y), t1.z) - 0.5, 0.0);
+
+    vec3 voxel = floor(rayPosition);
+
+    voxelOffset += HALF_VOXEL_VOLUME_SIZE;
+    voxel += vec3(voxelOffset);
+
+    int octreeLevel = 5;
 
     it.t = -1.0;
 
-    for (int i = 0; i < voxels; i++) {
-        if (any(lessThan(voxel, ivec3(0, 0, 0))) || any(greaterThanEqual(voxel, VOXEL_VOLUME_SIZE))) {
-            break;
+    vec3 boundMin = vec3(aabb.xMin, aabb.yMin, aabb.zMin) + voxelOffset - 1.0;
+    vec3 boundMax = vec3(aabb.xMax, aabb.yMax, aabb.zMax) + voxelOffset + 1.0;
+    for (int i = 0; i < 1024; i++) {
+        if (octreeLevel == 0) {
+            uint pointer = imageLoad(voxelBuffer, ivec3(voxel)).r;
+            if (traceVoxel(atlas, r, pointer, voxel - vec3(voxelOffset), it)) {
+                return true;
+            }
+        } else if (octree.data[getOctreeIndex(octreeLevel - 1, ivec3(voxel) >> octreeLevel)] != 0u) {
+            octreeLevel--;
+            continue;
         }
 
-        uint pointer = imageLoad(voxelBuffer, voxel).r;
-        if (traceVoxel(atlas, r, pointer, vec3(voxel - HALF_VOXEL_VOLUME_SIZE - voxelOffset), it)) {
-            return true;
+        if (any(lessThan(voxel, boundMin)) || any(greaterThan(voxel, boundMax))) {
+            return false;
         }
 
-        bvec3 mask = lessThanEqual(side.xyz, min(side.yzx, side.zxy));
-        side += vec3(mask) * delta;
-        voxel += ivec3(mask) * rayStep;
+        float voxelSize = float(1 << octreeLevel);
+        vec3 dist = ((floor(voxel / voxelSize) + max(sign(r.direction), 0.0)) * voxelSize - rayPosition - voxelOffset) / r.direction;
+        float closest = min(dist.x, min(dist.y, dist.z));
+        vec3 prevVoxel = voxel;
+        rayPosition += r.direction * closest;
+        voxel = voxelOffset + floor(rayPosition + 0.5 * step(dist, vec3(closest)) * sign(r.direction));
+
+        if (floor(prevVoxel / (voxelSize * 2.0)) != floor(voxel / (voxelSize * 2.0))) {
+            octreeLevel = min(octreeLevel + 1, 5);
+        }
     }
     
     return false;

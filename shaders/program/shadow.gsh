@@ -50,5 +50,5 @@ void main() {
         max(max(vPosition[0], vPosition[1]), max(vPosition[2], vPos3))
     );
 
-    // occupyOctreeVoxel(voxelPos);
+    occupyOctreeVoxel(voxelPos);
 }
