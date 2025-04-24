@@ -32,9 +32,7 @@ void main() {
     color = min(color, maxNeighbour);
 #endif
 
-    color = max(XYZ_TO_RGB * color, 0.0);
-
-    float avgLum = texelFetch(colortex2, ivec2(0, 0), 10).r;
+    color = XYZ_TO_sRGB * color;
     color /= 1.2 * SHUTTER_SPEED * 100.0 / ISO;
 
     color = tonemap(color);
