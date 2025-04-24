@@ -59,7 +59,7 @@ void main() {
         vec3 direction = sampleSunDirection(random2(prngLocal), sunPosition, earthPosition, sampleWeight);
         vec3 viewDirection = normalize(mat3(gbufferModelView) * direction);
 
-        if (viewDirection.z < 0.0 && !traceShadowRay(voxelOffset, colortex10, ray(origin + direction * 256.0, -direction), 256.0)) {
+        if (viewDirection.z < 0.0 && !traceShadowRay(voxelOffset, colortex10, ray(origin + direction * 1024.0, -direction), 1024.0)) {
             float transmittance = estimateTransmittance(ray(earthPosition, direction), extinctionBeta);
             float weight = 2.0 * lensPDFinv / lambdaPDF * transmittance * sunRadiance * sampleWeight;
             if (!isnan(weight) && !isinf(weight) && weight != 0.0) {

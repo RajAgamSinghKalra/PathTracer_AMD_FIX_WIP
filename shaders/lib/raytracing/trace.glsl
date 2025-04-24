@@ -95,7 +95,9 @@ bool intersectsVoxel(sampler2D atlas, ray r, uint pointer, vec3 voxelPos, float 
 
 bool traceShadowRay(ivec3 voxelOffset, sampler2D atlas, ray r, float tMax) {
     scene_aabb aabb = quadBuffer.aabb;
-    r.origin += r.direction * intersectSceneBounds(aabb, r);
+
+    float t = intersectSceneBounds(aabb, r);
+    r.origin += r.direction * t;
 
     vec3 voxel = floor(r.origin);
 
@@ -105,7 +107,6 @@ bool traceShadowRay(ivec3 voxelOffset, sampler2D atlas, ray r, float tMax) {
     vec3 boundMin, boundMax;
     getSceneBounds(aabb, voxelOffset, boundMin, boundMax);
 
-    float t = 0.0;
     int octreeLevel = 5;
     for (int i = 0; i < 1024; i++) {
         if (octreeLevel == 0) {
