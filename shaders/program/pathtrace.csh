@@ -138,7 +138,7 @@ void main() {
         throughput /= probability;
 #endif
 
-        if (!sampleBSDF(bsdfSample, mat, wi)) {
+        if (!sampleBSDF(bsdfSample, float(lambda), mat, wi)) {
             throughput = 0.0;
             break;
         }

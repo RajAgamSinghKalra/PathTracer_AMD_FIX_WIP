@@ -13,7 +13,7 @@
 #define MATERIAL_METAL      1
 #define MATERIAL_GLASS      2
 #define MATERIAL_BLACKBODY  3
-// #define MATERIAL_THINFILM   4
+#define MATERIAL_THINFILM   4
 
 struct material {
     int type;
@@ -40,10 +40,6 @@ material decodeMaterial(int lambda, mat3 tbn, vec4 albedo, vec4 specular, vec4 n
     mat.normal = vec3(0.0, 0.0, 1.0);
     mat.ao = 1.0;
 
-    // if (albedo.a < 1.0) {
-    //     mat.type = MATERIAL_GLASS;
-    // }
-
     float f0;
     if (specular.g > 229.5 / 255.0) {
         int id = int(round(specular.g * 255.0));
@@ -56,6 +52,10 @@ material decodeMaterial(int lambda, mat3 tbn, vec4 albedo, vec4 specular, vec4 n
             mat.type = MATERIAL_BLACKBODY;
             int temperature = int(round(specular.b * 255.0) * 100.0);
             mat.emission = blackbodyScaled(lambda, temperature);
+        } else if (id == 239) {
+            mat.type = MATERIAL_THINFILM;
+            mat.ior = complexFloat(1.0, 0.0);
+            mat.emission = 0.0;
         } else {
             mat.ior = complexFloat(F0toIOR(mat.albedo, 1.0), 0.0);
         }

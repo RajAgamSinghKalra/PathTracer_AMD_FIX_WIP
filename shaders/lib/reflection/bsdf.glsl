@@ -9,6 +9,7 @@
 
 #include "/lib/reflection/heitz.glsl"
 #include "/lib/reflection/mbnm.glsl"
+#include "/lib/reflection/thinfilm.glsl"
 
 struct bsdf_sample {
     vec3 direction;
@@ -43,7 +44,7 @@ float evalMBNMicrofacetPDF(material m, vec3 wi, vec3 wo) {
 }
 
 float evaluateBSDF(material mat, vec3 wi, vec3 wo, bool dirac) {
-    if (mat.type == MATERIAL_BLACKBODY) {
+    if (mat.type == MATERIAL_BLACKBODY || mat.type == MATERIAL_THINFILM) {
         return 0.0;
     }
 
@@ -51,7 +52,7 @@ float evaluateBSDF(material mat, vec3 wi, vec3 wo, bool dirac) {
 }
 
 float evaluateBSDFSamplePDF(material mat, vec3 wi, vec3 wo) {
-    if (mat.type == MATERIAL_BLACKBODY) {
+    if (mat.type == MATERIAL_BLACKBODY || mat.type == MATERIAL_THINFILM) {
         return 0.0;
     }
 
@@ -59,9 +60,33 @@ float evaluateBSDFSamplePDF(material mat, vec3 wi, vec3 wo) {
     return evalMicrosurfacePDF_MBN(mat, wi, wo);
 }
 
-bool sampleBSDF(out bsdf_sample bsdfSample, material mat, vec3 wi) {
+void sampleThinFilmBSDF(out bsdf_sample bsdfSample, float wavelength, vec3 wi) {
+    bsdfSample.dirac = true;
+
+    film_stack stack = beginFilmStack(abs(wi.z), wavelength, complexFloat(1.0, 0.0));
+    addThinFilmLayer(stack, complexFloat(1.35, 0.0), 430.0);
+    vec2 intensities = endFilmStack(stack, complexFloat(1.0, 0.0));
+
+    float reflectionProbability = intensities.x;
+    if (random1() < reflectionProbability) {
+        bsdfSample.direction = vec3(-wi.xy, wi.z);
+        bsdfSample.pdf = reflectionProbability;
+        bsdfSample.value = intensities.x / wi.z;
+    } else {
+        bsdfSample.direction = -wi;
+        bsdfSample.pdf = 1.0 - reflectionProbability;
+        bsdfSample.value = intensities.y / wi.z;
+    }
+}
+
+bool sampleBSDF(out bsdf_sample bsdfSample, float wavelength, material mat, vec3 wi) {
     if (mat.type == MATERIAL_BLACKBODY) {
         return false;
+    }
+
+    if (mat.type == MATERIAL_THINFILM) {
+        sampleThinFilmBSDF(bsdfSample, wavelength, wi);
+        return true;
     }
 
     float throughput;
