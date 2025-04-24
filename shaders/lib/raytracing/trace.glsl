@@ -106,7 +106,7 @@ bool traceVoxel(sampler2D atlas, ray r, uint pointer, vec3 voxelPos, inout inter
     return it.t >= 0.0;
 }
 
-intersection traceRay(ivec3 voxelOffset, sampler2D atlas, ray r, int voxels) {
+bool traceRay(inout intersection it, ivec3 voxelOffset, sampler2D atlas, ray r, int voxels) {
     ivec3 voxel = ivec3(floor(r.origin));
     vec3 delta = abs(1.0 / r.direction);
     ivec3 rayStep = ivec3(sign(r.direction));
@@ -114,7 +114,7 @@ intersection traceRay(ivec3 voxelOffset, sampler2D atlas, ray r, int voxels) {
 
     voxel += HALF_VOXEL_VOLUME_SIZE + voxelOffset;
 
-    intersection it = noHit();
+    it.t = -1.0;
 
     for (int i = 0; i < voxels; i++) {
         if (any(lessThan(voxel, ivec3(0, 0, 0))) || any(greaterThanEqual(voxel, VOXEL_VOLUME_SIZE))) {
@@ -123,7 +123,7 @@ intersection traceRay(ivec3 voxelOffset, sampler2D atlas, ray r, int voxels) {
 
         uint pointer = imageLoad(voxelBuffer, voxel).r;
         if (traceVoxel(atlas, r, pointer, vec3(voxel - HALF_VOXEL_VOLUME_SIZE - voxelOffset), it)) {
-            return it;
+            return true;
         }
 
         bvec3 mask = lessThanEqual(side.xyz, min(side.yzx, side.zxy));
@@ -131,7 +131,7 @@ intersection traceRay(ivec3 voxelOffset, sampler2D atlas, ray r, int voxels) {
         voxel += ivec3(mask) * rayStep;
     }
     
-    return it;
+    return false;
 }
 
 #endif // _RAYTRACE_GLSL

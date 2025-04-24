@@ -19,7 +19,7 @@ const ivec3 HALF_VOXEL_VOLUME_SIZE = VOXEL_VOLUME_SIZE / 2;
 // #define BSDF_SAMPLE_RUSSIAN_ROULETTE
 
 // #define NEIGHBOURHOOD_CLAMPING
-#define TONEMAP 0 // [0 1]
+#define TONEMAP 0 // [0 1 2]
 
 #define LENS_TYPE 2 // [0 1 2 3 4]
 #define APERTURE_SHAPE 0 // [0 1]

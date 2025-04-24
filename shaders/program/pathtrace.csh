@@ -80,11 +80,11 @@ void main() {
     float L = 0.0;
     float throughput = 1.0;
     bsdf_sample bsdfSample;
+    intersection it;
 
     const int maxBounces = 25;
     for (int i = 0;; i++) {
-        intersection it = traceRay(voxelOffset, colortex10, r, i == 0 ? 1024 : 128);
-        if (it.t < 0.0) {
+        if (!traceRay(it, voxelOffset, colortex10, r, i == 0 ? 1024 : 128)) {
 #ifdef SKY_CONTRIBUTION
             if ((i == 0 && !lensFlare) || (i > 0 && bsdfSample.dirac)) {
                 ray earthRay = convertToEarthSpace(r, cameraPositionFract, eyeAltitude);

@@ -22,6 +22,7 @@ option.PRINT_SAMPLES = Print Samples
 
 value.TONEMAP.0 = AgX
 value.TONEMAP.1 = Camera Tonemap
+value.TONEMAP.2 = Exponential
 
 value.APERTURE_SHAPE.0 = Circular
 value.APERTURE_SHAPE.1 = Hexagonal

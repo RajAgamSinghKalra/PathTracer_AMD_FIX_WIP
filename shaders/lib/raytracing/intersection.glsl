@@ -9,10 +9,4 @@ struct intersection {
     vec2 uv;
 };
 
-intersection noHit() {
-    intersection it;
-    it.t = -1.0;
-    return it;
-}
-
 #endif // _INTERSECTION_GLSL
