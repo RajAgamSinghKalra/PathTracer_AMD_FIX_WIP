@@ -20,6 +20,8 @@ option.PRINT_COATING_INFO = Print Coating Info
 option.PRINT_RENDER_TIME = Print Render Time
 option.PRINT_SAMPLES = Print Samples
 
+option.THIN_FILM_CONFIGURATION = Thin Film Configuration
+
 value.TONEMAP.0 = AgX
 value.TONEMAP.1 = Camera Tonemap
 value.TONEMAP.2 = Exponential
@@ -36,3 +38,6 @@ value.LENS_TYPE.4 = Petzval
 value.DEBUG_INFO.0 = Off
 value.DEBUG_INFO.1 = On
 value.DEBUG_INFO.2 = Keep
+
+value.THIN_FILM_CONFIGURATION.0 = Soap Bubble
+value.THIN_FILM_CONFIGURATION.1 = Gold Film

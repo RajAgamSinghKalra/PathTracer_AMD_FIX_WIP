@@ -64,7 +64,11 @@ void sampleThinFilmBSDF(out bsdf_sample bsdfSample, float wavelength, vec3 wi) {
     bsdfSample.dirac = true;
 
     film_stack stack = beginFilmStack(abs(wi.z), wavelength, complexFloat(1.0, 0.0));
+#if (THIN_FILM_CONFIGURATION == 0)
     addThinFilmLayer(stack, complexFloat(1.35, 0.0), 430.0);
+#elif (THIN_FILM_CONFIGURATION == 1)
+    addThinFilmLayer(stack, getMeasuredMetalIOR(int(wavelength), 1), 10.0);
+#endif
     vec2 intensities = endFilmStack(stack, complexFloat(1.0, 0.0));
 
     float reflectionProbability = intensities.x;
