@@ -109,8 +109,8 @@ vec2 endFilmStack(inout film_stack stack, complexFloat iorInternal) {
         return vec2(1.0, 0.0);
     }
 
-    complexFloat cosTheta0 = complexFloat(stack.theta0);
-    complexFloat cosTheta1 = complexFloat(stack.theta1);
+    complexFloat cosTheta0 = complexCos(stack.theta0);
+    complexFloat cosTheta1 = complexCos(stack.theta1);
 
     float tp = complexDiv(complexDiv(cosTheta1, iorInternal), complexDiv(cosTheta0, stack.n0)).x *
         complexNorm(complexMul(complexDiv(iorInternal, stack.n0), complexDiv(stack.TpPolarized, stack.MpPolarized.m00)));
