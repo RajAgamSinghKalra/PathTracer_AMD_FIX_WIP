@@ -66,20 +66,23 @@ void addThinFilmLayer(inout film_stack stack, complexFloat n, float thickness) {
     if (stack.state < 0) return; // Total Internal Reflection
 
     complexFloat theta1 = computeRefractedAngle(stack.theta1, stack.n, n);
-    if (complexAbs(complexSin(theta1)) > 1.0) {
+    if (complexNorm(complexSin(theta1)) > 1.0) {
         stack.state = -1;
         return;
     }
 
+    complexFloat cosTheta0 = complexCos(stack.theta1);
+    complexFloat cosTheta1 = complexCos(theta1);
+
     complexFloat delta = (stack.state > 0) 
-            ? computeWavePhaseChange(complexCos(stack.theta1), stack.n, stack.thickness, stack.wavelength)
+            ? computeWavePhaseChange(cosTheta0, stack.n, stack.thickness, stack.wavelength)
             : complexFloat(0.0, 0.0);
 
-    complexMat2 Mp = computePropagationMatrix(fresnelRp(stack.n, complexCos(stack.theta1), n, complexCos(theta1)), delta);
-    complexMat2 Ms = computePropagationMatrix(fresnelRs(stack.n, complexCos(stack.theta1), n, complexCos(theta1)), delta);
+    complexMat2 Mp = computePropagationMatrix(fresnelRp(stack.n, cosTheta0, n, cosTheta1), delta);
+    complexMat2 Ms = computePropagationMatrix(fresnelRs(stack.n, cosTheta0, n, cosTheta1), delta);
 
-    complexFloat Tp = fresnelTp(stack.n, complexCos(stack.theta1), n, complexCos(theta1));
-    complexFloat Ts = fresnelTs(stack.n, complexCos(stack.theta1), n, complexCos(theta1));
+    complexFloat Tp = fresnelTp(stack.n, cosTheta0, n, cosTheta1);
+    complexFloat Ts = fresnelTs(stack.n, cosTheta0, n, cosTheta1);
 
     if (stack.state == 0) {
         stack.MpPolarized = Mp;
@@ -106,12 +109,16 @@ vec2 endFilmStack(inout film_stack stack, complexFloat iorInternal) {
         return vec2(1.0, 0.0);
     }
 
+    complexFloat cosTheta0 = complexFlaot(stack.theta0);
+    complexFloat cosTheta1 = complexFloat(stack.theta1);
+
+    float tp = complexDiv(complexDiv(cosTheta1, iorInternal), complexDiv(cosTheta0, stack.n0)).x *
+        complexNorm(complexMul(complexDiv(iorInternal, stack.n0), complexDiv(stack.TpPolarized, stack.MpPolarized.m00)));
+    float ts = complexDiv(complexMul(iorInternal, cosTheta1), complexMul(stack.n0, cosTheta0)).x *
+        complexNorm(complexDiv(stack.TsPolarized, stack.MsPolarized.m00));
+
     float rp = complexNorm(complexDiv(stack.MpPolarized.m01, stack.MpPolarized.m00));
     float rs = complexNorm(complexDiv(stack.MsPolarized.m01, stack.MsPolarized.m00));
-    float tp = complexDiv(complexDiv(complexCos(stack.theta1), iorInternal), complexDiv(complexCos(stack.theta0), stack.n0)).x *
-        complexNorm(complexMul(complexDiv(iorInternal, stack.n0), complexDiv(stack.TpPolarized, stack.MpPolarized.m00)));
-    float ts = complexDiv(complexMul(iorInternal, complexCos(stack.theta1)), complexMul(stack.n0, complexCos(stack.theta0))).x *
-        complexNorm(complexDiv(stack.TsPolarized, stack.MsPolarized.m00));
 
     float R = clamp(0.5 * (rp + rs), 0.0, 1.0);
     float T = clamp(0.5 * (tp + ts), 0.0, 1.0);
