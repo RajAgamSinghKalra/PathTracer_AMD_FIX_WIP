@@ -32,7 +32,7 @@ void main() {
     color = min(color, maxNeighbour);
 #endif
 
-    color = max(0.0, XYZ_TO_sRGB * color);
+    color = max(XYZ_TO_sRGB * color, 0.0);
     color /= 1.2 * SHUTTER_SPEED * 100.0 / ISO;
 
     color = tonemap(color);
