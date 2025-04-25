@@ -109,7 +109,7 @@ vec2 endFilmStack(inout film_stack stack, complexFloat iorInternal) {
         return vec2(1.0, 0.0);
     }
 
-    complexFloat cosTheta0 = complexFlaot(stack.theta0);
+    complexFloat cosTheta0 = complexFloat(stack.theta0);
     complexFloat cosTheta1 = complexFloat(stack.theta1);
 
     float tp = complexDiv(complexDiv(cosTheta1, iorInternal), complexDiv(cosTheta0, stack.n0)).x *
