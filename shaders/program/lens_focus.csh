@@ -1,7 +1,6 @@
 #include "/lib/buffer/state.glsl"
 #include "/lib/lens/focusing.glsl"
 #include "/lib/raytracing/trace.glsl"
-#include "/lib/utility/projection.glsl"
 
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 const ivec3 workGroups = ivec3(1, 1, 1);
@@ -18,13 +17,11 @@ void main() {
         return;
     }
 
-    vec3 rayDirection = projectAndDivide(gbufferProjectionInverse, vec3(0.0, 0.0, -1.0));
-    ray r = ray(cameraPositionFract, normalize((mat3(gbufferModelViewInverse) * rayDirection).xyz));
-
+    vec3 direction = normalize((mat3(gbufferModelViewInverse) * vec3(0.0, 0.0, -1.0)).xyz);
     ivec3 voxelOffset = ivec3(mat3(gbufferModelViewInverse) * vec3(0.0, 0.0, VOXEL_OFFSET));
     
     intersection it;
-    if (traceRay(it, voxelOffset, colortex10, r)) {
+    if (traceRay(it, voxelOffset, colortex10, ray(cameraPositionFract, direction))) {
         renderState.focusDistance = it.t;
     } else {
         renderState.focusDistance = 1024.0;
