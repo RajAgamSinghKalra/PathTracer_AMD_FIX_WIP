@@ -25,6 +25,7 @@ option.THIN_FILM_CONFIGURATION = Thin Film Configuration
 value.TONEMAP.0 = AgX
 value.TONEMAP.1 = Camera Tonemap
 value.TONEMAP.2 = Exponential
+value.TONEMAP.3 = ACES (Fitted)
 
 value.APERTURE_SHAPE.0 = Circular
 value.APERTURE_SHAPE.1 = Hexagonal
