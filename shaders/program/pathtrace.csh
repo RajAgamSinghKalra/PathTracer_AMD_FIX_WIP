@@ -39,7 +39,7 @@ void main() {
     float lambdaPDF;
     int lambda = sampleWavelength(random1(), lambdaPDF);
 
-    ivec3 voxelOffset = ivec3(mat3(gbufferModelViewInverse) * vec3(0.0, 0.0, VOXEL_OFFSET));
+    ivec3 voxelOffset = ivec3(gbufferModelViewInverse[2].xyz * VOXEL_OFFSET);
 
     vec2 filmSample = (fragCoord + random2()) / vec2(viewWidth, viewHeight) * 2.0 - 1.0;
 

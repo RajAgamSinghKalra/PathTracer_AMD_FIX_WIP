@@ -17,8 +17,8 @@ void main() {
         return;
     }
 
-    vec3 direction = normalize((mat3(gbufferModelViewInverse) * vec3(0.0, 0.0, -1.0)).xyz);
-    ivec3 voxelOffset = ivec3(mat3(gbufferModelViewInverse) * vec3(0.0, 0.0, VOXEL_OFFSET));
+    vec3 direction = normalize(-gbufferModelViewInverse[2].xyz);
+    ivec3 voxelOffset = ivec3(gbufferModelViewInverse[2].xyz * VOXEL_OFFSET);
     
     intersection it;
     if (traceRay(it, voxelOffset, colortex10, ray(cameraPositionFract, direction))) {
