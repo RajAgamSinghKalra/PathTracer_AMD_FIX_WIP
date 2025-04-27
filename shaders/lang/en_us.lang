@@ -22,6 +22,8 @@ option.PRINT_SAMPLES = Print Samples
 
 option.THIN_FILM_CONFIGURATION = Thin Film Configuration
 
+option.ENABLE_SPHERES = Sphere RP Support
+
 value.TONEMAP.0 = AgX
 value.TONEMAP.1 = Camera Tonemap
 value.TONEMAP.2 = Exponential

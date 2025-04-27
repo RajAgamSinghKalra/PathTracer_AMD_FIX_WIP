@@ -7,6 +7,9 @@
 #include "/lib/buffer/state.glsl"
 #include "/lib/raytracing/intersection.glsl"
 #include "/lib/raytracing/ray.glsl"
+#include "/lib/utility/constants.glsl"
+#include "/lib/utility/intersectors.glsl"
+#include "/lib/utility/orthonormal.glsl"
 #include "/lib/settings.glsl"
 
 float intersectSceneBounds(scene_aabb aabb, ray r) {
@@ -38,7 +41,30 @@ bool rayEscapedScene(vec3 voxel, vec3 boundMin, vec3 boundMax) {
     return any(lessThan(voxel, boundMin)) || any(greaterThan(voxel, boundMax));
 }
 
-bool intersectQuad(quad_entry entry, sampler2D atlas, ray r, vec3 voxelPos, float tMax, out vec3 normal, out float d, out float t, out vec2 uv, out vec4 albedo) {
+bool intersectModelElement(inout quad_entry entry, sampler2D atlas, ray r, vec3 voxelPos, float tMax, out vec3 normal, out float d, out float t, out vec2 uv, out vec4 albedo) {
+#ifdef ENABLE_SPHERES
+    if ((entry.tint >> 24u) == 254u) {
+        vec2 t2 = intersectSphere(r, voxelPos + 0.5, 0.5);
+        if (t2.y < 0.0) {
+            return false;
+        }
+
+        t = t2.x < 0.0 ? t2.y : t2.x;
+        if (t > tMax) {
+            return false;
+        }
+
+        normal = (r.origin + r.direction * t - voxelPos - 0.5) / 0.5;
+        d = dot(normal, r.direction);
+
+        buildOrthonormalBasis(normal, entry.tangent.xyz, entry.bitangent.xyz);
+        vec2 unwrap = vec2(atan(-normal.z, normal.x) / (2.0 * PI) + 0.5, acos(-normal.y) / PI);
+        uv = mix(entry.uv0, entry.uv1, unwrap);
+        albedo = textureLod(atlas, uv, 0) * vec4(unpackUnorm4x8(entry.tint).rgb, 1.0);
+        return true;
+    }
+#endif
+    
     normal = cross(entry.tangent.xyz, entry.bitangent.xyz);
     d = dot(normal, r.direction);
     if (abs(d) < 1.0e-6) {
@@ -83,7 +109,7 @@ bool intersectsVoxel(sampler2D atlas, ray r, uint pointer, vec3 voxelPos, float 
         float d, t;
         vec2 uv;
         vec4 albedo;
-        if (!intersectQuad(entry, atlas, r, voxelPos, tMax, normal, d, t, uv, albedo)) {
+        if (!intersectModelElement(entry, atlas, r, voxelPos, tMax, normal, d, t, uv, albedo)) {
             continue;
         }
 
@@ -149,17 +175,18 @@ bool traceVoxel(sampler2D atlas, ray r, uint pointer, vec3 voxelPos, inout inter
         pointer = entry.next;
         traversed++;
 
-        vec3 normal;
         float d, t;
         vec2 uv;
         vec4 albedo;
-        if (!intersectQuad(entry, atlas, r, voxelPos, it.t, normal, d, t, uv, albedo)) {
+        vec3 normal;
+        if (!intersectModelElement(entry, atlas, r, voxelPos, it.t, normal, d, t, uv, albedo)) {
             continue;
         }
 
+        d = sign(d);
+
         it.t = t;
-        it.normal = -sign(d) * normal;
-        it.tbn = mat3(-sign(d) * entry.tangent.xyz, sign(d) * entry.bitangent.xyz, it.normal);
+        it.tbn = mat3(-d * entry.tangent.xyz, d * entry.bitangent.xyz, -d * normal);
         it.albedo = albedo * unpackUnorm4x8(entry.tint);
         it.uv = uv;
 

@@ -97,13 +97,9 @@ void main() {
             break;
         }
 
-        vec3 w1, w2;
-        buildOrthonormalBasis(it.normal, w1, w2);
-        mat3 localToWorld = mat3(w1, w2, it.normal);
+        vec3 wi = -r.direction * it.tbn;
 
-        vec3 wi = -r.direction * localToWorld;
-        
-        material mat = decodeMaterial(lambda, it.tbn, it.albedo, textureLod(colortex11, it.uv, 0), textureLod(colortex12, it.uv, 0));
+        material mat = decodeMaterial(lambda, it.albedo, textureLod(colortex11, it.uv, 0), textureLod(colortex12, it.uv, 0));
 
         L += throughput * mat.emission;
 
@@ -111,11 +107,11 @@ void main() {
         float sampleWeight;
         ray sunRay = convertToEarthSpace(r, cameraPositionFract, eyeAltitude);
         sunRay.direction = sampleSunDirection(random2(), sunPosition, sunRay.origin, sampleWeight);
-        if (dot(sunRay.direction, it.normal) > 0.0) {
-            vec3 shadowOrigin = r.origin + r.direction * it.t + it.normal * 0.001;
+        if (dot(sunRay.direction, it.tbn[2]) > 0.0) {
+            vec3 shadowOrigin = r.origin + r.direction * it.t + it.tbn[2] * 0.001;
             float visibility = float(!traceShadowRay(voxelOffset, colortex10, ray(shadowOrigin, sunRay.direction), 1024.0));
             if (visibility > 0.0) {
-                vec3 wo = sunRay.direction * localToWorld;
+                vec3 wo = sunRay.direction * it.tbn;
                 float bsdfDirect = evaluateBSDF(mat, wi, wo, false);
                 
                 float transmittance = estimateTransmittance(sunRay, extinctionBeta);
@@ -145,8 +141,8 @@ void main() {
 
         throughput *= (bsdfSample.value / bsdfSample.pdf) * abs(bsdfSample.direction.z);
 
-        vec3 offset = it.normal * (sign(bsdfSample.direction.z) * 0.001);
-        r = ray(r.origin + r.direction * it.t + offset, localToWorld * bsdfSample.direction);
+        vec3 offset = it.tbn[2] * (sign(bsdfSample.direction.z) * 0.001);
+        r = ray(r.origin + r.direction * it.t + offset, it.tbn * bsdfSample.direction);
     }
 
 #ifdef SKY_CONTRIBUTION

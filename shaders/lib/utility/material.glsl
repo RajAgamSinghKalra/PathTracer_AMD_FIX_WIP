@@ -30,7 +30,7 @@ float F0toIOR(float f0, float n0) {
     return (n0 + r) / max(n0 - r, 1.0e-5);
 }
 
-material decodeMaterial(int lambda, mat3 tbn, vec4 albedo, vec4 specular, vec4 normal) {
+material decodeMaterial(int lambda, vec4 albedo, vec4 specular, vec4 normal) {
     material mat;
 
     mat.type = MATERIAL_INTERFACED;
@@ -66,9 +66,6 @@ material decodeMaterial(int lambda, mat3 tbn, vec4 albedo, vec4 specular, vec4 n
     if (normal != vec4(0.0)) {
         normal.xy = normal.xy * 2.0 - 1.0;
         mat.normal = vec3(normal.x, normal.y, sqrt(1.0 - dot(normal.xy, normal.xy)));
-        vec3 b1, b2;
-        buildOrthonormalBasis(tbn[2], b1, b2);
-        mat.normal = (tbn * mat.normal) * mat3(b1, b2, tbn[2]);
         mat.ao = normal.b;
     }
 
