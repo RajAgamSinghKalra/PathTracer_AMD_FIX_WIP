@@ -20,7 +20,7 @@ struct bsdf_sample {
 
 float evalMBNMicrofacetBSDF(material m, vec3 wi, vec3 wo) {
     if (any(lessThan(m.alpha, vec2(0.001)))) {
-        return evalSmoothBSDF(m, wi, wo);
+        return evalSmoothPhase(m, wi, wo);
     } else {
         return evalMicrosurfaceBSDF(m, wi, wo);
     }
@@ -28,7 +28,7 @@ float evalMBNMicrofacetBSDF(material m, vec3 wi, vec3 wo) {
 
 bool sampleMBNMicrofacetBSDF(material m, vec3 wi, out vec3 wo, out float weight, out bool dirac) {
     if (any(lessThan(m.alpha, vec2(0.001)))) {
-        return sampleSmoothBSDF(m, wi, wo, weight, dirac);
+        return sampleSmoothPhase(m, wi, wo, weight, dirac);
     } else {
         dirac = false;
         return sampleMicrosurfaceBSDF(m, wi, wo, weight);
@@ -37,7 +37,7 @@ bool sampleMBNMicrofacetBSDF(material m, vec3 wi, out vec3 wo, out float weight,
 
 float evalMBNMicrofacetPDF(material m, vec3 wi, vec3 wo) {
     if (any(lessThan(m.alpha, vec2(0.001)))) {
-        return evalSmoothBSDFSamplePDF(m, wi, wo);
+        return evalSmoothPhasePDF(m, wi, wo);
     } else {
         return evalMicrosurfacePDF(m, wi, wo);
     }

@@ -1,5 +1,5 @@
-#ifndef _MICROBSDF_GLSL
-#define _MICROBSDF_GLSL 1
+#ifndef _MICROSURFACE_PHASE_GLSL
+#define _MICROSURFACE_PHASE_GLSL 1
 
 // Conductor Microsurface
 float evalConductorMicrosurfacePhaseFunction(material m, vec3 wi, vec3 wo) {
@@ -111,8 +111,8 @@ vec3 sampleSmoothInterfacedPhaseFunction(material m, vec3 wi, out float weight, 
     }
 }
 
-// General Microfacet BSDF
-float evalMicrofacetBSDF(material m, vec3 wi, vec3 wo) {
+// General Microfacet Phase Function
+float evalMicrofacetPhase(material m, vec3 wi, vec3 wo) {
     if (m.type == MATERIAL_INTERFACED) {
         return evalInterfacedMicrosurfacePhaseFunction(m, wi, wo);
     } else if (m.type == MATERIAL_METAL) {
@@ -122,7 +122,7 @@ float evalMicrofacetBSDF(material m, vec3 wi, vec3 wo) {
     }
 }
 
-bool sampleMicrofacetBSDF(material m, vec3 wi, out vec3 wo, out float weight) {
+bool sampleMicrofacetPhase(material m, vec3 wi, out vec3 wo, out float weight) {
     if (m.type == MATERIAL_INTERFACED) {
         wo = sampleInterfacedMicrosurfacePhaseFunction(m, wi, weight);
         return true;
@@ -133,7 +133,7 @@ bool sampleMicrofacetBSDF(material m, vec3 wi, out vec3 wo, out float weight) {
     return false;
 }
 
-float evalSmoothBSDF(material m, vec3 wi, vec3 wo) {
+float evalSmoothPhase(material m, vec3 wi, vec3 wo) {
     if (m.type == MATERIAL_INTERFACED) {
         return evalSmoothInterfacedPhaseFunction(m, wi, wo);
     } else {
@@ -141,7 +141,7 @@ float evalSmoothBSDF(material m, vec3 wi, vec3 wo) {
     }
 }
 
-bool sampleSmoothBSDF(material m, vec3 wi, out vec3 wo, out float weight, out bool dirac) {
+bool sampleSmoothPhase(material m, vec3 wi, out vec3 wo, out float weight, out bool dirac) {
     if (m.type == MATERIAL_INTERFACED) {
         wo = sampleSmoothInterfacedPhaseFunction(m, wi, weight, dirac);
         return true;
@@ -153,8 +153,8 @@ bool sampleSmoothBSDF(material m, vec3 wi, out vec3 wo, out float weight, out bo
     return false;
 }
 
-float evalSmoothBSDFSamplePDF(material m, vec3 wi, vec3 wo) {
+float evalSmoothPhasePDF(material m, vec3 wi, vec3 wo) {
     return wo.z / PI;
 }
 
-#endif // _MICROBSDF_GLSL
+#endif // _MICROSURFACE_PHASE_GLSL

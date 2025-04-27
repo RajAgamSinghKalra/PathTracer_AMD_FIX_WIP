@@ -214,7 +214,7 @@ float sampleMicrosurfaceHeight(material m, vec3 wr, float hr, float U) {
     );
 }
 
-#include "/lib/reflection/microbsdf.glsl"
+#include "/lib/reflection/phase.glsl"
 
 float evalMicrosurfaceBSDF(material m, vec3 wi, vec3 wo) {
     if (wo.z < 0.0) {
@@ -234,7 +234,7 @@ float evalMicrosurfaceBSDF(material m, vec3 wi, vec3 wo) {
             break;
         }
 
-        float phaseFunction = evalMicrofacetBSDF(m, -wr, wo);
+        float phaseFunction = evalMicrofacetPhase(m, -wr, wo);
         float shadowing = G1(m, wo, hr);
         float I = phaseFunction * shadowing;
 
@@ -251,7 +251,7 @@ float evalMicrosurfaceBSDF(material m, vec3 wi, vec3 wo) {
 #endif
 
         float weight;
-        if (!sampleMicrofacetBSDF(m, -wr, wr, weight)) {
+        if (!sampleMicrofacetPhase(m, -wr, wr, weight)) {
             break;
         }
         throughput *= weight;
@@ -278,7 +278,7 @@ bool sampleMicrosurfaceBSDF(material m, vec3 wi, out vec3 wo, out float throughp
         }
 
         float weight;
-        if (!sampleMicrofacetBSDF(m, -wr, wr, weight)) {
+        if (!sampleMicrofacetPhase(m, -wr, wr, weight)) {
             break;
         }
         throughput *= weight;
