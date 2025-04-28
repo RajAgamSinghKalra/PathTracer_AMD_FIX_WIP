@@ -3,6 +3,7 @@
 
 #include "/lib/buffer/metals.glsl"
 #include "/lib/complex/float.glsl"
+#include "/lib/reflection/sellmeier.glsl"
 #include "/lib/spectral/blackbody.glsl"
 #include "/lib/spectral/conversion.glsl"
 #include "/lib/utility/color.glsl"
@@ -40,6 +41,12 @@ material decodeMaterial(int lambda, vec4 albedo, vec4 specular, vec4 normal) {
     mat.normal = vec3(0.0, 0.0, 1.0);
     mat.ao = 1.0;
 
+#ifdef ENABLE_TRANSLUCENTS
+    if (albedo.a < 1.0) {
+        mat.type = MATERIAL_GLASS;
+    }
+#endif
+
     float f0;
     if (specular.g > 229.5 / 255.0) {
         int id = int(round(specular.g * 255.0));
@@ -61,6 +68,9 @@ material decodeMaterial(int lambda, vec4 albedo, vec4 specular, vec4 normal) {
         }
     } else {
         mat.ior = complexFloat(F0toIOR(specular.g, 1.0), 0.0);
+        if (mat.type == MATERIAL_GLASS) {
+            mat.ior = complexFloat(sellmeier(SCHOTT_N_BK7, lambda), 0.0);
+        }
     }
 
     if (normal != vec4(0.0)) {

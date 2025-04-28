@@ -31,6 +31,8 @@ uniform float viewWidth;
 uniform float viewHeight;
 
 void main() {
+    currentIOR = 1.0;
+
     vec2 fragCoord = vec2(gl_GlobalInvocationID.xy);
     if (fragCoord.x > viewWidth || fragCoord.y > viewHeight) return;
 
@@ -82,6 +84,8 @@ void main() {
     bsdf_sample bsdfSample;
     intersection it;
 
+    bsdfSample.absorbtance = 0.0;
+
     const int maxBounces = 25;
     for (int i = 0;; i++) {
         if (!traceRay(it, voxelOffset, colortex10, r)) {
@@ -95,6 +99,10 @@ void main() {
             }
 #endif
             break;
+        }
+
+        if (bsdfSample.absorbtance != 0.0) {
+            throughput *= exp(-bsdfSample.absorbtance * it.t);
         }
 
         vec3 wi = -r.direction * it.tbn;
@@ -134,7 +142,7 @@ void main() {
         throughput /= probability;
 #endif
 
-        if (!sampleBSDF(bsdfSample, float(lambda), mat, wi)) {
+        if (!sampleBSDF(bsdfSample, float(lambda), it.tbn, mat, wi)) {
             throughput = 0.0;
             break;
         }

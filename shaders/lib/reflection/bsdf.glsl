@@ -7,12 +7,15 @@
 #include "/lib/utility/sampling.glsl"
 #include "/lib/settings.glsl"
 
+float currentIOR;
+
 #include "/lib/reflection/heitz.glsl"
 #include "/lib/reflection/mbnm.glsl"
 #include "/lib/reflection/thinfilm.glsl"
 
 struct bsdf_sample {
     vec3 direction;
+    float absorbtance;
     float value;
     float pdf;
     bool dirac;
@@ -44,7 +47,7 @@ float evalMBNMicrofacetPDF(material m, vec3 wi, vec3 wo) {
 }
 
 float evaluateBSDF(material mat, vec3 wi, vec3 wo, bool dirac) {
-    if (mat.type == MATERIAL_BLACKBODY || mat.type == MATERIAL_THINFILM) {
+    if (mat.type == MATERIAL_BLACKBODY || mat.type == MATERIAL_THINFILM || mat.type == MATERIAL_GLASS) {
         return 0.0;
     }
 
@@ -52,7 +55,7 @@ float evaluateBSDF(material mat, vec3 wi, vec3 wo, bool dirac) {
 }
 
 float evaluateBSDFSamplePDF(material mat, vec3 wi, vec3 wo) {
-    if (mat.type == MATERIAL_BLACKBODY || mat.type == MATERIAL_THINFILM) {
+    if (mat.type == MATERIAL_BLACKBODY || mat.type == MATERIAL_THINFILM || mat.type == MATERIAL_GLASS) {
         return 0.0;
     }
 
@@ -60,7 +63,7 @@ float evaluateBSDFSamplePDF(material mat, vec3 wi, vec3 wo) {
     return evalMicrosurfacePDF_MBN(mat, wi, wo);
 }
 
-void sampleThinFilmBSDF(out bsdf_sample bsdfSample, float wavelength, vec3 wi) {
+void sampleThinFilmBSDF(inout bsdf_sample bsdfSample, float wavelength, vec3 wi) {
     bsdfSample.dirac = true;
 
     film_stack stack = beginFilmStack(abs(wi.z), wavelength, complexFloat(1.0, 0.0));
@@ -83,13 +86,46 @@ void sampleThinFilmBSDF(out bsdf_sample bsdfSample, float wavelength, vec3 wi) {
     }
 }
 
-bool sampleBSDF(out bsdf_sample bsdfSample, float wavelength, material mat, vec3 wi) {
+void sampleGlassBSDF(inout bsdf_sample bsdfSample, mat3 tbn, material mat, vec3 wi) {
+    bsdfSample.dirac = true;
+
+    float n0 = 1.0;
+    float n1 = mat.ior.x;
+
+    if (currentIOR != 1.0) {
+        n0 = currentIOR;
+        n1 = 1.0;
+    }
+
+    if (random1() < fresnelDielectric(wi.z, n0, n1)) {
+        bsdfSample.direction = vec3(-wi.xy, wi.z);
+        bsdfSample.pdf = 1.0;
+        bsdfSample.value = 1.0 / wi.z;
+    } else {
+        bsdfSample.direction = refract(tbn * -wi, tbn[2], n0 / n1) * tbn;
+        bsdfSample.pdf = 1.0;
+        bsdfSample.value = 1.0 / abs(bsdfSample.direction.z);
+
+        if (currentIOR == 1.0) {
+            currentIOR = n1;
+            bsdfSample.absorbtance = (1.0 - mat.albedo) * GLASS_ABSORPTION;
+        } else {
+            currentIOR = 1.0;
+            bsdfSample.absorbtance = 0.0;
+        }
+    }
+}
+
+bool sampleBSDF(inout bsdf_sample bsdfSample, float wavelength, mat3 tbn, material mat, vec3 wi) {
     if (mat.type == MATERIAL_BLACKBODY) {
         return false;
     }
 
     if (mat.type == MATERIAL_THINFILM) {
         sampleThinFilmBSDF(bsdfSample, wavelength, wi);
+        return true;
+    } else if (mat.type == MATERIAL_GLASS) {
+        sampleGlassBSDF(bsdfSample, tbn, mat, wi);
         return true;
     }
 
@@ -101,9 +137,9 @@ bool sampleBSDF(out bsdf_sample bsdfSample, float wavelength, material mat, vec3
     bsdfSample.direction = bsdfSample.direction;
     bsdfSample.pdf = evaluateBSDFSamplePDF(mat, wi, bsdfSample.direction);
     
-    bsdfSample.value = bsdfSample.pdf * throughput / abs(bsdfSample.direction.z), 0.0;
+    bsdfSample.value = bsdfSample.pdf * throughput / abs(bsdfSample.direction.z);
 
-    return bsdfSample.direction.z > 0.0;
+    return true;
 }
 
 #endif // _BSDF_GLSL

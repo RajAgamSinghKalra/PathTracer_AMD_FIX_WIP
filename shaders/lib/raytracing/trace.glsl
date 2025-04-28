@@ -54,7 +54,7 @@ bool intersectModelElement(inout quad_entry entry, sampler2D atlas, ray r, vec3 
             return false;
         }
 
-        normal = (r.origin + r.direction * t - voxelPos - 0.5) / 0.5;
+        normal = normalize(r.origin + r.direction * t - voxelPos - 0.5);
         d = dot(normal, r.direction);
 
         buildOrthonormalBasis(normal, entry.tangent.xyz, entry.bitangent.xyz);

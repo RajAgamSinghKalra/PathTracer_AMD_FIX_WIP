@@ -11,7 +11,7 @@ const int colortex2Format = R32F;
 const ivec3 VOXEL_VOLUME_SIZE = ivec3(512, 386, 512);
 const ivec3 HALF_VOXEL_VOLUME_SIZE = VOXEL_VOLUME_SIZE / 2;
 
-#define EMISSION_STRENGTH 2.0 // [1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0]
+#define EMISSION_STRENGTH 3.0 // [1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0]
 #define SKY_CONTRIBUTION
 
 #define RUSSIAN_ROULETTE
@@ -19,7 +19,7 @@ const ivec3 HALF_VOXEL_VOLUME_SIZE = VOXEL_VOLUME_SIZE / 2;
 // #define BSDF_SAMPLE_RUSSIAN_ROULETTE
 
 // #define NEIGHBOURHOOD_CLAMPING
-#define TONEMAP 0 // [0 1 2 3]
+#define TONEMAP 3 // [0 1 2 3]
 
 #define LENS_TYPE 2 // [0 1 2 3 4]
 #define APERTURE_SHAPE 0 // [0 1]
@@ -36,6 +36,8 @@ const ivec3 HALF_VOXEL_VOLUME_SIZE = VOXEL_VOLUME_SIZE / 2;
 #define PRINT_SAMPLES
 
 #define THIN_FILM_CONFIGURATION 0 // [0 1]
+// #define ENABLE_TRANSLUCENTS
+#define GLASS_ABSORPTION 3.0 // [0.10 0.25 0.50 0.75 1.0 1.5 2.0 3.0 4.0]
 
 // #define ENABLE_SPHERES
 
