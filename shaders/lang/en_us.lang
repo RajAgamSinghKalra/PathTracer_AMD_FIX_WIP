@@ -19,6 +19,7 @@ option.PRINT_CAMERA_SETTINGS = Print Camera Settings
 option.PRINT_COATING_INFO = Print Coating Info
 option.PRINT_RENDER_TIME = Print Render Time
 option.PRINT_SAMPLES = Print Samples
+option.PRINT_FRAME_TIME = Print Frame Time
 
 option.THIN_FILM_CONFIGURATION = Thin Film Configuration
 option.ENABLE_TRANSLUCENTS = Translucents

@@ -16,6 +16,7 @@ const bool colortex2MipmapEnabled = true;
 
 uniform sampler2D colortex2;
 
+uniform float frameTimeSmooth;
 uniform float viewHeight;
 
 /* RENDERTARGETS: 0 */
@@ -39,5 +40,5 @@ void main() {
     color = linearToSrgb(color);
 
     ivec2 time = ivec2(currentDate.x, currentYearTime.x);
-    renderTextOverlay(color, ivec2(gl_FragCoord.xy) / 2, ivec2(1.0, viewHeight * 0.5 - 1.0), time);
+    renderTextOverlay(color, ivec2(gl_FragCoord.xy) / 2, ivec2(1.0, viewHeight * 0.5 - 1.0), time, frameTimeSmooth);
 }

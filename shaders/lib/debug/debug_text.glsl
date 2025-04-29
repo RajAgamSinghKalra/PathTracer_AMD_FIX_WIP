@@ -108,7 +108,7 @@ ivec3 getRenderTime(ivec2 time) {
 
     int hours = seconds / 3600;
     int minutes = (seconds - hours * 3600) / 60;
-    seconds -= minutes * 60;
+    seconds -= (hours * 60 + minutes) * 60;
 
     return ivec3(hours, minutes, seconds);
 }
@@ -137,7 +137,16 @@ void printSamples() {
     printLine();
 }
 
-void renderTextOverlay(inout vec3 color, ivec2 resolution, ivec2 position, ivec2 time) {
+void printFrameTime(float frameTime) {
+    printString((_F, _r, _a, _m, _e, _space, _t, _i, _m, _e, _colon, _space));
+    
+    text.fpPrecision = 1;
+    printFloat(frameTime * 1000.0);
+
+    printLine();
+}
+
+void renderTextOverlay(inout vec3 color, ivec2 resolution, ivec2 position, ivec2 time, float frameTime) {
 #if (DEBUG_INFO == 0)
     return;
 #elif (DEBUG_INFO == 1)
@@ -182,6 +191,10 @@ void renderTextOverlay(inout vec3 color, ivec2 resolution, ivec2 position, ivec2
     if (renderState.frame != 0) {
         printSamples();
     }
+#endif
+
+#ifdef PRINT_FRAME_TIME
+    printFrameTime(frameTime);
 #endif
 
     endText(color);
