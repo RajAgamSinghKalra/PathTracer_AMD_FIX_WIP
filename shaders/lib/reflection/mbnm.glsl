@@ -3,27 +3,27 @@
 
 // https://jo.dreggn.org/home/2017_normalmap.pdf
 
-float mbnm_projectedArea_p(material m, vec3 wi) {
-    return max(0.0, dot(wi, m.normal)) / max(0.0, m.normal.z);
+float mbnm_projectedArea_p(vec3 wi, vec3 wp) {
+    return dot(wi, wp) / wp.z;
 }
 
-float mbnm_projectedArea_t(material m, vec3 wi, vec3 wt) {
-    return max(0.0, dot(wi, wt)) * sqrt(1.0 - m.normal.z * m.normal.z) / max(0.0, m.normal.z);
+float mbnm_projectedArea_t(vec3 wi, vec3 wp, vec3 wt) {
+    return (dot(wi, wt) * sqrt(1.0 - wp.z * wp.z)) / wp.z;
 }
 
-float mbnm_lambda_p(material m, vec3 wi, vec3 wt) {
-    float ap = mbnm_projectedArea_p(m, wi);
-    return ap / (ap + mbnm_projectedArea_t(m, wi, wt));
+float mbnm_lambda_p(vec3 wi, vec3 wp, vec3 wt) {
+    float ap = mbnm_projectedArea_p(wi, wp);
+    return ap / (ap + mbnm_projectedArea_t(wi, wp, wt));
 }
 
-float mbnm_lambda_t(material m, vec3 wi, vec3 wt) {
-    float at = mbnm_projectedArea_t(m, wi, wt);
-    return at / (at + mbnm_projectedArea_p(m, wi));
+float mbnm_lambda_t(vec3 wi, vec3 wp, vec3 wt) {
+    float at = mbnm_projectedArea_t(wi, wp, wt);
+    return at / (at + mbnm_projectedArea_p(wi, wp));
 }
 
-float mbnm_G1(material m, vec3 wi, vec3 wt, vec3 wm) {
-    if (dot(wi, wm) < 0.0) return 0.0;
-    return min(1.0, max(0.0, wi.z) / (mbnm_projectedArea_p(m, wi) + mbnm_projectedArea_t(m, wi, wt)));
+float mbnm_G1(vec3 wi, vec3 wp, vec3 wt) {
+    if (wi.z < 0.0) return 0.0;
+    return min(1.0, wi.z / (mbnm_projectedArea_p(wi, wp) + mbnm_projectedArea_t(wi, wp, wt)));
 }
 
 float evalMBNMicrofacetBSDF(material m, vec3 wi, vec3 wo);
@@ -36,7 +36,7 @@ float evalMicrosurfaceBSDF_MBN(material m, vec3 wi, vec3 wo) {
     }
 
     vec3 wt = normalize(-vec3(m.normal.xy, 0.0));
-    bool wp_first = random1() < mbnm_lambda_p(m, wi, wt);
+    bool wp_first = random1() < mbnm_lambda_p(wi, m.normal, wt);
     vec3 wm = wp_first ? m.normal : wt;
     vec3 wr = -wi;
     
@@ -56,7 +56,7 @@ float evalMicrosurfaceBSDF_MBN(material m, vec3 wi, vec3 wo) {
         vec3 wm_wo = wo * wmToLocal;
 
         float phase = evalMBNMicrofacetBSDF(m, -wm_wr, wm_wo);
-        float shadowing = mbnm_G1(m, wo, wt, wm);
+        float shadowing = mbnm_G1(wo, m.normal, wt);
         float I = phase * shadowing;
 
         if (!isinf(I)) {
@@ -79,7 +79,7 @@ float evalMicrosurfaceBSDF_MBN(material m, vec3 wi, vec3 wo) {
         wr = wmToLocal * wm_wr;
         throughput *= weight;
 
-        if (random1() < mbnm_G1(m, wr, wt, wm)) {
+        if (random1() < mbnm_G1(wr, m.normal, wt)) {
             break;
         } else {
             wmToLocal = wm == wt ? wpToLocal : wtToLocal;
@@ -96,7 +96,7 @@ bool sampleMicrosurfaceBSDF_MBN(material m, vec3 wi, out vec3 wo, out float thro
     }
 
     vec3 wt = normalize(-vec3(m.normal.xy, 0.0));
-    bool wp_first = random1() < mbnm_lambda_p(m, wi, wt);
+    bool wp_first = random1() < mbnm_lambda_p(wi, m.normal, wt);
     vec3 wm = wp_first ? m.normal : wt;
     vec3 wr = -wi;
     
@@ -119,7 +119,7 @@ bool sampleMicrosurfaceBSDF_MBN(material m, vec3 wi, out vec3 wo, out float thro
         wr = wmToLocal * wm_wr;
         throughput *= weight;
 
-        if (random1() < mbnm_G1(m, wr, wt, wm)) {
+        if (random1() < mbnm_G1(wr, m.normal, wt)) {
             wo = wr;
             return true;
         } else {
@@ -145,7 +145,7 @@ float evalMicrosurfacePDF_MBN(material m, vec3 wi, vec3 wo) {
     }
 
     vec3 wt = normalize(-vec3(m.normal.xy, 0.0));
-    float p_wp = mbnm_lambda_p(m, wi, wt);
+    float p_wp = mbnm_lambda_p(wi, m.normal, wt);
 
     float pdf = 0.0;
     if (p_wp > 0.0) {
@@ -161,7 +161,7 @@ float evalMicrosurfacePDF_MBN(material m, vec3 wi, vec3 wo) {
         pdf += (1.0 - p_wp) * evalMBNMicrofacetPDF(m, wi * wtToLocal, wo * wtToLocal);
     }
 
-    pdf *= mbnm_G1(m, wo, wt, m.normal);
+    pdf *= mbnm_G1(wo, m.normal, wt);
     return pdf + wo.z / PI;
 }
 

@@ -22,7 +22,7 @@ void main() {
         renderState.frame = 0;
         renderState.invalidSplat = 0;
         renderState.startTime = ivec2(currentDate.x, currentYearTime.x);
-        renderState.sunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition);
+        renderState.sunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition) * vec3(1.0, 1.0, -1.0);
     }
 
     renderState.clear = (renderState.frame <= 1);
