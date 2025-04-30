@@ -11,7 +11,7 @@ const int colortex2Format = R32F;
 const ivec3 VOXEL_VOLUME_SIZE = ivec3(512, 386, 512);
 const ivec3 HALF_VOXEL_VOLUME_SIZE = VOXEL_VOLUME_SIZE / 2;
 
-#define EMISSION_STRENGTH 3.0 // [1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0]
+#define EMISSION_STRENGTH 3.0 // [0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0]
 #define SKY_CONTRIBUTION
 
 #define RUSSIAN_ROULETTE
