@@ -142,6 +142,7 @@ void printFrameTime(float frameTime) {
     
     text.fpPrecision = 1;
     printFloat(frameTime * 1000.0);
+    printString((_m, _s));
 
     printLine();
 }

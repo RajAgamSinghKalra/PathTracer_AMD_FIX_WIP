@@ -18,9 +18,9 @@ vec3 getFilmAverageColor(vec2 coord) {
 }
 
 vec3 getFilmAverageColor(vec2 coord, ivec2 offset) {
-    coord = coord * 0.5 + 0.5;
-    vec3 splat = textureOffset(splatSampler, coord, offset).xyz / float(max(renderState.frame, 1));
-    return textureOffset(filmSampler, coord, offset).xyz + splat;
+    coord = coord * 0.5 + 0.5 + vec2(offset) / vec2(textureSize(filmSampler, 0).xy);
+    vec3 splat = texture(splatSampler, coord).xyz / float(max(renderState.frame, 1));
+    return texture(filmSampler, coord).xyz + splat;
 }
 
 vec3 getFilmAverageColor(ivec2 coord) {
