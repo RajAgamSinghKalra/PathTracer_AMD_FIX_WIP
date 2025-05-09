@@ -39,7 +39,7 @@ bool traceLensSystem(int lambda, const bool fromScene, bool canReflect, inout ra
             }
             
             r.origin += t * r.direction;
-            if (!insideAperture(r.origin.xy, element.aperture)) {
+            if (!insideAperture(r.origin.xy, renderState.apertureRadius)) {
                 return false;
             }
         } else {
@@ -106,7 +106,7 @@ bool rayExitsLensSystem(int lambda, ray r) {
             }
             
             r.origin += t * r.direction;
-            if (!insideAperture(r.origin.xy, element.aperture)) {
+            if (!insideAperture(r.origin.xy, renderState.apertureRadius)) {
                 return false;
             }
         } else {

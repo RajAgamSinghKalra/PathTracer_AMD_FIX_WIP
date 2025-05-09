@@ -19,6 +19,7 @@ layout (std430, binding = 1) buffer render_state {
     exit_pupil_data exitPupil;
     float entracePupilRadius;
     float focalLength;
+    float apertureRadius;
     float fNumber;
     mat2 rayTransferMatrix;
     ivec2 startTime;

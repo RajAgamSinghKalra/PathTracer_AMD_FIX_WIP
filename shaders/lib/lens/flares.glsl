@@ -30,7 +30,7 @@ void traceReflectedLensFlarePath(vec2 sensorExtent, int lambda, ray r, float wei
             }
             
             r.origin += t * r.direction;
-            if (!insideAperture(r.origin.xy, element.aperture)) {
+            if (!insideAperture(r.origin.xy, renderState.apertureRadius)) {
                 return;
             }
         } else {
@@ -105,7 +105,7 @@ void traceLensFlarePaths(inout prng_state prngLocal, vec2 sensorExtent, int lamb
             }
             
             r.origin += t * r.direction;
-            if (!insideAperture(r.origin.xy, element.aperture)) {
+            if (!insideAperture(r.origin.xy, renderState.apertureRadius)) {
                 return;
             }
         } else {
