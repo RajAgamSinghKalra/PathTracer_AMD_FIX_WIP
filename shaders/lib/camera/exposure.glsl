@@ -2,7 +2,7 @@
 #define _EXPOSURE_GLSL 1
 
 const float logLumMin = -5.0;
-const float logLumRange = 11.0;
+const float logLumRange = 15.0;
 
 float toLogLuminance(float lum) {
     return clamp((log2(lum) - logLumMin) / logLumRange, 0.0, 1.0);
