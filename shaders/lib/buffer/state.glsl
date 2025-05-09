@@ -24,6 +24,8 @@ layout (std430, binding = 1) buffer render_state {
     ivec2 startTime;
     vec3 sunDirection;
     int invalidSplat;
+    uint histogram[256];
+    float avgLuminance;
 } renderState;
 
 #endif // _STATE_GLSL

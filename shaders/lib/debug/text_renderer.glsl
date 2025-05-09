@@ -130,8 +130,8 @@ const uint _clprn = 0x41084220u; // )
 const uint _block = 0xFFFFFFFCu; // █
 const uint _copyr = 0x03AB9AB8u; // ©️
 const uint _equal = 0x01C0703u; // =
-const uint _plus  = 0x21364200u; // + good enough but could be better - tired of trial and error
-const uint _slash = 0x00022220u; // / same as above lol
+const uint _plus  = 0x109F210u; // +
+const uint _slash = 0x00022220u; // /
 
 const uint _lambda = 0x4108A544u;
 

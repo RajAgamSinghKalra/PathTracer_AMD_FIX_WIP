@@ -27,6 +27,10 @@ void printLensType() {
 }
 
 void printCameraSettings() {
+#if (EXPOSURE == 0)
+    printString((_A, _u, _t, _o, _m, _a, _t, _i, _c, _space, _E, _x, _p, _o, _s, _u, _r, _e));
+    printLine();
+#elif (EXPOSURE == 1)
     printString((_S, _h, _u, _t, _t, _e, _r, _space, _s, _p, _e, _e, _d, _colon, _space,  _1, _slash));
     printInt(int(SHUTTER_SPEED));
     printChar(_s);
@@ -34,6 +38,16 @@ void printCameraSettings() {
 
     printString((_I, _S, _O, _space));
     printInt(int(ISO));
+    printString((_space, _space));
+#endif
+
+    text.fpPrecision = 1;
+
+    printString((_E, _V, _space));
+    if (float(EV) > 0.0) {
+        printChar(_plus);
+    }
+    printFloat(float(EV));
 
     text.fpPrecision = 2;
 

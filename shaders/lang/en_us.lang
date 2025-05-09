@@ -8,10 +8,13 @@ option.BSDF_SAMPLE_RUSSIAN_ROULETTE = BSDF Sampling RR
 option.NEIGHBOURHOOD_CLAMPING = Neighbourhood Clamping
 option.TONEMAP = Tonemap
 
-option.APERTURE_SHAPE = Aperture Shape
 option.LENS_TYPE = Lens Type
+option.APERTURE_SHAPE = Aperture Shape
+option.EXPOSURE = Exposure
+option.F_NUMBER = Soon™
 option.ISO = ISO
 option.SHUTTER_SPEED = Shutter Speed
+option.EV = EV
 
 option.DEBUG_INFO = Debug Info
 option.PRINT_LENS_TYPE = Print Lens Type
@@ -32,14 +35,19 @@ value.TONEMAP.1 = Camera Tonemap
 value.TONEMAP.2 = Exponential
 value.TONEMAP.3 = ACES (Fitted)
 
-value.APERTURE_SHAPE.0 = Circular
-value.APERTURE_SHAPE.1 = Hexagonal
-
 value.LENS_TYPE.0 = Double Gauss
 value.LENS_TYPE.1 = Fisheye
 value.LENS_TYPE.2 = Tessar
 value.LENS_TYPE.3 = Cooke Triplet
 value.LENS_TYPE.4 = Petzval
+
+value.APERTURE_SHAPE.0 = Circular
+value.APERTURE_SHAPE.1 = Hexagonal
+
+value.EXPOSURE.0 = Automatic
+value.EXPOSURE.1 = Manual
+
+value.F_NUMBER.0 = Default
 
 value.DEBUG_INFO.0 = Off
 value.DEBUG_INFO.1 = On

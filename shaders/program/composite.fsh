@@ -10,12 +10,6 @@ in vec2 texcoord;
 uniform ivec3 currentDate;
 uniform ivec2 currentYearTime;
 
-/*
-const bool colortex2MipmapEnabled = true;
-*/
-
-uniform sampler2D colortex2;
-
 uniform float frameTimeSmooth;
 uniform float viewHeight;
 
@@ -34,7 +28,14 @@ void main() {
 #endif
 
     color = max(XYZ_TO_sRGB * color, 0.0);
-    color /= 1.2 * SHUTTER_SPEED * 100.0 / ISO;
+
+    float ev100 = 0.0;
+#if (EXPOSURE == 0)
+    ev100 = log2(renderState.avgLuminance * 100.0 / 12.5);
+#elif (EXPOSURE == 1)
+    ev100 = log2(float(SHUTTER_SPEED) * 100.0 / float(ISO));
+#endif
+    color /= 1.2 * exp2(ev100 - float(EV));
 
     color = tonemap(color);
     color = linearToSrgb(color);

@@ -1,3 +1,3 @@
 #version 460 compatibility
 
-#include "/program/luminance.fsh"
+#include "/program/composite.fsh"
