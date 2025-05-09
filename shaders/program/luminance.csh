@@ -2,6 +2,7 @@
 // https://bruop.github.io/exposure/
 
 #include "/lib/buffer/state.glsl"
+#include "/lib/camera/exposure.glsl"
 #include "/lib/camera/film.glsl"
 #include "/lib/utility/color.glsl"
 
@@ -32,7 +33,7 @@ void main() {
 
     if (gl_LocalInvocationIndex == 0u) {
         float logAverage = (float(histogramShared[0]) / max(viewWidth * viewHeight - float(count), 1.0)) - 1.0;
-        float avgLum = exp2((logAverage / 254.0) * 13.0 + -5.0);
+        float avgLum = fromLogLuminance(logAverage);
 
         renderState.avgLuminance = avgLum;
     }

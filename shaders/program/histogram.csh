@@ -2,6 +2,7 @@
 // https://bruop.github.io/exposure/
 
 #include "/lib/buffer/state.glsl"
+#include "/lib/camera/exposure.glsl"
 #include "/lib/camera/film.glsl"
 #include "/lib/utility/color.glsl"
 
@@ -13,13 +14,13 @@ uniform float viewHeight;
 
 shared uint histogramShared[256];
 
-uint colorToBin(vec3 color_xyz, float minLogLum, float logLumRange) {
+uint colorToBin(vec3 color_xyz) {
     float lum = color_xyz.y;
     if (lum < 0.001) {
-        return 0;
+        return 0u;
     }
 
-    float logLum = clamp((log2(lum) - minLogLum) / logLumRange, 0.0, 1.0);
+    float logLum = toLogLuminance(lum);
     return uint(logLum * 254.0 + 1.0);
 }
 
@@ -30,7 +31,7 @@ void main() {
     uvec2 dim = uvec2(viewWidth, viewHeight);
     if (gl_GlobalInvocationID.x < dim.x && gl_GlobalInvocationID.y < dim.y) {
         vec3 color = getFilmAverageColor(ivec2(gl_GlobalInvocationID.xy));
-        uint binIndex = colorToBin(color, -5.0, 13.0);
+        uint binIndex = colorToBin(color);
         atomicAdd(histogramShared[binIndex], 1);
     }
 

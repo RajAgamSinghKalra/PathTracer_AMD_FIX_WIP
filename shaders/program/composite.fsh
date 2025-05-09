@@ -1,4 +1,5 @@
 #include "/lib/buffer/state.glsl"
+#include "/lib/camera/exposure.glsl"
 #include "/lib/camera/film.glsl"
 #include "/lib/debug/debug_text.glsl"
 #include "/lib/post/tonemap.glsl"
@@ -31,11 +32,11 @@ void main() {
 
     float ev100 = 0.0;
 #if (EXPOSURE == 0)
-    ev100 = log2(renderState.avgLuminance * 100.0 / 12.5);
+    ev100 = averageLuminanceToEV100(renderState.avgLuminance);
 #elif (EXPOSURE == 1)
-    ev100 = log2(float(SHUTTER_SPEED) * 100.0 / float(ISO));
+    ev100 = cameraSettingsToEV100(float(SHUTTER_SPEED), float(ISO));
 #endif
-    color /= 1.2 * exp2(ev100 - float(EV));
+    color *= exposureFromEV100(ev100 - float(EV));
 
     color = tonemap(color);
     color = linearToSrgb(color);
