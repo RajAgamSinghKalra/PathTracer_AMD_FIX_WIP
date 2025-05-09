@@ -2,6 +2,7 @@
 #include "/lib/buffer/state.glsl"
 #include "/lib/camera/film.glsl"
 #include "/lib/camera/lens_system.glsl"
+#include "/lib/camera/pinhole.glsl"
 #include "/lib/lens/flares.glsl"
 #include "/lib/raytracing/trace.glsl"
 #include "/lib/reflection/bsdf.glsl"
@@ -30,14 +31,7 @@ uniform float eyeAltitude;
 uniform float viewWidth;
 uniform float viewHeight;
 
-void main() {
-    currentIOR = 1.0;
-
-    vec2 fragCoord = vec2(gl_GlobalInvocationID.xy);
-    if (fragCoord.x > viewWidth || fragCoord.y > viewHeight) return;
-
-    initGlobalPRNG(fragCoord / vec2(viewWidth, viewHeight), renderState.frame);
-
+void pathTracer(vec2 fragCoord) {
     float lambdaPDF;
     int lambda = sampleWavelength(random1(), lambdaPDF);
 
@@ -169,4 +163,41 @@ void main() {
     vec3 L_xyz = spectrumToXYZ(lambda, L * cameraWeight);
 
     logFilmSample(filmSample, L_xyz);
+}
+
+void preview(vec2 fragCoord) {
+    vec2 filmCoord = (fragCoord + 0.5) / vec2(viewWidth, viewHeight) * 2.0 - 1.0;
+    ivec3 voxelOffset = ivec3(gbufferModelViewInverse[2].xyz * VOXEL_OFFSET);
+
+    ray r = generatePinholeCameraRay(cameraPositionFract, gbufferProjectionInverse, gbufferModelViewInverse, filmCoord);
+
+    intersection it;
+    if (traceRay(it, voxelOffset, colortex10, r)) {
+        vec3 sunDirection = renderState.sunDirection;
+        float cosTheta = dot(it.tbn[2], sunDirection);
+
+        vec3 albedo = sRGB_TO_XYZ * srgbToLinear(it.albedo.rgb);
+        vec3 L = albedo * 0.05 * (0.25 * cosTheta + 0.75);
+
+        if (cosTheta > 0.0) {
+            L += albedo * cosTheta * 0.3;
+        }
+
+        logFilmSample(filmCoord, L * 683.0);
+    }
+}
+
+void main() {
+    currentIOR = 1.0;
+
+    vec2 fragCoord = vec2(gl_GlobalInvocationID.xy);
+    if (fragCoord.x > viewWidth || fragCoord.y > viewHeight) return;
+
+    initGlobalPRNG(fragCoord / vec2(viewWidth, viewHeight), renderState.frame);
+
+    if (renderState.frame == 0) {
+        preview(fragCoord);
+    } else {
+        pathTracer(fragCoord);
+    }
 }
