@@ -44,7 +44,7 @@ bool rayEscapedScene(vec3 voxel, vec3 boundMin, vec3 boundMax) {
 bool intersectModelElement(inout quad_entry entry, sampler2D atlas, ray r, vec3 voxelPos, float tMax, out vec3 normal, out float d, out float t, out vec2 uv, out vec4 albedo) {
 #ifdef ENABLE_SPHERES
     if ((entry.tint >> 24u) == 254u) {
-        vec2 t2 = intersectSphere(r, voxelPos + 0.5, 0.5);
+        vec2 t2 = intersectSphere(r, voxelPos + 0.5, 0.498);
         if (t2.y < 0.0) {
             return false;
         }
