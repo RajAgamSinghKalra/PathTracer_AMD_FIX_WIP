@@ -29,7 +29,7 @@ float stepVoxel(inout vec3 voxel, inout vec3 origin, vec3 direction, float voxel
     vec3 dist = ((floor(voxel / voxelSize) + max(sign(direction), 0.0)) * voxelSize - origin - vec3(offset)) / direction;
     float t = min(dist.x, min(dist.y, dist.z));
 
-    origin += direction * t;
+    origin += direction * (t + 1.0e-6);
 
     vec3 voxelDirection = step(dist, vec3(t)) * sign(direction);
     voxel = vec3(offset) + floor(origin + 0.5 * voxelDirection);

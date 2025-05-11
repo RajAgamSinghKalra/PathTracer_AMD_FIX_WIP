@@ -10,11 +10,12 @@ option.TONEMAP = Tonemap
 
 option.LENS_TYPE = Lens Type
 option.APERTURE_SHAPE = Aperture Shape
+option.SENSOR_SIZE = Sensor Size (%)
 option.EXPOSURE = Exposure
-option.F_NUMBER = F-number
 option.ISO = ISO
 option.SHUTTER_SPEED = Shutter Speed
 option.EV = EV
+option.F_NUMBER = F-number
 
 option.DEBUG_INFO = Debug Info
 option.PRINT_LENS_TYPE = Print Lens Type

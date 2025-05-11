@@ -19,11 +19,12 @@ const ivec3 HALF_VOXEL_VOLUME_SIZE = VOXEL_VOLUME_SIZE / 2;
 
 #define LENS_TYPE 2 // [0 1 2 3 4]
 #define APERTURE_SHAPE 0 // [0 1]
+#define SENSOR_SIZE 100 // [50 60 70 80 90 100 110 120 130 140 150 160 170 180 190 200]
 #define EXPOSURE 0 // [0 1]
-#define F_NUMBER 11 // [0 1 1.4 2 2.8 4 5.6 8 11 16 22 32]
 #define ISO 100 // [50 100 200 400 800 1600 3200]
 #define SHUTTER_SPEED 125 // [1500 1000 500 250 125 60 30 15 8]
 #define EV +0.5 // [-5 -4.5 -4 -3.5 -3 -2.5 -2 -1.5 -1 -0.75 -0.5 -0.25 0 +0.25 +0.5 +0.75 +1 +1.5 +2 +2.5 +3 +3.5 +4 +4.5 +5]
+#define F_NUMBER 11 // [0 1 1.4 2 2.8 4 5.6 8 11 16 22 32]
 
 #define VOXEL_OFFSET 0.0
 

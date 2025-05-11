@@ -2,9 +2,10 @@
 #define _LENS_COMMON_GLSL 1
 
 #include "/lib/reflection/sellmeier.glsl"
+#include "/lib/settings.glsl"
 
 struct sensor_data {
-    float extent;
+    float baseExtent;
 };
 
 struct lens_element {
@@ -16,7 +17,8 @@ struct lens_element {
 };
 
 vec2 getSensorPhysicalExtent(sensor_data data, mat4 projection) {
-    return vec2(data.extent) * 0.001 / vec2(1.0, projection[1][1] / projection[0][0]);
+    float scale = float(SENSOR_SIZE) / 100.0;
+    return scale * vec2(data.baseExtent) * 0.001 * vec2(1.0, projection[0][0] / projection[1][1]);
 }
 
 #endif // _LENS_COMMON_GLSL

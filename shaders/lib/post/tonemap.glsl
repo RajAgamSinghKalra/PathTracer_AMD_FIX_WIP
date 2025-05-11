@@ -10,7 +10,7 @@ vec3 tonemap(vec3 color) {
 #if (TONEMAP == 0)
     return agxTonemap(color);
 #elif (TONEMAP == 1)
-    return cameraTonemap(color, 1.0);
+    return cameraTonemap(color, 4.0);
 #elif (TONEMAP == 2)
     return clamp(1.0 - exp(-color), 0.0, 1.0);
 #elif (TONEMAP == 3)
