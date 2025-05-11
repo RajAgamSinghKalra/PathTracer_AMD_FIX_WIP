@@ -15,6 +15,13 @@ uniform float viewHeight;
 shared uint histogramShared[256];
 
 void main() {
+    if (renderState.frame == 0) {
+        if (gl_LocalInvocationIndex == 0u) {
+            renderState.avgLuminance = 12.0;
+        }
+        return;
+    }
+
     uint count = renderState.histogram[gl_LocalInvocationIndex];
     histogramShared[gl_LocalInvocationIndex] = count * gl_LocalInvocationIndex;
 
@@ -32,7 +39,7 @@ void main() {
     }
 
     if (gl_LocalInvocationIndex == 0u) {
-        float logAverage = (float(histogramShared[0]) / max(viewWidth * viewHeight - float(count), 1.0)) - 10.0;
+        float logAverage = (float(histogramShared[0]) / max(viewWidth * viewHeight - float(count), 1.0)) - 20.0;
         float avgLum = fromLogLuminance(logAverage / 254.0);
 
         renderState.avgLuminance = avgLum;

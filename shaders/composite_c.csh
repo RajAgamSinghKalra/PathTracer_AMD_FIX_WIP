@@ -1,3 +1,3 @@
 #version 460 compatibility
 
-#include "/program/main/pathtrace.csh"
+#include "/program/main/render.csh"

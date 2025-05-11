@@ -184,6 +184,9 @@ void preview(vec2 fragCoord) {
         }
 
         logFilmSample(filmCoord, L * 683.0);
+    } else {
+        vec3 sky = mix(vec3(1.0), vec3(0.5, 0.7, 1.0), sqrt(r.direction.y * 0.5 + 0.5));
+        logFilmSample(filmCoord, sRGB_TO_XYZ * (68.3 * srgbToLinear(sky)));
     }
 }
 
