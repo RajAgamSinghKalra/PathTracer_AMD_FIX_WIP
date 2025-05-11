@@ -27,6 +27,12 @@ layout (std430, binding = 1) buffer render_state {
     int invalidSplat;
     uint histogram[256];
     float avgLuminance;
+    mat4 projection;
+    mat4 projectionInverse;
+    mat4 viewMatrix;
+    mat4 viewMatrixInverse;
+    vec3 cameraPosition;
+    float altitude;
 } renderState;
 
 #endif // _STATE_GLSL

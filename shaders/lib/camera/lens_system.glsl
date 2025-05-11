@@ -1,13 +1,14 @@
 #ifndef _CAMERA_LENS_SYSTEM_GLSL
 #define _CAMERA_LENS_SYSTEM_GLSL 1
 
+#include "/lib/buffer/state.glsl"
 #include "/lib/lens/tracing.glsl"
 #include "/lib/lens/sampling.glsl"
 
-ray generateCameraRay(int lambda, vec3 position, mat4 projection, mat4 viewInverse, vec2 filmSample, out float weight, out bool lensFlare) {
+ray generateCameraRay(int lambda, vec2 filmSample, out float weight, out bool lensFlare) {
     const float lensFlareProbability = 0.25;
 
-    vec2 sensorExtent = getSensorPhysicalExtent(CAMERA_SENSOR, projection);
+    vec2 sensorExtent = getSensorPhysicalExtent(CAMERA_SENSOR);
 
     vec2 pointOnSensor = sensorExtent * -filmSample;
     vec2 pointOnRearElement;
@@ -37,21 +38,21 @@ ray generateCameraRay(int lambda, vec3 position, mat4 projection, mat4 viewInver
         weight = 0.0;
     }
 
-    r.origin = (mat3(viewInverse) * r.origin) + position;
-    r.direction = normalize(mat3(viewInverse) * r.direction);
+    r.origin = (mat3(renderState.viewMatrixInverse) * r.origin) + renderState.cameraPosition;
+    r.direction = normalize(mat3(renderState.viewMatrixInverse) * r.direction);
 
     return r;
 }
 
-vec3 connectLightRayToFilm(int lambda, vec3 direction, mat4 projection, mat4 view, mat4 viewInverse, vec3 position, out bool lensFlare) {
-    vec2 sensorExtent = getSensorPhysicalExtent(CAMERA_SENSOR, projection);
+vec3 connectLightRayToFilm(int lambda, vec3 direction, out bool lensFlare) {
+    vec2 sensorExtent = getSensorPhysicalExtent(CAMERA_SENSOR);
 
-    direction = normalize(mat3(view) * direction);
+    direction = normalize(mat3(renderState.viewMatrix) * direction);
     if (direction.z <= 0.0) {
         return vec3(0.0);
     }
 
-    ray r = ray(position, direction);
+    ray r = ray(renderState.cameraPosition, direction);
     r.origin -= 0.1 * direction;
 
     float weight = 1.0;

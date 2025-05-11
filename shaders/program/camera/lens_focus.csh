@@ -7,21 +7,16 @@ const ivec3 workGroups = ivec3(1, 1, 1);
 
 uniform sampler2D colortex10;
 
-uniform mat4 gbufferProjectionInverse;
-uniform mat4 gbufferModelViewInverse;
-
-uniform vec3 cameraPositionFract;
-
 void main() {
     if (renderState.frame != 0) {
         return;
     }
 
-    vec3 direction = normalize(-gbufferModelViewInverse[2].xyz);
-    ivec3 voxelOffset = ivec3(gbufferModelViewInverse[2].xyz * VOXEL_OFFSET);
+    vec3 direction = normalize(-renderState.viewMatrixInverse[2].xyz);
+    ivec3 voxelOffset = ivec3(renderState.viewMatrixInverse[2].xyz * VOXEL_OFFSET);
     
     intersection it;
-    if (traceRay(it, voxelOffset, colortex10, ray(cameraPositionFract, direction))) {
+    if (traceRay(it, voxelOffset, colortex10, ray(renderState.cameraPosition, direction))) {
         renderState.focusDistance = it.t;
     } else {
         renderState.focusDistance = 1024.0;

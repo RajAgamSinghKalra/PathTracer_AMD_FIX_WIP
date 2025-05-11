@@ -5,10 +5,8 @@
 layout (local_size_x = 32, local_size_y = 1, local_size_z = 1) in;
 const ivec3 workGroups = ivec3(8, 1, 1);
 
-uniform mat4 gbufferProjection;
-
 void main() {
-    vec2 sensorExtent = getSensorPhysicalExtent(CAMERA_SENSOR, gbufferProjection);
+    vec2 sensorExtent = getSensorPhysicalExtent(CAMERA_SENSOR);
     float physicalRadius = length(sensorExtent);
 
     float sampleRadius = physicalRadius * float(gl_GlobalInvocationID.x) / 255.0;

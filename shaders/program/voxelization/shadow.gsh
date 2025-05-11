@@ -1,5 +1,6 @@
 #include "/lib/buffer/octree.glsl"
 #include "/lib/buffer/quad.glsl"
+#include "/lib/buffer/state.glsl"
 #include "/lib/buffer/voxel.glsl"
 #include "/lib/settings.glsl"
 
@@ -15,7 +16,7 @@ in vec4 vColor[3];
 in vec2 vUV[3];
 
 void main() {
-    if (gl_PrimitiveIDIn % 2 != 0) {
+    if (gl_PrimitiveIDIn % 2 != 0 || renderState.frame > 1) {
         return;
     }
 

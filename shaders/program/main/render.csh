@@ -20,14 +20,6 @@ uniform sampler2D colortex10;
 uniform sampler2D colortex11;
 uniform sampler2D colortex12;
 
-uniform mat4 gbufferProjection;
-uniform mat4 gbufferModelView;
-uniform mat4 gbufferProjectionInverse;
-uniform mat4 gbufferModelViewInverse;
-
-uniform vec3 cameraPositionFract;
-uniform float eyeAltitude;
-
 uniform float viewWidth;
 uniform float viewHeight;
 
@@ -35,7 +27,7 @@ void pathTracer(vec2 fragCoord) {
     float lambdaPDF;
     int lambda = sampleWavelength(random1(), lambdaPDF);
 
-    ivec3 voxelOffset = ivec3(gbufferModelViewInverse[2].xyz * VOXEL_OFFSET);
+    ivec3 voxelOffset = ivec3(renderState.viewMatrixInverse[2].xyz * VOXEL_OFFSET);
 
     vec2 filmSample = (fragCoord + random2()) / vec2(viewWidth, viewHeight) * 2.0 - 1.0;
 
@@ -49,17 +41,17 @@ void pathTracer(vec2 fragCoord) {
 
         float sampleWeight, lensPDFinv;
         vec3 point = samplePointOnFrontElement(filmSample * 0.5 + 0.5, lensPDFinv);
-        vec3 origin = cameraPositionFract + (mat3(gbufferModelViewInverse) * point);
+        vec3 origin = renderState.cameraPosition + (mat3(renderState.viewMatrixInverse) * point);
 
-        vec3 earthPosition = convertToEarthSpace(origin, cameraPositionFract, eyeAltitude);
+        vec3 earthPosition = convertToEarthSpace(origin);
         vec3 direction = sampleSunDirection(random2(prngLocal), sunPosition, earthPosition, sampleWeight);
-        vec3 viewDirection = normalize(mat3(gbufferModelView) * direction);
+        vec3 viewDirection = normalize(mat3(renderState.viewMatrix) * direction);
 
         if (viewDirection.z < 0.0 && !traceShadowRay(voxelOffset, colortex10, ray(origin + direction * 1024.0, -direction), 1024.0)) {
             float transmittance = estimateTransmittance(ray(earthPosition, direction), extinctionBeta);
             float weight = 2.0 * lensPDFinv / lambdaPDF * transmittance * sunRadiance * sampleWeight;
             if (!isnan(weight) && !isinf(weight) && weight != 0.0) {
-                estimateLensFlares(prngLocal, lambda, -viewDirection, gbufferProjection, point, weight);
+                estimateLensFlares(prngLocal, lambda, -viewDirection, point, weight);
             }
         }
     }
@@ -67,7 +59,7 @@ void pathTracer(vec2 fragCoord) {
 
     float cameraWeight = 1.0;
     bool lensFlare;
-    ray r = generateCameraRay(lambda, cameraPositionFract, gbufferProjection, gbufferModelViewInverse, filmSample, cameraWeight, lensFlare);
+    ray r = generateCameraRay(lambda, filmSample, cameraWeight, lensFlare);
     if (cameraWeight == 0.0) {
         logFilmSample(filmSample, vec3(0.0));
         return;
@@ -85,7 +77,7 @@ void pathTracer(vec2 fragCoord) {
         if (!traceRay(it, voxelOffset, colortex10, r)) {
 #ifdef SKY_CONTRIBUTION
             if ((i == 0 && !lensFlare) || (i > 0 && bsdfSample.dirac)) {
-                ray earthRay = convertToEarthSpace(r, cameraPositionFract, eyeAltitude);
+                ray earthRay = convertToEarthSpace(r);
                 if (intersectSphere(earthRay, sunPosition, sunRadius).x >= 0.0) {
                     float transmittance = estimateTransmittance(earthRay, extinctionBeta);
                     L += throughput * transmittance * sunRadiance;
@@ -107,7 +99,7 @@ void pathTracer(vec2 fragCoord) {
 
 #ifdef SKY_CONTRIBUTION
         float sampleWeight;
-        ray sunRay = convertToEarthSpace(r, cameraPositionFract, eyeAltitude);
+        ray sunRay = convertToEarthSpace(r);
         sunRay.direction = sampleSunDirection(random2(), sunPosition, sunRay.origin, sampleWeight);
         if (dot(sunRay.direction, it.tbn[2]) > 0.0) {
             vec3 shadowOrigin = r.origin + r.direction * it.t + it.tbn[2] * 0.001;
@@ -149,7 +141,7 @@ void pathTracer(vec2 fragCoord) {
 
 #ifdef SKY_CONTRIBUTION
     if (throughput != 0.0) {
-        ray earthRay = convertToEarthSpace(r, cameraPositionFract, eyeAltitude);
+        ray earthRay = convertToEarthSpace(r);
         L += throughput * pathTraceAtmosphere(earthRay, sunPosition, sunRadiance, extinctionBeta, float(lambda));
     }
 #endif
@@ -167,9 +159,9 @@ void pathTracer(vec2 fragCoord) {
 
 void preview(vec2 fragCoord) {
     vec2 filmCoord = (fragCoord + 0.5) / vec2(viewWidth, viewHeight) * 2.0 - 1.0;
-    ivec3 voxelOffset = ivec3(gbufferModelViewInverse[2].xyz * VOXEL_OFFSET);
+    ivec3 voxelOffset = ivec3(renderState.viewMatrixInverse[2].xyz * VOXEL_OFFSET);
 
-    ray r = generatePinholeCameraRay(cameraPositionFract, gbufferProjectionInverse, gbufferModelViewInverse, filmCoord);
+    ray r = generatePinholeCameraRay(filmCoord);
 
     intersection it;
     if (traceRay(it, voxelOffset, colortex10, r)) {

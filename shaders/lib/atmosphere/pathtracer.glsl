@@ -1,6 +1,7 @@
 #ifndef _ATMOSPHERE_PATHTRACER_GLSL
 #define _ATMOSPHERE_PATHTRACER_GLSL 1
 
+#include "/lib/buffer/state.glsl"
 #include "/lib/atmosphere/constants.glsl"
 #include "/lib/atmosphere/density.glsl"
 #include "/lib/atmosphere/scattering.glsl"
@@ -135,14 +136,14 @@ float pathTraceAtmosphere(ray r, vec3 sunPosition, float sunRadiance, vec3 beta,
     return L;
 }
 
-vec3 convertToEarthSpace(vec3 x, vec3 cameraPositionFract, float eyeAltitude) {
-    x.y += earthRadius + max(1.0, 1.0 + eyeAltitude + 64.0);
-    x -= cameraPositionFract;
+vec3 convertToEarthSpace(vec3 x) {
+    x.y += earthRadius + max(1.0, 1.0 + renderState.altitude + 64.0);
+    x -= renderState.cameraPosition;
     return x;
 }
 
-ray convertToEarthSpace(ray r, vec3 cameraPositionFract, float eyeAltitude) {
-    r.origin = convertToEarthSpace(r.origin, cameraPositionFract, eyeAltitude);
+ray convertToEarthSpace(ray r) {
+    r.origin = convertToEarthSpace(r.origin);
     return r;
 }
 

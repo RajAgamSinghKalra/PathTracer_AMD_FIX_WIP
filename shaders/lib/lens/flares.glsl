@@ -1,6 +1,7 @@
 #ifndef _LENS_FLARES_GLSL
 #define _LENS_FLARES_GLSL 1
 
+#include "/lib/buffer/state.glsl"
 #include "/lib/lens/aperture.glsl"
 #include "/lib/lens/common.glsl"
 #include "/lib/lens/configuration.glsl"
@@ -139,11 +140,11 @@ void traceLensFlarePaths(inout prng_state prngLocal, vec2 sensorExtent, int lamb
     }
 }
 
-void estimateLensFlares(inout prng_state prngLocal, int lambda, vec3 direction, mat4 projection, vec3 position, float weight) {
-    vec2 sensorExtent = getSensorPhysicalExtent(CAMERA_SENSOR, projection);
+void estimateLensFlares(inout prng_state prngLocal, int lambda, vec3 direction, vec3 point, float weight) {
+    vec2 sensorExtent = getSensorPhysicalExtent(CAMERA_SENSOR);
     weight /= (sensorExtent.x * sensorExtent.y * 4.0);
 
-    ray r = ray(position, direction);
+    ray r = ray(point, direction);
     r.origin -= 0.1 * direction;
 
     traceLensFlarePaths(prngLocal, sensorExtent, lambda, r, weight);
