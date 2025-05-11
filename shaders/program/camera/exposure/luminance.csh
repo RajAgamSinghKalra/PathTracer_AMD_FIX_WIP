@@ -15,19 +15,19 @@ uniform float viewHeight;
 shared uint histogramShared[256];
 
 void main() {
-    if (renderState.frame == 0) {
-        if (gl_LocalInvocationIndex == 0u) {
-            renderState.avgLuminance = 12.0;
-        }
-        return;
-    }
-
     uint count = renderState.histogram[gl_LocalInvocationIndex];
     histogramShared[gl_LocalInvocationIndex] = count * gl_LocalInvocationIndex;
 
     barrier();
 
     renderState.histogram[gl_LocalInvocationIndex] = 0u;
+
+    if (renderState.frame == 0) {
+        if (gl_LocalInvocationIndex == 0u) {
+            renderState.avgLuminance = 12.0;
+        }
+        return;
+    }
 
     for (uint cutoff = 128; cutoff > 0; cutoff >>= 1) {
         if (gl_LocalInvocationIndex < cutoff) {

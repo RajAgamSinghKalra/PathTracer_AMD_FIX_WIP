@@ -26,13 +26,18 @@ void getSceneBounds(scene_aabb aabb, ivec3 voxelOffset, out vec3 minBound, out v
 }
 
 float stepVoxel(inout vec3 voxel, inout vec3 origin, vec3 direction, float voxelSize, ivec3 offset) {
-    vec3 dist = ((floor(voxel / voxelSize) + max(sign(direction), 0.0)) * voxelSize - origin - vec3(offset)) / direction;
+    vec3 currentCell = floor(voxel / voxelSize);
+    vec3 dist = ((currentCell + max(sign(direction), 0.0)) * voxelSize - origin - vec3(offset)) / direction;
     float t = min(dist.x, min(dist.y, dist.z));
 
-    origin += direction * (t + 1.0e-6);
+    origin += direction * t;
 
     vec3 voxelDirection = step(dist, vec3(t)) * sign(direction);
-    voxel = vec3(offset) + floor(origin + 0.5 * voxelDirection);
+    voxel = vec3(offset) + floor(origin + voxelDirection * 0.5);
+
+    vec3 nextCellMin = (currentCell + voxelDirection) * voxelSize;
+    vec3 nextCellMax = nextCellMin + voxelSize;
+    voxel = clamp(voxel, nextCellMin, nextCellMax - 1.0);
 
     return t;
 }
