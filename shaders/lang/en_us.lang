@@ -1,5 +1,5 @@
-option.EMISSION_STRENGTH = Emission Strength
 option.SKY_CONTRIBUTION = Enable Sky Contribution
+option.SUN_PATH_ANGLE = Sun Path Angle
 
 option.RUSSIAN_ROULETTE = Russian Roulette
 option.BSDF_EVAL_RUSSIAN_ROULETTE = BSDF Evaluation RR
@@ -25,6 +25,7 @@ option.PRINT_RENDER_TIME = Print Render Time
 option.PRINT_SAMPLES = Print Samples
 option.PRINT_FRAME_TIME = Print Frame Time
 
+option.EMISSION_STRENGTH = Emission Strength
 option.THIN_FILM_CONFIGURATION = Thin Film Configuration
 option.ENABLE_TRANSLUCENTS = Translucents
 option.GLASS_ABSORPTION = Glass Absorption

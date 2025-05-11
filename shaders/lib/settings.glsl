@@ -1,14 +1,11 @@
 #ifndef _SETTINGS_GLSL
 #define _SETTINGS_GLSL 1
 
-const float sunPathRotation = 40.0;
-const int shadowMapResolution = 512;
-
 const ivec3 VOXEL_VOLUME_SIZE = ivec3(512, 386, 512);
 const ivec3 HALF_VOXEL_VOLUME_SIZE = VOXEL_VOLUME_SIZE / 2;
 
-#define EMISSION_STRENGTH 3.0 // [0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0]
 #define SKY_CONTRIBUTION
+#define SUN_PATH_ANGLE 30 // [0 5 10 15 20 25 30 35 40 45 50 55 60]
 
 #define RUSSIAN_ROULETTE
 #define BSDF_EVAL_RUSSIAN_ROULETTE
@@ -36,10 +33,14 @@ const ivec3 HALF_VOXEL_VOLUME_SIZE = VOXEL_VOLUME_SIZE / 2;
 #define PRINT_SAMPLES
 #define PRINT_FRAME_TIME
 
+#define EMISSION_STRENGTH 3.0 // [0.0 1.0 2.0 3.0 4.0 5.0 6.0 7.0 8.0]
 #define THIN_FILM_CONFIGURATION 0 // [0 1]
 // #define ENABLE_TRANSLUCENTS
 #define GLASS_ABSORPTION 3.0 // [0.10 0.25 0.50 0.75 1.0 1.5 2.0 3.0 4.0]
 
 // #define ENABLE_SPHERES
+
+const float sunPathRotation = SUN_PATH_ANGLE;
+const int shadowMapResolution = 512;
 
 #endif // _SETTINGS_GLSL

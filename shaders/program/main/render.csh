@@ -177,7 +177,7 @@ void preview(vec2 fragCoord) {
         float cosTheta = dot(it.tbn[2], sunDirection);
 
         vec3 albedo = sRGB_TO_XYZ * srgbToLinear(it.albedo.rgb);
-        vec3 L = albedo * 0.05 * (0.25 * cosTheta + 0.75);
+        vec3 L = albedo * 0.05 * (0.25 * abs(cosTheta) + 0.75);
 
         if (cosTheta > 0.0) {
             L += albedo * cosTheta * 0.3;
