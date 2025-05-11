@@ -32,7 +32,7 @@ void main() {
     if (gl_GlobalInvocationID.x < dim.x && gl_GlobalInvocationID.y < dim.y) {
         vec3 color = getFilmAverageColor(ivec2(gl_GlobalInvocationID.xy));
         uint binIndex = colorToBin(color);
-        atomicAdd(histogramShared[binIndex], 1);
+        atomicAdd(histogramShared[binIndex], 1u);
     }
 
     barrier();

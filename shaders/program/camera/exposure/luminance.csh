@@ -32,7 +32,7 @@ void main() {
     }
 
     if (gl_LocalInvocationIndex == 0u) {
-        float logAverage = (float(histogramShared[0]) / max(viewWidth * viewHeight - float(count), 1.0)) - 1.0;
+        float logAverage = (float(histogramShared[0]) / max(viewWidth * viewHeight - float(count), 1.0)) - 10.0;
         float avgLum = fromLogLuminance(logAverage / 254.0);
 
         renderState.avgLuminance = avgLum;

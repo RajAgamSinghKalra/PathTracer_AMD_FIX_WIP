@@ -1,3 +1,3 @@
 #version 460 compatibility
 
-#include "/program/histogram.csh"
+#include "/program/camera/exposure/histogram.csh"

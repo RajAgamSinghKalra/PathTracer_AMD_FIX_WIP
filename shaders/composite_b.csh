@@ -1,3 +1,3 @@
 #version 460 compatibility
 
-#include "/program/exit_pupil.csh"
+#include "/program/camera/prepare/exit_pupil.csh"

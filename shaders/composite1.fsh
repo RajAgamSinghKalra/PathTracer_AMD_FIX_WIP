@@ -1,3 +1,3 @@
 #version 460 compatibility
 
-#include "/program/composite.fsh"
+#include "/program/main/composite.fsh"

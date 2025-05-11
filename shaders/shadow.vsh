@@ -1,3 +1,3 @@
 #version 460 compatibility
 
-#include "/program/shadow.vsh"
+#include "/program/voxelization/shadow.vsh"

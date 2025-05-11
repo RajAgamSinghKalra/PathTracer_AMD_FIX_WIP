@@ -1,3 +1,3 @@
 #version 460 compatibility
 
-#include "/program/clear_frame.csh"
+#include "/program/camera/prepare/clear_frame.csh"
