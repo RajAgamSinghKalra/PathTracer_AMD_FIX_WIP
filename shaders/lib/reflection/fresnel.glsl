@@ -50,6 +50,9 @@ float fresnelDielectric(float cosTheta0, float n0, float n1) {
 }
 
 float fresnelOverHemisphere(float n) {
+    bool t = (n < 1.0);
+    if (t) n = 1.0 / n;
+    
     if (n - 1.0 < 1.0e-3) {
         return 0.0;
     }
@@ -65,7 +68,8 @@ float fresnelOverHemisphere(float n) {
     float d_3 = (n2 + 1.0) * (n2 * n2 - 1.0);
     float n_4 = 8.0 * n2 * n2 * (n2 * n2 + 1.0);
     float d_4 = (n2 + 1.0) * (n2 * n2 - 1.0) * (n2 * n2 - 1.0);
-    return clamp(0.5 + n_1 / d_1 + log((n - 1.0) / (n + 1.0)) * n_2 / d_2 - n_3 / d_3 + log(n) * n_4 / d_4, 0.0, 1.0);
+    float Fr = clamp(0.5 + n_1 / d_1 + log((n - 1.0) / (n + 1.0)) * n_2 / d_2 - n_3 / d_3 + log(n) * n_4 / d_4, 0.0, 1.0);
+    return t ? (1.0 - (1.0 - Fr) / (n * n)) : Fr;
 }
 
 float fresnelConductor(float cosTheta0, complexFloat n0, complexFloat n1) {

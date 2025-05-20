@@ -55,7 +55,10 @@ float evalInterfacedMicrosurfacePhaseFunction(material m, vec3 wi, vec3 wo) {
     float fresnelIn = fresnelDielectric(abs(dot(wi, wm)), currentIOR, m.ior.x);
     float fresnelOut = fresnelDielectric(abs(dot(wo, wm)), currentIOR, m.ior.x);
 
-    float diffuse = (1.0 - fresnelIn) * (1.0 - fresnelOut) * m.albedo / PI * max(0.0, dot(wo, wm)) / (1.0 - m.albedo * fresnelOverHemisphere(m.ior.x / currentIOR));
+    float ni = m.ior.x / currentIOR;
+    float re = fresnelOverHemisphere(ni);
+    float ri = 1.0 - (1.0 - re) / (ni * ni);
+    float diffuse = (1.0 - fresnelIn) * (1.0 - fresnelOut) * m.albedo / PI / (ni * ni) * max(0.0, dot(wo, wm)) / (1.0 - m.albedo * ri);
 
     vec3 wh = normalize(wi + wo);
     if (wh.z < 0.0) {
@@ -80,7 +83,10 @@ vec3 sampleInterfacedMicrosurfacePhaseFunction(material m, vec3 wi, out float we
     } else {
         vec3 wo = sampleCosineWeightedHemisphere(random2(), wm);
         float fresnelOut = fresnelDielectric(abs(dot(wo, wm)), currentIOR, m.ior.x);
-        weight = (1.0 - fresnelIn) * (1.0 - fresnelOut) * m.albedo / (1.0 - specularProb) / (1.0 - m.albedo * fresnelOverHemisphere(m.ior.x / currentIOR));
+        float ni = m.ior.x / currentIOR;
+        float re = fresnelOverHemisphere(ni);
+        float ri = 1.0 - (1.0 - re) / (ni * ni);
+        weight = (1.0 - fresnelIn) * (1.0 - fresnelOut) * m.albedo / (ni * ni) / (1.0 - specularProb) / (1.0 - m.albedo * ri);
         return wo;
     }
 }
@@ -89,7 +95,10 @@ float evalSmoothInterfacedPhaseFunction(material m, vec3 wi, vec3 wo) {
     float fresnelIn = fresnelDielectric(wi.z, currentIOR, m.ior.x);
     float fresnelOut = fresnelDielectric(wo.z, currentIOR, m.ior.x);
 
-    return (1.0 - fresnelIn) * (1.0 - fresnelOut) * m.albedo / PI * max(0.0, wo.z) / (1.0 - m.albedo * fresnelOverHemisphere(m.ior.x / currentIOR));
+    float ni = m.ior.x / currentIOR;
+    float re = fresnelOverHemisphere(ni);
+    float ri = 1.0 - (1.0 - re) / (ni * ni);
+    return (1.0 - fresnelIn) * (1.0 - fresnelOut) * m.albedo / PI / (ni * ni) * max(0.0, wo.z) / (1.0 - m.albedo * ri);
 }
 
 vec3 sampleSmoothInterfacedPhaseFunction(material m, vec3 wi, out float weight, out bool dirac) {
@@ -105,7 +114,10 @@ vec3 sampleSmoothInterfacedPhaseFunction(material m, vec3 wi, out float weight, 
     } else {
         vec3 wo = sampleCosineWeightedHemisphere(random2());
         float fresnelOut = fresnelDielectric(wo.z, currentIOR, m.ior.x);
-        weight = (1.0 - fresnelIn) * (1.0 - fresnelOut) * m.albedo / (1.0 - specularProb) / (1.0 - m.albedo * fresnelOverHemisphere(m.ior.x / currentIOR));
+        float ni = m.ior.x / currentIOR;
+        float re = fresnelOverHemisphere(ni);
+        float ri = 1.0 - (1.0 - re) / (ni * ni);
+        weight = (1.0 - fresnelIn) * (1.0 - fresnelOut) * m.albedo / (ni * ni) / (1.0 - specularProb) / (1.0 - m.albedo * ri);
         dirac = false;
         return wo;
     }
