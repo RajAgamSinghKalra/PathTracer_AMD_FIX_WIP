@@ -8,6 +8,7 @@
 #include "/lib/settings.glsl"
 
 float currentIOR;
+float currentMediumAbsorbtance;
 
 #include "/lib/reflection/heitz.glsl"
 #include "/lib/reflection/mbnm.glsl"
@@ -15,13 +16,39 @@ float currentIOR;
 
 struct bsdf_sample {
     vec3 direction;
-    float absorbtance;
     float value;
     float pdf;
     bool dirac;
 };
 
+void sampleGlassBSDF(material mat, vec3 wi, out vec3 wo) {
+    float n0 = 1.0;
+    float n1 = mat.ior.x;
+
+    if (currentIOR != 1.0) {
+        n0 = currentIOR;
+        n1 = 1.0;
+    }
+
+    if (random1() < fresnelDielectric(wi.z, n0, n1)) {
+        wo = vec3(-wi.xy, wi.z);
+    } else {
+        wo = refract(-wi, vec3(0.0, 0.0, 1.0), n0 / n1);
+        if (currentIOR == 1.0) {
+            currentIOR = n1;
+            currentMediumAbsorbtance = (1.0 - mat.albedo) * GLASS_ABSORPTION;
+        } else {
+            currentIOR = 1.0;
+            currentMediumAbsorbtance = 0.0;
+        }
+    }
+}
+
 float evalMBNMicrofacetBSDF(material m, vec3 wi, vec3 wo) {
+    if (m.type == MATERIAL_GLASS) {
+        return 0.0;
+    }
+
     if (any(lessThan(m.alpha, vec2(0.001)))) {
         return evalSmoothPhase(m, wi, wo);
     } else {
@@ -30,6 +57,13 @@ float evalMBNMicrofacetBSDF(material m, vec3 wi, vec3 wo) {
 }
 
 bool sampleMBNMicrofacetBSDF(material m, vec3 wi, out vec3 wo, out float weight, out bool dirac) {
+    if (m.type == MATERIAL_GLASS) {
+        dirac = true;
+        weight = 1.0;
+        sampleGlassBSDF(m, wi, wo);
+        return true;
+    }
+
     if (any(lessThan(m.alpha, vec2(0.001)))) {
         return sampleSmoothPhase(m, wi, wo, weight, dirac);
     } else {
@@ -86,36 +120,6 @@ void sampleThinFilmBSDF(inout bsdf_sample bsdfSample, float wavelength, vec3 wi)
     }
 }
 
-void sampleGlassBSDF(inout bsdf_sample bsdfSample, mat3 tbn, material mat, vec3 wi) {
-    bsdfSample.dirac = true;
-
-    float n0 = 1.0;
-    float n1 = mat.ior.x;
-
-    if (currentIOR != 1.0) {
-        n0 = currentIOR;
-        n1 = 1.0;
-    }
-
-    if (random1() < fresnelDielectric(wi.z, n0, n1)) {
-        bsdfSample.direction = vec3(-wi.xy, wi.z);
-        bsdfSample.pdf = 1.0;
-        bsdfSample.value = 1.0 / wi.z;
-    } else {
-        bsdfSample.direction = refract(tbn * -wi, tbn[2], n0 / n1) * tbn;
-        bsdfSample.pdf = 1.0;
-        bsdfSample.value = 1.0 / abs(bsdfSample.direction.z);
-
-        if (currentIOR == 1.0) {
-            currentIOR = n1;
-            bsdfSample.absorbtance = (1.0 - mat.albedo) * GLASS_ABSORPTION;
-        } else {
-            currentIOR = 1.0;
-            bsdfSample.absorbtance = 0.0;
-        }
-    }
-}
-
 bool sampleBSDF(inout bsdf_sample bsdfSample, float wavelength, mat3 tbn, material mat, vec3 wi) {
     if (mat.type == MATERIAL_BLACKBODY) {
         return false;
@@ -123,9 +127,6 @@ bool sampleBSDF(inout bsdf_sample bsdfSample, float wavelength, mat3 tbn, materi
 
     if (mat.type == MATERIAL_THINFILM) {
         sampleThinFilmBSDF(bsdfSample, wavelength, wi);
-        return true;
-    } else if (mat.type == MATERIAL_GLASS) {
-        sampleGlassBSDF(bsdfSample, tbn, mat, wi);
         return true;
     }
 
@@ -135,7 +136,7 @@ bool sampleBSDF(inout bsdf_sample bsdfSample, float wavelength, mat3 tbn, materi
     }
 
     bsdfSample.direction = bsdfSample.direction;
-    bsdfSample.pdf = evaluateBSDFSamplePDF(mat, wi, bsdfSample.direction);
+    bsdfSample.pdf = bsdfSample.dirac ? 1.0 : evaluateBSDFSamplePDF(mat, wi, bsdfSample.direction);
     
     bsdfSample.value = bsdfSample.pdf * throughput / abs(bsdfSample.direction.z);
 

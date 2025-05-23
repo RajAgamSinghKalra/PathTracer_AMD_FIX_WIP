@@ -70,8 +70,6 @@ void pathTracer(vec2 fragCoord) {
     bsdf_sample bsdfSample;
     intersection it;
 
-    bsdfSample.absorbtance = 0.0;
-
     const int maxBounces = 25;
     for (int i = 0;; i++) {
         if (!traceRay(it, voxelOffset, colortex10, r)) {
@@ -87,8 +85,8 @@ void pathTracer(vec2 fragCoord) {
             break;
         }
 
-        if (bsdfSample.absorbtance != 0.0) {
-            throughput *= exp(-bsdfSample.absorbtance * it.t);
+        if (currentMediumAbsorbtance != 0.0) {
+            throughput *= exp(-currentMediumAbsorbtance * it.t);
         }
 
         vec3 wi = -r.direction * it.tbn;
@@ -184,6 +182,7 @@ void preview(vec2 fragCoord) {
 
 void main() {
     currentIOR = 1.0;
+    currentMediumAbsorbtance = 0.0;
 
     vec2 fragCoord = vec2(gl_GlobalInvocationID.xy);
     if (fragCoord.x > viewWidth || fragCoord.y > viewHeight) return;

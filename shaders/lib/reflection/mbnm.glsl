@@ -119,7 +119,7 @@ bool sampleMicrosurfaceBSDF_MBN(material m, vec3 wi, out vec3 wo, out float thro
         wr = wmToLocal * wm_wr;
         throughput *= weight;
 
-        if (random1() < mbnm_G1(m, wr, wt, wm)) {
+        if (dot(wr, wm) < 0.0 || random1() < mbnm_G1(m, wr, wt, wm)) {
             wo = wr;
             return true;
         } else {
