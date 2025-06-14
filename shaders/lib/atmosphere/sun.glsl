@@ -2,6 +2,8 @@
 #define _SUN_GLSL 1
 
 #include "/lib/atmosphere/constants.glsl"
+#include "/lib/buffer/solar_irradiance.glsl"
+#include "/lib/buffer/spectral.glsl"
 #include "/lib/spectral/blackbody.glsl"
 #include "/lib/utility/orthonormal.glsl"
 #include "/lib/utility/sampling.glsl"
@@ -28,8 +30,9 @@ vec3 sampleSunDirection(vec2 rand, vec3 sunPosition, vec3 x, out float weight) {
     return sampleDirection;
 }
 
+// https://www.nrel.gov/grid/solar-resource/spectra-astm-e490
 float getSunRadiance(float wavelength) {
-    return blackbody(wavelength, sunTemperatureK);
+    return solarIrradiance.data[clamp(int(wavelength), WL_MIN, WL_MAX) - WL_MIN] * 1000.0 / (2.0 * PI);
 }
 
 #endif // _SUN_GLSL
