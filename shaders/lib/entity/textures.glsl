@@ -7,10 +7,10 @@
 uint hashTextureKey(texture_key key) {
     uint result = uint(key.resolution.x);
     result = 31u * result + uint(key.resolution.y);
-    result = 31u * result + floatBitsToUint(key.mipTexel.x);
-    result = 31u * result + floatBitsToUint(key.mipTexel.y);
-    result = 31u * result + floatBitsToUint(key.mipTexel.z);
-    result = 31u * result + floatBitsToUint(key.mipTexel.w);
+    result = 31u * result + floatBitsToUint(key.textureHash.x);
+    result = 31u * result + floatBitsToUint(key.textureHash.y);
+    result = 31u * result + floatBitsToUint(key.textureHash.z);
+    result = 31u * result + floatBitsToUint(key.textureHash.w);
     result = 31u * result + floatBitsToUint(key.entityId);
     return result;
 }

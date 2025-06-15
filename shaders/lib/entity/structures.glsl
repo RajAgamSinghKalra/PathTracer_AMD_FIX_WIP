@@ -2,7 +2,7 @@
 #define _ENTITY_STRUCTURES_GLSL 1
 
 struct texture_key {
-    vec4 mipTexel;
+    vec4 textureHash;
     ivec2 resolution;
     int entityId;
 };

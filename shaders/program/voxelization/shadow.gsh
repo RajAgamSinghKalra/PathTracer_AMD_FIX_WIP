@@ -30,6 +30,20 @@ const vec2 VERTEX_OFFSETS[] = vec2[](
     vec2(0.0, 0.0), vec2(1.0, 0.0), vec2(0.0, 1.0), vec2(1.0, 1.0)
 );
 
+vec4 calculateTextureHash() {
+    vec4 hash = vec4(0.0);
+    float t = 1.0;
+
+    for (int x = 0; x < 5; x++) {
+        for (int y = 0; y < 5; y++) { 
+            hash += textureLod(gtexture, vec2(x, y) / 4.0, 999) * t;
+            t += 0.61803398874;
+        }
+    }
+
+    return hash;
+}
+
 void main() {
     if (gl_PrimitiveIDIn % 2 != 0 || vColor[0].a == 0.0 || renderState.frame > 1) {
         return;
@@ -87,11 +101,7 @@ void main() {
         storeTexture = 1;
 
         texture_key key;
-        key.mipTexel = textureLod(gtexture, vec2(0.25, 0.25), 999) + 
-              255.0 * (textureLod(gtexture, vec2(0.50, 0.50), 999) + 
-              255.0 * (textureLod(gtexture, vec2(0.25, 0.75), 999) + 
-              255.0 * (textureLod(gtexture, vec2(0.75, 0.25), 999) + 
-              255.0 * (textureLod(gtexture, vec2(0.75, 0.75), 999)))));
+        key.textureHash = calculateTextureHash();
         key.resolution = textureSize(gtexture, 0).xy;
         key.entityId = id;
 
