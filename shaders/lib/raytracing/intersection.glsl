@@ -5,7 +5,8 @@ struct intersection {
     float t;
     mat3 tbn;
     vec4 albedo;
-    vec2 uv;
+    vec4 normal;
+    vec4 specular;
 };
 
 #endif // _INTERSECTION_GLSL

@@ -8,6 +8,8 @@ out vec3 vMidOffset;
 out vec4 vColor;
 out vec2 vUV;
 
+uniform int renderStage;
+
 uniform sampler2D gtexture;
 
 uniform mat4 shadowProjectionInverse;
@@ -23,6 +25,14 @@ void main() {
     vMidOffset = at_midBlock.xyz * (1.0 / 64.0);
     vColor = vec4(gl_Color.rgb, 1.0);
     vUV = (gl_TextureMatrix[0] * gl_MultiTexCoord0).xy;
+
+#ifdef HIDE_NAMEPLATES
+    if (renderStage == MC_RENDER_STAGE_ENTITIES && 
+        clamp(gl_Color.a, 0.24, 0.255) == gl_Color.a &&
+        gl_Color.rgb == vec3(0.0)) {
+        vColor.a = 0.0;
+    }
+#endif
 
 #ifdef ENABLE_SPHERES
     int alpha = int(textureLod(gtexture, mc_midTexCoord, 0).a * 255.0 + 0.5);

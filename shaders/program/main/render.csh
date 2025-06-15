@@ -16,10 +16,6 @@
 layout (local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
 const vec2 workGroupsRender = vec2(1.0, 1.0);
 
-uniform sampler2D colortex10;
-uniform sampler2D colortex11;
-uniform sampler2D colortex12;
-
 uniform float viewWidth;
 uniform float viewHeight;
 
@@ -47,7 +43,7 @@ void pathTracer(vec2 fragCoord) {
         vec3 direction = sampleSunDirection(random2(prngLocal), sunPosition, earthPosition, sampleWeight);
         vec3 viewDirection = normalize(mat3(renderState.viewMatrix) * direction);
 
-        if (viewDirection.z < 0.0 && !traceShadowRay(voxelOffset, colortex10, ray(origin + direction * 1024.0, -direction), 1024.0)) {
+        if (viewDirection.z < 0.0 && !traceShadowRay(voxelOffset, ray(origin + direction * 1024.0, -direction), 1024.0)) {
             float transmittance = estimateTransmittance(ray(earthPosition, direction), extinctionBeta);
             float weight = 2.0 * lensPDFinv / lambdaPDF * transmittance * sunRadiance * sampleWeight;
             if (!isnan(weight) && !isinf(weight) && weight != 0.0) {
@@ -70,9 +66,9 @@ void pathTracer(vec2 fragCoord) {
     bsdf_sample bsdfSample;
     intersection it;
 
-    const int maxBounces = 25;
+    const int maxBounces = 256;
     for (int i = 0;; i++) {
-        if (!traceRay(it, voxelOffset, colortex10, r)) {
+        if (!traceRay(it, voxelOffset, r)) {
 #ifdef SKY_CONTRIBUTION
             if ((i == 0 && !lensFlare) || (i > 0 && bsdfSample.dirac)) {
                 ray earthRay = convertToEarthSpace(r);
@@ -91,7 +87,7 @@ void pathTracer(vec2 fragCoord) {
 
         vec3 wi = -r.direction * it.tbn;
 
-        material mat = decodeMaterial(lambda, it.albedo, textureLod(colortex11, it.uv, 0), textureLod(colortex12, it.uv, 0));
+        material mat = decodeMaterial(lambda, it.albedo, it.specular, it.normal);
 
         L += throughput * mat.emission;
 
@@ -101,7 +97,7 @@ void pathTracer(vec2 fragCoord) {
         sunRay.direction = sampleSunDirection(random2(), sunPosition, sunRay.origin, sampleWeight);
         if (dot(sunRay.direction, it.tbn[2]) > 0.0) {
             vec3 shadowOrigin = r.origin + r.direction * it.t + it.tbn[2] * 0.001;
-            float visibility = float(!traceShadowRay(voxelOffset, colortex10, ray(shadowOrigin, sunRay.direction), 1024.0));
+            float visibility = float(!traceShadowRay(voxelOffset, ray(shadowOrigin, sunRay.direction), 1024.0));
             if (visibility > 0.0) {
                 vec3 wo = sunRay.direction * it.tbn;
                 float bsdfDirect = evaluateBSDF(mat, wi, wo, false);
@@ -162,7 +158,7 @@ void preview(vec2 fragCoord) {
     ray r = generatePinholeCameraRay(filmCoord);
 
     intersection it;
-    if (traceRay(it, voxelOffset, colortex10, r)) {
+    if (traceRay(it, voxelOffset, r)) {
         vec3 sunDirection = renderState.sunDirection;
         float cosTheta = dot(it.tbn[2], sunDirection);
 

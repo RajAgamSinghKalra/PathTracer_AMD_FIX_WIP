@@ -21,6 +21,15 @@ void main() {
         imageStore(voxelBuffer, ivec3(x, y, z), uvec4(0, 0, 0, 0));
     }
 
+    if (gl_GlobalInvocationID.x < 1024) {
+        renderState.entityData.hashTable[gl_GlobalInvocationID.x] = -1;
+        renderState.entityData.tableLock[gl_GlobalInvocationID.x] = 0u;
+    }
+
+    if (gl_GlobalInvocationID.x < 256) {
+        renderState.entityData.subdividedCells[gl_GlobalInvocationID.x].index = -1;
+    } 
+
     if (gl_GlobalInvocationID.x >= 14380464) return;
     octree.data[gl_GlobalInvocationID.x] = 0u;
 }

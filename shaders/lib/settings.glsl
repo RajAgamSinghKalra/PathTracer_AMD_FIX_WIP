@@ -40,7 +40,23 @@ const ivec3 HALF_VOXEL_VOLUME_SIZE = VOXEL_VOLUME_SIZE / 2;
 
 // #define ENABLE_SPHERES
 
+#define QUAD_BUFFER_SIZE 1 // [1 2 3 4]
+// #define VOXELIZE_ENTITIES
+#define ENTITY_ATLAS_SIZE 4096 // [1024 2048 4096 8192 16384]
+#define MAX_ENTITY_TEXTURE_SIZE 256 // [128 256 512 1024]
+#define HIDE_NAMEPLATES
+
 const float sunPathRotation = SUN_PATH_ANGLE;
+
+#ifdef VOXELIZE_ENTITIES
+/*
+const int shadowcolor0Format = RGB32UI;
+const bool shadowcolor0Clear = false;
+*/
+
+const int shadowMapResolution = ENTITY_ATLAS_SIZE;
+#else
 const int shadowMapResolution = 512;
+#endif
 
 #endif // _SETTINGS_GLSL

@@ -26,13 +26,6 @@ void main() {
         renderState.invalidSplat = 0;
         renderState.startTime = ivec2(currentDate.x, currentYearTime.x);
         renderState.sunDirection = normalize(mat3(gbufferModelViewInverse) * sunPosition) * vec3(1.0, 1.0, -1.0);
-
-        renderState.projection = gbufferProjection;
-        renderState.projectionInverse = gbufferProjectionInverse;
-        renderState.viewMatrix = gbufferModelView;
-        renderState.viewMatrixInverse = gbufferModelViewInverse;
-        renderState.cameraPosition = cameraPositionFract;
-        renderState.altitude = eyeAltitude;
     }
 
     renderState.clear = (renderState.frame <= 1);
@@ -40,5 +33,15 @@ void main() {
     if (renderState.frame <= 1) {
         quadBuffer.aabb = scene_aabb(10000, 10000, 10000, -10000, -10000, -10000);
         quadBuffer.count = 0u;
+
+        renderState.entityData.textureIndex = 0u;
+        renderState.entityData.cellIndex = 0u;
+
+        renderState.projection = gbufferProjection;
+        renderState.projectionInverse = gbufferProjectionInverse;
+        renderState.viewMatrix = gbufferModelView;
+        renderState.viewMatrixInverse = gbufferModelViewInverse;
+        renderState.cameraPosition = cameraPositionFract;
+        renderState.altitude = eyeAltitude;
     }
 }

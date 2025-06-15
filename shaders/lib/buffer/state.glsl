@@ -1,6 +1,8 @@
 #ifndef _STATE_GLSL
 #define _STATE_GLSL 1
 
+#include "/lib/entity/structures.glsl"
+
 struct pupil_bounds {
     vec2 minBound;
     vec2 maxBound;
@@ -33,6 +35,7 @@ layout (std430, binding = 1) buffer render_state {
     mat4 viewMatrixInverse;
     vec3 cameraPosition;
     float altitude;
+    entity_data entityData;
 } renderState;
 
 #endif // _STATE_GLSL

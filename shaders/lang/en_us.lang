@@ -30,6 +30,12 @@ option.THIN_FILM_CONFIGURATION = Thin Film Configuration
 option.ENABLE_TRANSLUCENTS = Translucents
 option.GLASS_ABSORPTION = Glass Absorption
 
+option.QUAD_BUFFER_SIZE = Quad Buffer Size
+option.VOXELIZE_ENTITIES = Voxelize Entities
+option.ENTITY_ATLAS_SIZE = Entity Atlas Size
+option.MAX_ENTITY_TEXTURE_SIZE = Max Entity Texture Size
+option.HIDE_NAMEPLATES = Hide Nameplates
+
 option.ENABLE_SPHERES = Sphere RP Support
 
 value.TONEMAP.0 = AgX
@@ -57,3 +63,8 @@ value.DEBUG_INFO.2 = Keep
 
 value.THIN_FILM_CONFIGURATION.0 = Soap Bubble
 value.THIN_FILM_CONFIGURATION.1 = Gold Film
+
+value.QUAD_BUFFER_SIZE.1 = 1 GB
+value.QUAD_BUFFER_SIZE.2 = 2 GB
+value.QUAD_BUFFER_SIZE.3 = 3 GB
+value.QUAD_BUFFER_SIZE.4 = 4 GB

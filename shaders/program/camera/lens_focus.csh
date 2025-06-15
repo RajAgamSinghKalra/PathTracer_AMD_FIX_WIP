@@ -5,8 +5,6 @@
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 const ivec3 workGroups = ivec3(1, 1, 1);
 
-uniform sampler2D colortex10;
-
 void main() {
     if (renderState.frame != 0) {
         return;
@@ -16,7 +14,7 @@ void main() {
     ivec3 voxelOffset = ivec3(renderState.viewMatrixInverse[2].xyz * VOXEL_OFFSET);
     
     intersection it;
-    if (traceRay(it, voxelOffset, colortex10, ray(renderState.cameraPosition, direction))) {
+    if (traceRay(it, voxelOffset, ray(renderState.cameraPosition, direction))) {
         renderState.focusDistance = it.t;
     } else {
         renderState.focusDistance = 1024.0;
