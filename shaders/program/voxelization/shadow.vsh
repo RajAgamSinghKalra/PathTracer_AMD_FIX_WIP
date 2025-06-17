@@ -20,7 +20,7 @@ void main() {
 
     vec3 normal = gl_NormalMatrix * gl_Normal;
     vec4 viewPos = gl_ModelViewMatrix * gl_Vertex;
-    vPosition = (shadowModelViewInverse * (viewPos - vec4(normal * 1.0e-5, 0.0))).xyz;
+    vPosition = (shadowModelViewInverse * (viewPos - vec4(normal * 1.0e-4, 0.0))).xyz;
 
     vMidOffset = at_midBlock.xyz * (1.0 / 64.0);
     vColor = vec4(gl_Color.rgb, 1.0);
