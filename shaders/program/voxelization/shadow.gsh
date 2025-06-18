@@ -136,19 +136,24 @@ void main() {
     entry.bitangent.w = length(entry.bitangent.xyz);
     entry.bitangent.xyz /= entry.bitangent.w;
 
-    entry.point.w = dot(cross(entry.tangent.xyz, entry.bitangent.xyz), entry.point.xyz);
+    vec3 normal = cross(entry.tangent.xyz, entry.bitangent.xyz);
+    entry.point.w = dot(normal, entry.point.xyz);
 
     vec3 minBound = min(min(positionMatrix[0], positionMatrix[1]), min(positionMatrix[2], positionMatrix[3])) + cameraPositionFract;
     vec3 maxBound = max(max(positionMatrix[0], positionMatrix[1]), max(positionMatrix[2], positionMatrix[3])) + cameraPositionFract;
 
+    vec3 normalOffset = normal * 1.0e-4;
+    minBound = min(minBound - normalOffset, minBound + normalOffset);
+    maxBound = max(maxBound - normalOffset, maxBound + normalOffset);
+
     ivec3 voxelOffset = ivec3(gbufferModelViewInverse[2].xyz * VOXEL_OFFSET);
     ivec3 voxelMin = ivec3(floor(minBound));
-    ivec3 voxelMax = ivec3(floor(maxBound));
+    ivec3 voxelMax = ivec3(ceil(maxBound));
 
     int blocksOccupied = 0;
-    for (int x = voxelMin.x; x <= voxelMax.x; x++) {
-        for (int y = voxelMin.y; y <= voxelMax.y; y++) {
-            for (int z = voxelMin.z; z <= voxelMax.z; z++) {
+    for (int x = voxelMin.x; x < voxelMax.x; x++) {
+        for (int y = voxelMin.y; y < voxelMax.y; y++) {
+            for (int z = voxelMin.z; z < voxelMax.z; z++) {
                 ivec3 voxelPos = ivec3(x, y, z) + HALF_VOXEL_VOLUME_SIZE + voxelOffset;
                 if (clamp(voxelPos, ivec3(0, 0, 0), VOXEL_VOLUME_SIZE - 1) != voxelPos) continue;
 
