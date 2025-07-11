@@ -117,7 +117,7 @@ float pathTraceAtmosphere(ray r, vec3 sunPosition, float sunRadiance, vec3 beta,
         } else if (interaction.y == 1.0) { // Aerosols
             phaseLight = hgDrainePhase(dot(r.direction, sunDirection), aerosolDiameter);
             
-            wo = sampleHgDraine(r.direction, random2(), aerosolDiameter);
+            wo = sampleHgDraine(r.direction, random3(), aerosolDiameter);
             estimator = 1.0;
         }
         

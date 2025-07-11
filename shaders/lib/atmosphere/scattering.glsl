@@ -61,7 +61,7 @@ void hgDraineParams(float d, out float gHG, out float gD, out float a, out float
             cos((logd - 0.238604) * (logd + 1.00667) / (0.507522 - 0.15677 * logd)) + 
             1.37932 * logd + 0.0625835) + 0.344213;
         a = 250.0;
-        wD = 0.146209 * cos(3.38707 * logd + 2.11193) + 0.316072 + 0.778917 * logd;
+        wD = 0.146209 * cos(3.38707 * logd + 2.11193) + 0.316072 + 0.0778917 * logd;
     } else if (d < 5.0) {
         float logd = log(d);
         gHG = 0.0604931 * log(logd) + 0.940256;
@@ -72,7 +72,7 @@ void hgDraineParams(float d, out float gHG, out float gD, out float a, out float
         gHG = exp(-0.0990567 / (d - 1.67154));
         gD = exp(-2.20679 / (d + 3.91029) - 0.428934);
         a = exp(3.62489 - 8.29288 / (d + 5.52825));
-        wD = exp(-0.599085 / (d - 0.641583) - 0.66588);
+        wD = exp(-0.599085 / (d - 0.641583) - 0.665888);
     }
 }
 
@@ -106,15 +106,15 @@ float sampleDraine(float rand, float g, float a) {
     float t8 = 2.0 * (t1 + t6 / t7 + t7) / t0;
     float t9 = sqrt(6.0 * (1.0 + g * g) + t8);
     return g / 2.0 + (1.0 / (2.0 * g) - 1.0 / (8.0 * g) * pow(
-        sqrt(6.0 * (1.0 + g * g) - t8 + 8.0 * t4 / (t0 * t9) - t9) - t9, 2.0));
+        sqrt(6.0 * (1.0 + g * g) - t8 + 8.0 * t4 / (t0 * t9)) - t9, 2.0));
 }
 
-vec3 sampleHgDraine(vec3 w, vec2 rand, float d) {
+vec3 sampleHgDraine(vec3 w, vec3 rand, float d) {
     float gHG, gD, a, wD;
     hgDraineParams(d, gHG, gD, a, wD);
 
     float cosTheta;
-    if (rand.x < wD) {
+    if (rand.z < wD) {
         cosTheta = sampleDraine(rand.x, gD, a);
     } else {
         cosTheta = sampleHenyeyGreenstein(rand.x, gHG);
@@ -127,7 +127,7 @@ vec3 sampleHgDraine(vec3 w, vec2 rand, float d) {
     vec3 b1, b2;
     buildOrthonormalBasis(w, b1, b2);
     
-    return b1 * spherical.x + b2 * spherical.y + w * spherical.z;
+    return normalize(b1 * spherical.x + b2 * spherical.y + w * spherical.z);
 }
 
 // Ozone absorption fit by FordPerfect
