@@ -2,6 +2,7 @@
 #define _STATE_GLSL 1
 
 #include "/lib/entity/structures.glsl"
+#include "/lib/utility/time.glsl"
 
 struct pupil_bounds {
     vec2 minBound;
@@ -25,7 +26,9 @@ layout (std430, binding = 1) buffer render_state {
     float fNumber;
     mat2 rayTransferMatrix;
     ivec2 startTime;
+    datetime localTime;
     vec3 sunDirection;
+    vec3 sunPosition;
     int invalidSplat;
     uint histogram[256];
     float avgLuminance;

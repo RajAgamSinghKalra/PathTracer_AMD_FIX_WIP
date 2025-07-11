@@ -5,6 +5,7 @@
 #include "/lib/debug/text_renderer.glsl"
 #include "/lib/lens/configuration.glsl"
 #include "/lib/lens/reflection.glsl"
+#include "/lib/utility/time.glsl"
 #include "/lib/settings.glsl"
 
 void printLensType() {
@@ -107,11 +108,6 @@ void printCoatingInfo() {
     printLine();
 }
 
-int getLeapYears(int year) {
-    year--;
-    return year / 4 - year / 100 + year / 400;
-}
-
 ivec3 getRenderTime(ivec2 time) {
     ivec2 startTime = renderState.startTime;
     int years = time.x - startTime.x;
@@ -127,21 +123,46 @@ ivec3 getRenderTime(ivec2 time) {
     return ivec3(hours, minutes, seconds);
 }
 
+void printTime(ivec3 time) {
+    for (int i = 0; i < 3; i++) {
+        if (time[i] < 10) {
+            printChar(_0);
+        }
+        printInt(time[i]);
+        if (i != 2) {
+            if (time[i + 1] < 0) {
+                break;
+            }
+            printChar(_colon);
+        }
+    }
+}
+
+void printDatetime(datetime dt) {
+    printInt(dt.year);
+
+    printChar(_minus);
+    if (dt.month < 10) {
+        printChar(_0);
+    }
+    printInt(dt.month);
+
+    printChar(_minus);
+    if (dt.day < 10) {
+        printChar(_0);
+    }
+    printInt(dt.day);
+
+    printChar(_space);
+
+    printTime(ivec3(dt.hour, dt.minute, dt.second));
+}
+
 void printRenderTime(ivec2 time) {
     ivec3 renderTime = getRenderTime(time);
 
     printString((_R, _e, _n, _d, _e, _r, _space, _T, _i, _m, _e, _colon, _space));
-
-    for (int i = 0; i < 3; i++) {
-        if (renderTime[i] < 10) {
-            printChar(_0);
-        }
-        printInt(renderTime[i]);
-        if (i != 2) {
-            printChar(_colon);
-        }
-    }
-
+    printTime(renderTime);
     printLine();
 }
 
@@ -158,6 +179,36 @@ void printFrameTime(float frameTime) {
     printFloat(frameTime * 1000.0);
     printString((_m, _s));
 
+    printLine();
+}
+
+void printLocation() {
+    printString((_C, _o, _o, _r, _d, _i, _n, _a, _t, _e, _s, _colon, _space));
+
+    text.fpPrecision = 5;
+    vec2 coordinates = getGeographicCoordinates();
+    printFloat(coordinates.x);
+    printChar(_space);
+    printFloat(coordinates.y);
+    printLine();
+
+    printString((_L, _o, _c, _a, _l, _space, _t, _i, _m, _e, _colon, _space));
+    printDatetime(renderState.localTime);
+    printString((_space, _opprn, _U, _T, _C));
+    int tzOffset = UTC_OFFSETS[TIME_ZONE];
+    printChar(tzOffset < 0 ? _minus : _plus);
+    printTime(ivec3(abs(tzOffset) / 3600, (abs(tzOffset) / 60) % 60, -1));
+    printChar(_clprn);
+    printLine();
+
+    printString((_U, _T, _C, _space, _t, _i, _m, _e, _colon, _space));
+    if (tzOffset == 0) {
+        printString((_opprn, _s, _a, _m, _e, _space, _a, _s, _space, _l, _o, _c, _a, _l, _clprn));
+    } else {
+        datetime utcTime = convertToUniversalTime(renderState.localTime);
+        utcTime.second = -1;
+        printDatetime(utcTime);
+    }
     printLine();
 }
 
@@ -194,6 +245,10 @@ void renderTextOverlay(inout vec3 color, ivec2 resolution, ivec2 position, ivec2
 
 #ifdef PRINT_COATING_INFO
     printCoatingInfo();
+#endif
+
+#ifdef PRINT_LOCATION
+    printLocation();
 #endif
 
 #ifdef PRINT_RENDER_TIME

@@ -28,7 +28,7 @@ void pathTracer(vec2 fragCoord) {
     vec2 filmSample = (fragCoord + random2()) / vec2(viewWidth, viewHeight) * 2.0 - 1.0;
 
 #ifdef SKY_CONTRIBUTION
-    vec3 sunPosition = getSunPosition(renderState.sunDirection);
+    vec3 sunPosition = renderState.sunPosition;
     float sunRadiance = getSunRadiance(float(lambda));
     vec3 extinctionBeta = atmosphereExtinctionBeta(float(lambda));
 
@@ -54,7 +54,7 @@ void pathTracer(vec2 fragCoord) {
 #endif
 
     float cameraWeight = 1.0;
-    bool lensFlare;
+    bool lensFlare = false;
     ray r = generateCameraRay(lambda, filmSample, cameraWeight, lensFlare);
     if (cameraWeight == 0.0) {
         logFilmSample(filmSample, vec3(0.0));

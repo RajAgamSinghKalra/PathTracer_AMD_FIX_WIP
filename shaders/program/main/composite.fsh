@@ -4,12 +4,10 @@
 #include "/lib/debug/debug_text.glsl"
 #include "/lib/post/tonemap.glsl"
 #include "/lib/utility/color.glsl"
+#include "/lib/utility/time.glsl"
 #include "/lib/settings.glsl"
 
 in vec2 texcoord;
-
-uniform ivec3 currentDate;
-uniform ivec2 currentYearTime;
 
 uniform float frameTimeSmooth;
 uniform float viewHeight;

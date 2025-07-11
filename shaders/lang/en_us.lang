@@ -1,5 +1,17 @@
-option.SKY_CONTRIBUTION = Enable Sky Contribution
-option.SUN_PATH_ANGLE = Sun Path Angle
+screen.MinecraftSunPath = Minecraft Sun Path
+screen.RealisticSunPath = Realistic Sun Path
+
+option.SKY_CONTRIBUTION = Sky Contribution
+option.SUN_PATH_TYPE = Sun Path
+option.SUN_PATH_ANGLE = Path Angle
+option.LATITUDE_DEGREES = Latitude Degree
+option.LATITUDE_MINUTES = Latitude Minute
+option.LATITUDE_SECONDS = Latitude Second
+option.LONGITUDE_DEGREES = Longitude Degree
+option.LONGITUDE_MINUTES = Longitude Minute
+option.LONGITUDE_SECONDS = Longitude Second
+option.USE_SYSTEM_TIME = Use System Time
+option.TIME_ZONE = Time Zone
 
 option.RUSSIAN_ROULETTE = Russian Roulette
 option.BSDF_EVAL_RUSSIAN_ROULETTE = BSDF Evaluation RR
@@ -24,6 +36,7 @@ option.PRINT_COATING_INFO = Print Coating Info
 option.PRINT_RENDER_TIME = Print Render Time
 option.PRINT_SAMPLES = Print Samples
 option.PRINT_FRAME_TIME = Print Frame Time
+option.PRINT_LOCATION = Print Time/Coordinates
 
 option.EMISSION_STRENGTH = Emission Strength
 option.THIN_FILM_CONFIGURATION = Thin Film Configuration
@@ -37,6 +50,48 @@ option.MAX_ENTITY_TEXTURE_SIZE = Max Entity Texture Size
 option.HIDE_NAMEPLATES = Hide Nameplates
 
 option.ENABLE_SPHERES = Sphere RP Support
+
+value.SUN_PATH_TYPE.0 = Minecraft
+value.SUN_PATH_TYPE.1 = Realistic
+
+value.TIME_ZONE.0 = UTC-12:00
+value.TIME_ZONE.1 = UTC-11:00
+value.TIME_ZONE.2 = UTC-10:00
+value.TIME_ZONE.3 = UTC-09:30
+value.TIME_ZONE.4 = UTC-09:00
+value.TIME_ZONE.5 = UTC-08:00
+value.TIME_ZONE.6 = UTC-07:00
+value.TIME_ZONE.7 = UTC-06:00
+value.TIME_ZONE.8 = UTC-05:00
+value.TIME_ZONE.9 = UTC-04:00
+value.TIME_ZONE.10 = UTC-03:30
+value.TIME_ZONE.11 = UTC-03:00
+value.TIME_ZONE.12 = UTC-02:00
+value.TIME_ZONE.13 = UTC-01:00
+value.TIME_ZONE.14 = UTC+00:00
+value.TIME_ZONE.15 = UTC+01:00
+value.TIME_ZONE.16 = UTC+02:00
+value.TIME_ZONE.17 = UTC+03:00
+value.TIME_ZONE.18 = UTC+03:30
+value.TIME_ZONE.19 = UTC+04:00
+value.TIME_ZONE.20 = UTC+04:30
+value.TIME_ZONE.21 = UTC+05:00
+value.TIME_ZONE.22 = UTC+05:30
+value.TIME_ZONE.23 = UTC+05:45
+value.TIME_ZONE.24 = UTC+06:00
+value.TIME_ZONE.25 = UTC+06:30
+value.TIME_ZONE.26 = UTC+07:00
+value.TIME_ZONE.27 = UTC+08:00
+value.TIME_ZONE.28 = UTC+08:45
+value.TIME_ZONE.29 = UTC+09:00
+value.TIME_ZONE.30 = UTC+09:30
+value.TIME_ZONE.31 = UTC+10:00
+value.TIME_ZONE.32 = UTC+10:30
+value.TIME_ZONE.33 = UTC+11:00
+value.TIME_ZONE.34 = UTC+12:00
+value.TIME_ZONE.35 = UTC+12:45
+value.TIME_ZONE.36 = UTC+13:00
+value.TIME_ZONE.37 = UTC+14:00
 
 value.TONEMAP.0 = AgX
 value.TONEMAP.1 = Camera Tonemap
