@@ -7,7 +7,8 @@ const ivec3 workGroups = ivec3(8, 1, 1);
 
 void main() {
     vec2 sensorExtent = getSensorPhysicalExtent(CAMERA_SENSOR);
-    float physicalRadius = length(sensorExtent);
+    // Use the largest sensor dimension to ensure we cover the whole sensor
+    float physicalRadius = max(sensorExtent.x, sensorExtent.y);
 
     float sampleRadius = physicalRadius * float(gl_GlobalInvocationID.x) / 255.0;
     vec3 filmPoint = vec3(sampleRadius, 0.0, 0.0);

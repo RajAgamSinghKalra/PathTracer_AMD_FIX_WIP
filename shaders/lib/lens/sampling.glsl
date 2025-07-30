@@ -25,8 +25,9 @@ vec2 samplePointOnRearElement(vec2 rand, out float weight) {
 }
 
 vec2 sampleExitPupil(vec2 rand, vec2 pointOnSensor, vec2 sensorExtent, out float weight) {
-    float sampleRadius = length(pointOnSensor);
-    float physicalRadius = length(sensorExtent);
+    // Use the maximum axis to avoid oval shaped vignetting on non square sensors
+    float sampleRadius = max(abs(pointOnSensor.x), abs(pointOnSensor.y));
+    float physicalRadius = max(sensorExtent.x, sensorExtent.y);
     float index = 255.0 * sampleRadius / physicalRadius;
     pupil_bounds bounds1 = renderState.exitPupil.samples[clamp(int(ceil(index)), 0, 255)];
     pupil_bounds bounds2 = renderState.exitPupil.samples[clamp(int(floor(index)), 0, 255)];
