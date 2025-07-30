@@ -45,8 +45,8 @@ vec4 calculateTextureHash() {
 }
 
 void main() {
-    // Skip voxelization after the first tracer frame (F1 press handled in prepare_frame)
-    if (gl_PrimitiveIDIn % 2 != 0 || vColor[0].a == 0.0 || renderState.frame > 1) {
+    // Voxelize geometry every frame to handle newly loaded chunks
+    if (gl_PrimitiveIDIn % 2 != 0 || vColor[0].a == 0.0) {
         return;
     }
 

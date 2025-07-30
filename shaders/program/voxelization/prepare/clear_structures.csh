@@ -8,10 +8,7 @@ layout (local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
 const ivec3 workGroups = ivec3(65535, 1, 1);
 
 void main() {
-    // Only clear voxels on the frame F1 was pressed to start tracing
-    if (renderState.frame > 1) {
-        return;
-    }
+    // Clear voxel structures every frame so newly loaded chunks do not keep stale data
 
     for (uint id = gl_GlobalInvocationID.x * 8u; id < 512u * 386u * 512u; id += 65535u * 8u) {
         for (int i = 0; i < 8; i++) {
