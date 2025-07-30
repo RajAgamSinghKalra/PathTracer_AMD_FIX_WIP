@@ -48,9 +48,9 @@ void main() {
         renderState.sunDirection = normalize(renderState.sunPosition);
     }
 
-    renderState.clear = (renderState.frame <= 1);
+    renderState.clear = true;
 
-    if (renderState.frame <= 1) {
+    {
         quadBuffer.aabb = scene_aabb(10000, 10000, 10000, -10000, -10000, -10000);
         quadBuffer.count = 0u;
 
