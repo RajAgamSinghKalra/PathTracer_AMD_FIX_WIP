@@ -17,12 +17,13 @@ layout (local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
 const vec2 workGroupsRender = vec2(1.0, 1.0);
 
 
-uniform float viewWidth;
-uniform float viewHeight;
+// Viewport uniforms may not be valid before rendering starts, so derive the
+// dimensions from the film buffer instead.
 
 void pathTracer(vec2 fragCoord) {
-    float width = viewWidth;
-    float height = viewHeight;
+    ivec2 dim = imageSize(filmBuffer);
+    float width = float(dim.x);
+    float height = float(dim.y);
     float lambdaPDF;
     int lambda = sampleWavelength(random1(), lambdaPDF);
 
@@ -157,8 +158,9 @@ void pathTracer(vec2 fragCoord) {
 }
 
 void preview(vec2 fragCoord) {
-    float width = viewWidth;
-    float height = viewHeight;
+    ivec2 dim = imageSize(filmBuffer);
+    float width = float(dim.x);
+    float height = float(dim.y);
     vec2 filmCoord = (fragCoord + 0.5) / vec2(width, height);
     filmCoord = filmCoord * 2.0 - 1.0;
     filmCoord.x *= width / height;
@@ -189,8 +191,9 @@ void main() {
     currentIOR = 1.0;
     currentMediumAbsorbtance = 0.0;
 
-    float width = viewWidth;
-    float height = viewHeight;
+    ivec2 dim = imageSize(filmBuffer);
+    float width = float(dim.x);
+    float height = float(dim.y);
 
     vec2 fragCoord = vec2(gl_GlobalInvocationID.xy);
     if (fragCoord.x > width || fragCoord.y > height) return;
