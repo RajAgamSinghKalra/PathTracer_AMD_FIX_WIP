@@ -1,3 +1,6 @@
+> [! MOST IMPORTANT!]
+> ALL RIGHTS AND CREDITS TO JNNGL, i am only trying to fix a bug that i was getting
+
 > [!IMPORTANT]
 > The shader **requires Iris 1.8.8+** to function properly. Using this shader with older Iris versions or other shader loaders will likely cause bugs or unexpected behaviour.
 
@@ -7,3 +10,6 @@
 ## License
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+
+>if you want this repo removed/privated please contact me via rajagamofficial@gmail.com, i will do so ASAP
