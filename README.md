@@ -1,4 +1,4 @@
-> [!MOST IMPORTANT!]
+> [!NOTE]
 > ALL RIGHTS AND CREDITS TO JNNGL, i am only trying to fix an issue that i encountered on my amd gpu (6800XT)
 
 > [!IMPORTANT]
