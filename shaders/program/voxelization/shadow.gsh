@@ -45,7 +45,7 @@ vec4 calculateTextureHash() {
 }
 
 void main() {
-    if (gl_PrimitiveIDIn % 2 != 0 || vColor[0].a == 0.0 || renderState.frame > 1) {
+    if (gl_PrimitiveIDIn % 2 != 0 || vColor[0].a == 0.0) {
         return;
     }
 
