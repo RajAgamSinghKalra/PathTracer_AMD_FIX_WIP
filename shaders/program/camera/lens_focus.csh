@@ -6,7 +6,14 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 const ivec3 workGroups = ivec3(1, 1, 1);
 
 void main() {
-    if (renderState.frame != 1) {
+    // Focus the lens during the initial frame so the image appears correct
+    // even when the GUI has not been hidden with F1. Previously this compute
+    // shader only ran when renderState.frame equalled 1, which meant the lens
+    // was never focused while the GUI was visible (renderState.frame stays at
+    // 0). This caused the first frame to use unfocused lens parameters and
+    // produced a stretched image until F1 was pressed. By running on frames
+    // 0 and 1 we ensure the lens always initializes correctly.
+    if (renderState.frame > 1) {
         return;
     }
 
