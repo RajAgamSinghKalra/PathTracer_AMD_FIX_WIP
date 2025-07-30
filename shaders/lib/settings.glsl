@@ -1,7 +1,7 @@
 #ifndef _SETTINGS_GLSL
 #define _SETTINGS_GLSL 1
 
-const ivec3 VOXEL_VOLUME_SIZE = ivec3(512, 386, 512);
+const ivec3 VOXEL_VOLUME_SIZE = ivec3(512, 384, 512);
 const ivec3 HALF_VOXEL_VOLUME_SIZE = VOXEL_VOLUME_SIZE / 2;
 
 #define SKY_CONTRIBUTION
