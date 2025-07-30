@@ -48,10 +48,9 @@ void main() {
         renderState.sunDirection = normalize(renderState.sunPosition);
     }
 
-    // Always clear voxel structures before voxelization to ensure newly loaded chunks are captured
-    renderState.clear = true;
+    renderState.clear = (renderState.frame <= 1);
 
-    {
+    if (renderState.frame <= 1) {
         quadBuffer.aabb = scene_aabb(10000, 10000, 10000, -10000, -10000, -10000);
         quadBuffer.count = 0u;
 
