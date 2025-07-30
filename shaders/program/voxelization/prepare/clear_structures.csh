@@ -10,14 +10,14 @@ const ivec3 workGroups = ivec3(65535, 1, 1);
 void main() {
     // Clear voxel structures every frame so newly loaded chunks do not keep stale data
 
-    for (uint id = gl_GlobalInvocationID.x * 8u; id < 512u * 386u * 512u; id += 65535u * 8u) {
+    for (uint id = gl_GlobalInvocationID.x * 8u; id < 512u * 384u * 512u; id += 65535u * 8u) {
         for (int i = 0; i < 8; i++) {
             uint index = id + uint(i);
-            if (index >= 512u * 386u * 512u) break;
+            if (index >= 512u * 384u * 512u) break;
 
             uint x = index % 512u;
-            uint y = (index / 512u) % 386u;
-            uint z = (index / 512u) / 386u;
+            uint y = (index / 512u) % 384u;
+            uint z = (index / 512u) / 384u;
 
             imageStore(voxelBuffer, ivec3(x, y, z), uvec4(0, 0, 0, 0));
         }
