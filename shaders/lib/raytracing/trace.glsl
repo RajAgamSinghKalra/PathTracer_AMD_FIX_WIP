@@ -13,7 +13,7 @@
 #include "/lib/settings.glsl"
 
 // TODO: Rewrite this mess
-
+const int MAX_TRAVERSAL_STEPS = 1024;
 uniform usampler2D shadowcolor0;
 uniform sampler2D colortex10;
 uniform sampler2D colortex11;
@@ -130,7 +130,7 @@ bool intersectModelElement(inout quad_entry entry, ray r, vec3 voxelPos, float t
 
 bool intersectsVoxel(ray r, uint pointer, vec3 voxelPos, float tMax) {
     int traversed = 0;
-    while (pointer != 0u && traversed < 1024) {
+    while (pointer != 0u && traversed < MAX_TRAVERSAL_STEPS) {
         quad_entry entry = quadBuffer.list[pointer - 1u];
 
         pointer = entry.next;
@@ -164,7 +164,7 @@ bool traceShadowRay(ivec3 voxelOffset, ray r, float tMax) {
     getSceneBounds(aabb, voxelOffset, boundMin, boundMax);
 
     int octreeLevel = 5;
-    for (int i = 0; i < 1024; i++) {
+    for (int i = 0; i < MAX_TRAVERSAL_STEPS; i++) {
         if (octreeLevel == 0) {
             uint pointer = imageLoad(voxelBuffer, ivec3(voxel)).r;
             if (intersectsVoxel(r, pointer, voxel - vec3(voxelOffset), tMax - t)) {
@@ -199,7 +199,7 @@ bool traceVoxel(ray r, uint pointer, vec3 voxelPos, inout intersection it) {
     int traversed = 0;
 
     bool hasIntersection = false;
-    while (pointer != 0u && traversed < 1024) {
+    while (pointer != 0u && traversed < MAX_TRAVERSAL_STEPS) {
         quad_entry entry = quadBuffer.list[pointer - 1u];
 
         pointer = entry.next;
@@ -238,7 +238,7 @@ bool traceRay(inout intersection it, ivec3 voxelOffset, ray r) {
 
     it.t = 1.0e16;
     int octreeLevel = 5;
-    for (int i = 0; i < 1024; i++) {
+    for (int i = 0; i < MAX_TRAVERSAL_STEPS; i++) {
         if (octreeLevel == 0) {
             uint pointer = imageLoad(voxelBuffer, ivec3(voxel)).r;
             if (traceVoxel(r, pointer, voxel - vec3(voxelOffset), it)) {
