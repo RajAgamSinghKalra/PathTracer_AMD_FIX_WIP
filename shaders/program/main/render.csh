@@ -16,18 +16,19 @@
 layout (local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
 const vec2 workGroupsRender = vec2(1.0, 1.0);
 
-uniform float viewWidth;
-uniform float viewHeight;
 
 void pathTracer(vec2 fragCoord) {
+    ivec2 filmDim = imageSize(filmBuffer);
+    float width = float(filmDim.x);
+    float height = float(filmDim.y);
     float lambdaPDF;
     int lambda = sampleWavelength(random1(), lambdaPDF);
 
     ivec3 voxelOffset = ivec3(renderState.viewMatrixInverse[2].xyz * VOXEL_OFFSET);
 
-    vec2 filmSample = (fragCoord + random2()) / vec2(viewWidth, viewHeight);
+    vec2 filmSample = (fragCoord + random2()) / vec2(width, height);
     filmSample = filmSample * 2.0 - 1.0;
-    filmSample.x *= viewWidth / viewHeight;
+    filmSample.x *= width / height;
 
 #ifdef SKY_CONTRIBUTION
     vec3 sunPosition = renderState.sunPosition;
@@ -35,7 +36,7 @@ void pathTracer(vec2 fragCoord) {
     vec3 extinctionBeta = atmosphereExtinctionBeta(float(lambda));
 
     if ((renderState.frame % 2) == 1) {
-        prng_state prngLocal = initLocalPRNG(floor(fragCoord / 8.0) / viewWidth, renderState.frame);
+        prng_state prngLocal = initLocalPRNG(floor(fragCoord / 8.0) / width, renderState.frame);
 
         float sampleWeight, lensPDFinv;
         vec3 point = samplePointOnFrontElement(filmSample * 0.5 + 0.5, lensPDFinv);
@@ -154,9 +155,12 @@ void pathTracer(vec2 fragCoord) {
 }
 
 void preview(vec2 fragCoord) {
-    vec2 filmCoord = (fragCoord + 0.5) / vec2(viewWidth, viewHeight);
+    ivec2 filmDim = imageSize(filmBuffer);
+    float width = float(filmDim.x);
+    float height = float(filmDim.y);
+    vec2 filmCoord = (fragCoord + 0.5) / vec2(width, height);
     filmCoord = filmCoord * 2.0 - 1.0;
-    filmCoord.x *= viewWidth / viewHeight;
+    filmCoord.x *= width / height;
     ivec3 voxelOffset = ivec3(renderState.viewMatrixInverse[2].xyz * VOXEL_OFFSET);
 
     ray r = generatePinholeCameraRay(filmCoord);
@@ -184,10 +188,14 @@ void main() {
     currentIOR = 1.0;
     currentMediumAbsorbtance = 0.0;
 
-    vec2 fragCoord = vec2(gl_GlobalInvocationID.xy);
-    if (fragCoord.x > viewWidth || fragCoord.y > viewHeight) return;
+    ivec2 filmDim = imageSize(filmBuffer);
+    float width = float(filmDim.x);
+    float height = float(filmDim.y);
 
-    initGlobalPRNG(fragCoord / vec2(viewWidth, viewHeight), renderState.frame);
+    vec2 fragCoord = vec2(gl_GlobalInvocationID.xy);
+    if (fragCoord.x > width || fragCoord.y > height) return;
+
+    initGlobalPRNG(fragCoord / vec2(width, height), renderState.frame);
 
     if (renderState.frame == 0) {
         preview(fragCoord);

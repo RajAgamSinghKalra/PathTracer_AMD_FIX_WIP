@@ -9,8 +9,6 @@
 layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 const ivec3 workGroups = ivec3(1, 1, 1);
 
-uniform float viewWidth;
-uniform float viewHeight;
 
 shared uint histogramShared[256];
 
@@ -39,7 +37,8 @@ void main() {
     }
 
     if (gl_LocalInvocationIndex == 0u) {
-        float logAverage = (float(histogramShared[0]) / max(viewWidth * viewHeight - float(count), 1.0)) - 1.0;
+        ivec2 dim = imageSize(filmBuffer);
+        float logAverage = (float(histogramShared[0]) / max(float(dim.x * dim.y) - float(count), 1.0)) - 1.0;
         float avgLum = fromLogLuminance(logAverage / 254.0);
 
         renderState.avgLuminance = avgLum;
