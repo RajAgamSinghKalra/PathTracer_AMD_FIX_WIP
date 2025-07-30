@@ -18,8 +18,13 @@ struct lens_element {
 };
 
 vec2 getSensorPhysicalExtent(sensor_data data) {
+    float aspect = renderState.projection[1][1] / renderState.projection[0][0];
+    float verticalFov = 2.0 * atan(1.0 / renderState.projection[1][1]);
+    float sensorHeight = 2.0 * renderState.focalLength * tan(verticalFov * 0.5);
+    float sensorWidth = sensorHeight / aspect;
+
     float scale = float(SENSOR_SIZE) / 100.0;
-    return scale * vec2(data.baseExtent) * 0.001 * vec2(1.0, renderState.projection[0][0] / renderState.projection[1][1]);
+    return scale * vec2(sensorWidth, sensorHeight);
 }
 
 #endif // _LENS_COMMON_GLSL
