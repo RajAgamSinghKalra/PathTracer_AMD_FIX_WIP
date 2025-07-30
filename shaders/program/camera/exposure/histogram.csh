@@ -28,6 +28,10 @@ void main() {
     histogramShared[gl_LocalInvocationIndex] = 0u;
     barrier();
 
+    if (renderState.frame == 0) {
+        return;
+    }
+
     uvec2 dim = uvec2(viewWidth, viewHeight);
     if (gl_GlobalInvocationID.x < dim.x && gl_GlobalInvocationID.y < dim.y) {
         vec3 color = getFilmAverageColor(ivec2(gl_GlobalInvocationID.xy));
