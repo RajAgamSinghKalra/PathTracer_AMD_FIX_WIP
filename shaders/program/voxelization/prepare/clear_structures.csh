@@ -6,8 +6,11 @@ layout (local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
 // Original dispatch count exceeded AMD's work group limit (65,535)
 // Reduce the dispatch size and iterate over the remaining range
 const ivec3 workGroups = ivec3(65535, 1, 1);
-
+uniform bool hideGUI;
 void main() {
+    if (!hideGUI) {
+        return;
+    }
     // Clear voxel structures every frame so newly loaded chunks do not keep stale data
     if (renderState.frame > 1) {
         return;
