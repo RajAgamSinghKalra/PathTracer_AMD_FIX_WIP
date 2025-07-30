@@ -48,6 +48,7 @@ void main() {
         renderState.sunDirection = normalize(renderState.sunPosition);
     }
 
+    // Only clear buffers right after starting the path tracer (F1 pressed)
     renderState.clear = (renderState.frame <= 1);
 
     if (renderState.frame <= 1) {
