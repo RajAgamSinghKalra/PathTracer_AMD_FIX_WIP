@@ -67,15 +67,15 @@ vec2 compositeDeltaTracking(ray r, vec3 beta) {
         
         vec3 betaH = beta * atmosphereDensity(height) / betaSum;
         
-        float r = random1();
-        if (r >= betaH.x + betaH.y + betaH.z) {
+        float rand = random1();
+        if (rand >= betaH.x + betaH.y + betaH.z) {
             continue; // Null collision
         }
         
         float particle = 2.0;
-        if (r < betaH.x) {
+        if (rand < betaH.x) {
             particle = 0.0;
-        } else if (r < betaH.x + betaH.y) {
+        } else if (rand < betaH.x + betaH.y) {
             particle = 1.0;
         }
         
