@@ -12,7 +12,7 @@ void main() {
         return;
     }
     // Clear voxel structures every frame so newly loaded chunks do not keep stale data
-    if (renderState.frame > 1) {
+    if (renderState.frame != 1) {
         return;
     }
 
