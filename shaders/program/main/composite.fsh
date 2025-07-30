@@ -10,6 +10,7 @@
 in vec2 texcoord;
 
 uniform float frameTimeSmooth;
+uniform float viewWidth;
 uniform float viewHeight;
 
 /* RENDERTARGETS: 0 */
@@ -17,6 +18,7 @@ layout(location = 0) out vec3 color;
 
 void main() {
     vec2 filmCoord = texcoord * 2.0 - 1.0;
+    filmCoord.x *= viewWidth / viewHeight;
     color = getFilmAverageColor(filmCoord);
 #ifdef NEIGHBOURHOOD_CLAMPING
     vec3 maxNeighbour = max(

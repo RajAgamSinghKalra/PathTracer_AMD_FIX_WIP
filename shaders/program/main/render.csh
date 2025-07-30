@@ -25,7 +25,9 @@ void pathTracer(vec2 fragCoord) {
 
     ivec3 voxelOffset = ivec3(renderState.viewMatrixInverse[2].xyz * VOXEL_OFFSET);
 
-    vec2 filmSample = (fragCoord + random2()) / vec2(viewWidth, viewHeight) * 2.0 - 1.0;
+    vec2 filmSample = (fragCoord + random2()) / vec2(viewWidth, viewHeight);
+    filmSample = filmSample * 2.0 - 1.0;
+    filmSample.x *= viewWidth / viewHeight;
 
 #ifdef SKY_CONTRIBUTION
     vec3 sunPosition = renderState.sunPosition;
@@ -152,7 +154,9 @@ void pathTracer(vec2 fragCoord) {
 }
 
 void preview(vec2 fragCoord) {
-    vec2 filmCoord = (fragCoord + 0.5) / vec2(viewWidth, viewHeight) * 2.0 - 1.0;
+    vec2 filmCoord = (fragCoord + 0.5) / vec2(viewWidth, viewHeight);
+    filmCoord = filmCoord * 2.0 - 1.0;
+    filmCoord.x *= viewWidth / viewHeight;
     ivec3 voxelOffset = ivec3(renderState.viewMatrixInverse[2].xyz * VOXEL_OFFSET);
 
     ray r = generatePinholeCameraRay(filmCoord);
