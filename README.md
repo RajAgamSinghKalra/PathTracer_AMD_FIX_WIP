@@ -1,5 +1,5 @@
 > [!MOST IMPORTANT!]
-> ALL RIGHTS AND CREDITS TO JNNGL, i am only trying to fix a i encountered on a few amd gpu (6800XT)
+> ALL RIGHTS AND CREDITS TO JNNGL, i am only trying to fix an issue that i encountered on my amd gpu (6800XT)
 
 > [!IMPORTANT]
 > The shader **requires Iris 1.8.8+** to function properly. Using this shader with older Iris versions or other shader loaders will likely cause bugs or unexpected behaviour.
