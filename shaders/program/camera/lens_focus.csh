@@ -6,11 +6,6 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 const ivec3 workGroups = ivec3(1, 1, 1);
 
 void main() {
-    // Run focusing on the first frame even if the GUI is visible so the
-    // camera parameters are initialized correctly. Previously this pass only
-    // executed when `renderState.frame` was exactly 1 which required the user
-    // to hide the GUI (F1) once. Allow frames 0 and 1 to perform focusing by
-    // skipping only when the frame counter has advanced beyond initialization.
     if (renderState.frame > 1) {
         return;
     }
