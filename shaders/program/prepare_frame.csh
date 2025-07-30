@@ -50,8 +50,7 @@ void main() {
 
     // Only clear buffers right after starting the path tracer (F1 pressed)
     renderState.clear = (renderState.frame <= 1);
-
-    if (renderState.frame <= 1) {
+    {
         quadBuffer.aabb = scene_aabb(10000, 10000, 10000, -10000, -10000, -10000);
         quadBuffer.count = 0u;
 
