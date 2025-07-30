@@ -9,6 +9,9 @@ const ivec3 workGroups = ivec3(65535, 1, 1);
 
 void main() {
     // Clear voxel structures every frame so newly loaded chunks do not keep stale data
+    if (renderState.frame > 1) {
+        return;
+    }
 
     for (uint id = gl_GlobalInvocationID.x * 8u; id < 512u * 384u * 512u; id += 65535u * 8u) {
         for (int i = 0; i < 8; i++) {
