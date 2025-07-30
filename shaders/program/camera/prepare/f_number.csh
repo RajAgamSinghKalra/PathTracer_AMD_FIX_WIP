@@ -25,6 +25,6 @@ void main() {
     float entrancePupilDiameter = renderState.focalLength / float(F_NUMBER);
     renderState.apertureRadius = searchApertureRadius(128, 0.5 * entrancePupilDiameter);
 #endif
-    renderState.entracePupilRadius = searchEntracePupilRadius(128);
-    renderState.fNumber = renderState.focalLength / (2.0 * renderState.entracePupilRadius);
+    renderState.entrancePupilRadius = searchEntrancePupilRadius(128);
+    renderState.fNumber = renderState.focalLength / (2.0 * renderState.entrancePupilRadius)
 }
