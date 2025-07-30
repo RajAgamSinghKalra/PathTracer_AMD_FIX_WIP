@@ -10,14 +10,15 @@
 in vec2 texcoord;
 
 uniform float frameTimeSmooth;
+uniform float viewWidth;
+uniform float viewHeight;
 
 /* RENDERTARGETS: 0 */
 layout(location = 0) out vec3 color;
 
 void main() {
-    ivec2 filmDim = textureSize(filmSampler, 0);
-    float width = float(filmDim.x);
-    float height = float(filmDim.y);
+    float width = viewWidth;
+    float height = viewHeight;
     vec2 filmCoord = texcoord * 2.0 - 1.0;
     filmCoord.x *= width / height;
     color = getFilmAverageColor(filmCoord);
