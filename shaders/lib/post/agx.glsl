@@ -3,6 +3,8 @@
 #ifndef _AGX_GLSL
 #define _AGX_GLSL 1
 
+#include "/lib/utility/color.glsl"
+
 vec3 agxDefaultContrastApprox(vec3 x) {
     vec3 x2 = x * x;
     vec3 x4 = x2 * x2;
@@ -46,7 +48,7 @@ vec3 agxEotf(vec3 val) {
 
     // sRGB IEC 61966-2-1 2.2 Exponent Reference EOTF Display
     // (Should I replace this with the actual sRGB conversion function?)
-    val = pow(val, vec3(2.2));
+    val = linearToSrgb(val);
 
     return val;
 }
@@ -73,5 +75,4 @@ vec3 agxTonemap(vec3 color) {
     color = agxEotf(color);
     return color;
 }
-
 #endif // _AGX_GLSL
