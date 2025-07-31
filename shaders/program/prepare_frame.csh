@@ -51,11 +51,13 @@ void main() {
     renderState.clear = (renderState.frame <= 1);
 
     if (renderState.frame <= 1) {
-        quadBuffer.aabb = scene_aabb(10000, 10000, 10000, -10000, -10000, -10000);
-        quadBuffer.count = 0u;
+        if (hideGUI) {
+            quadBuffer.aabb = scene_aabb(10000, 10000, 10000, -10000, -10000, -10000);
+            quadBuffer.count = 0u;
 
-        renderState.entityData.textureIndex = 0u;
-        renderState.entityData.cellIndex = 0u;
+            renderState.entityData.textureIndex = 0u;
+            renderState.entityData.cellIndex = 0u;
+        }
 
         renderState.projection = gbufferProjection;
         renderState.projectionInverse = gbufferProjectionInverse;
