@@ -45,8 +45,10 @@ vec4 calculateTextureHash() {
 }
 
 void main() {
-    // Voxelize geometry every frame to handle newly loaded chunks
-    if (gl_PrimitiveIDIn % 2 != 0 || vColor[0].a == 0.0 || renderState.frame > 1) {
+    // Voxelize geometry only once when path tracing starts
+    // Previously this ran every frame while renderState.frame was 0,
+    // causing expensive voxelization during preview.
+    if (gl_PrimitiveIDIn % 2 != 0 || vColor[0].a == 0.0 || renderState.frame != 1) {
         return;
     }
 
