@@ -22,10 +22,13 @@ void main() {
     if (hideGUI) {
         renderState.frame++;
     } else {
-        renderState.frame = 0;
-        renderState.invalidSplat = 0;
-        renderState.startTime = ivec2(currentDate.x, currentYearTime.x);
-        renderState.localTime = currentLocalTime();
+        if (renderState.frame > 1) {
+            renderState.frame = 0;
+        }
+        if (renderState.frame == 0) {
+            renderState.invalidSplat = 0;
+            renderState.startTime = ivec2(currentDate.x, currentYearTime.x);
+            renderState.localTime = currentLocalTime();
 #ifndef USE_SYSTEM_TIME
         datetime time2 = renderState.localTime;
         
@@ -46,6 +49,7 @@ void main() {
         renderState.sunPosition = getMinecraftSunPosition(mat3(gbufferModelViewInverse) * sunPosition);
 #endif
         renderState.sunDirection = normalize(renderState.sunPosition);
+        }
     }
 
     renderState.clear = (renderState.frame <= 1);

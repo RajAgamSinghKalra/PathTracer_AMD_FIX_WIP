@@ -13,6 +13,8 @@
 #include "/lib/utility/sampling.glsl"
 #include "/lib/settings.glsl"
 
+uniform bool hideGUI;
+
 layout (local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
 const vec2 workGroupsRender = vec2(1.0, 1.0);
 
@@ -190,6 +192,10 @@ void main() {
     currentIOR = 1.0;
     currentMediumAbsorbtance = 0.0;
 
+    if (!hideGUI && renderState.frame > 0) {
+        return;
+    }
+
     ivec2 dim = imageSize(filmBuffer);
     float width = float(dim.x);
     float height = float(dim.y);
@@ -205,5 +211,9 @@ void main() {
                 pathTracer(fragCoord);
             }
         }
+    }
+
+    if (renderState.frame == 0) {
+        renderState.frame = 1;
     }
 }
