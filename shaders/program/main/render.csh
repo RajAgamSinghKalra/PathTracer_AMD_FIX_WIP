@@ -16,6 +16,8 @@
 layout (local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
 const vec2 workGroupsRender = vec2(1.0, 1.0);
 
+uniform bool hideGUI;
+
 // Viewport uniforms may not be valid before rendering starts, so derive the
 // dimensions from the film buffer instead.
 
@@ -199,11 +201,14 @@ void main() {
             vec2 fragCoord = vec2(x, y);
             initGlobalPRNG(fragCoord / vec2(width, height), renderState.frame);
 
-            if (renderState.frame == 0) {
-                preview(fragCoord);
-            } else {
+            if (hideGUI) {
                 pathTracer(fragCoord);
+            } else if (renderState.frame == 0) {
+                preview(fragCoord);
             }
         }
+    }
+    if (!hideGUI && renderState.frame == 0) {
+        renderState.frame = 1;
     }
 }
