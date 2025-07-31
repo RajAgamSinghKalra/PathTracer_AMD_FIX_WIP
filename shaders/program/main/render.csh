@@ -195,7 +195,7 @@ void main() {
     float height = float(dim.y);
 
     vec2 fragCoord = vec2(gl_GlobalInvocationID.xy);
-    if (fragCoord.x > width || fragCoord.y > height) return;
+    if (fragCoord.x >= width || fragCoord.y >= height) return;
 
     initGlobalPRNG(fragCoord / vec2(width, height), renderState.frame);
 
