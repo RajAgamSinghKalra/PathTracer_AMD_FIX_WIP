@@ -57,6 +57,12 @@ void main() {
 #elif (EXPOSURE == 1)
     ev100 = cameraSettingsToEV100(float(SHUTTER_SPEED), float(ISO), renderState.fNumber);
 #endif
+
+    // Prevent excessive exposure gain in very dark scenes by clamping
+    // the calculated exposure value to a minimum of 0 EV. This keeps
+    // nighttime renders from being artificially bright and overexposed.
+    ev100 = max(ev100, 0.0);
+
     color *= exposureFromEV100(ev100 - float(EV));
 
     color = tonemap(color);
