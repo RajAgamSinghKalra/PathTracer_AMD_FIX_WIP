@@ -13,6 +13,8 @@
 #include "/lib/utility/sampling.glsl"
 #include "/lib/settings.glsl"
 
+uniform bool hideGUI;
+
 layout (local_size_x = 8, local_size_y = 4, local_size_z = 1) in;
 const vec2 workGroupsRender = vec2(1.0, 1.0);
 
@@ -187,6 +189,9 @@ void preview(vec2 fragCoord) {
 }
 
 void main() {
+    if (!hideGUI) {
+        return;
+    }
     currentIOR = 1.0;
     currentMediumAbsorbtance = 0.0;
 
@@ -199,7 +204,7 @@ void main() {
             vec2 fragCoord = vec2(x, y);
             initGlobalPRNG(fragCoord / vec2(width, height), renderState.frame);
 
-            if (renderState.frame == 0) {
+            if (renderState.frame <= 1) {
                 preview(fragCoord);
             } else {
                 pathTracer(fragCoord);
