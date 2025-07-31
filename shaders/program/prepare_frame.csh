@@ -5,6 +5,7 @@
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 const ivec3 workGroups = ivec3(1, 1, 1);
 
+// Kept for compatibility but no longer used to gate rendering
 uniform bool hideGUI;
 
 uniform vec3 sunPosition;
@@ -19,16 +20,16 @@ uniform float eyeAltitude;
 uniform int worldTime;
 
 void main() {
-    if (hideGUI) {
-        renderState.frame++;
-    } else {
-        renderState.frame = 0;
+    // Continue accumulating even when the GUI is visible
+    renderState.frame++;
+
+    if (renderState.frame == 1) {
         renderState.invalidSplat = 0;
         renderState.startTime = ivec2(currentDate.x, currentYearTime.x);
         renderState.localTime = currentLocalTime();
 #ifndef USE_SYSTEM_TIME
         datetime time2 = renderState.localTime;
-        
+
         time2.hour = 6;
         time2.minute = 0;
         time2.second = 0;
