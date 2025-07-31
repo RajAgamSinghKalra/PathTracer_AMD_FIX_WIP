@@ -12,10 +12,8 @@ void main() {
         return;
     }
     vec2 sensorExtent = getSensorPhysicalExtent(CAMERA_SENSOR);
-    // Use half the diagonal of the sensor to fully cover rectangular sensors
-    // when computing the exit pupil. This avoids circular cropping on screens
-    // with non-square aspect ratios.
-    float physicalRadius = length(sensorExtent) * 0.5;
+    // Use the largest sensor dimension to ensure we cover the whole sensor
+    float physicalRadius = max(sensorExtent.x, sensorExtent.y);
 
     float sampleRadius = physicalRadius * float(gl_GlobalInvocationID.x) / 255.0;
     vec3 filmPoint = vec3(sampleRadius, 0.0, 0.0);
