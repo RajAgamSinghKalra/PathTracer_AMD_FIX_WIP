@@ -59,7 +59,7 @@ void pathTracer(vec2 fragCoord) {
 #endif
 
     float cameraWeight = 1.0;
-    ray r = generatePinholeCameraRay(filmSample);
+    ray r = generateCameraRay(lambda, filmSample, cameraWeight, lensFlare);
     if (cameraWeight == 0.0) {
         logFilmSample(filmSample, vec3(0.0));
         return;
