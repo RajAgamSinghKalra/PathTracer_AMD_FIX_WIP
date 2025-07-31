@@ -55,7 +55,7 @@ void main() {
 #if (EXPOSURE == 0)
     ev100 = averageLuminanceToEV100(renderState.avgLuminance);
 #elif (EXPOSURE == 1)
-    ev100 = cameraSettingsToEV100(float(SHUTTER_SPEED), float(ISO));
+    ev100 = cameraSettingsToEV100(float(SHUTTER_SPEED), float(ISO), renderState.fNumber);
 #endif
     color *= exposureFromEV100(ev100 - float(EV));
 
