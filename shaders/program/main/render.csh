@@ -34,7 +34,7 @@ void pathTracer(vec2 fragCoord) {
 
 #ifdef SKY_CONTRIBUTION
     vec3 sunPosition = renderState.sunPosition;
-    float sunRadiance = getSunRadiance(float(lambda));
+    float sunRadiance = getSunRadiance(float(lambda), sunPosition);
     vec3 extinctionBeta = atmosphereExtinctionBeta(float(lambda));
 
     if ((renderState.frame % 2) == 1) {
