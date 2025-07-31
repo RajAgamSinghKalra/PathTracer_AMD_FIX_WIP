@@ -28,10 +28,18 @@ void main() {
         screenAspect = viewWidth / viewHeight;
     }
 
-    vec2 filmCoord = texcoord * 2.0 - 1.0;
-    filmCoord.x *= filmAspect / screenAspect;
-    bool outside = abs(filmCoord.x) > 1.0 || abs(filmCoord.y) > 1.0;
-    filmCoord = clamp(filmCoord, vec2(-1.0), vec2(1.0));
+    // Map screen texcoords to the film aspect without stretching.
+    vec2 filmCoord = texcoord;
+    float aspectScale = filmAspect / screenAspect;
+    if (aspectScale < 1.0) {
+        filmCoord.x = (filmCoord.x - 0.5) * aspectScale + 0.5;
+    } else {
+        filmCoord.y = (filmCoord.y - 0.5) / aspectScale + 0.5;
+    }
+    bool outside = filmCoord.x < 0.0 || filmCoord.x > 1.0 ||
+                   filmCoord.y < 0.0 || filmCoord.y > 1.0;
+    filmCoord = clamp(filmCoord, vec2(0.0), vec2(1.0));
+    filmCoord = filmCoord * 2.0 - 1.0;
     color = outside ? vec3(0.0) : getFilmAverageColor(filmCoord);
 #ifdef NEIGHBOURHOOD_CLAMPING
     vec3 maxNeighbour = max(
