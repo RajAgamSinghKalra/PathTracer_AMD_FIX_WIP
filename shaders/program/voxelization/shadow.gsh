@@ -45,11 +45,10 @@ vec4 calculateTextureHash() {
 }
 
 void main() {
-    // Voxelize geometry on the first preview frame so the initial
-    // image is visible. Once geometry has been captured, skip the
-    // voxelization pass to avoid expensive work every frame before
-    // rendering starts.
-    if (gl_PrimitiveIDIn % 2 != 0 || vColor[0].a == 0.0 || renderState.frame != 0) {
+    // Voxelize geometry during preview so the initial frame is visible.
+    // This may run each frame while renderState.frame is 0 or 1, but
+    // ensures geometry is present before rendering actually begins.
+    if (gl_PrimitiveIDIn % 2 != 0 || vColor[0].a == 0.0 || renderState.frame > 1) {
         return;
     }
 

@@ -22,12 +22,7 @@ void main() {
     if (hideGUI) {
         renderState.frame++;
     } else {
-        // Preserve the frame counter while the GUI is visible so we
-        // can detect the first preview frame. Reset only when switching
-        // back from rendering.
-        if (renderState.frame != 0) {
-            renderState.frame = 0;
-        }
+        renderState.frame = 0;
         renderState.invalidSplat = 0;
         renderState.startTime = ivec2(currentDate.x, currentYearTime.x);
         renderState.localTime = currentLocalTime();
@@ -55,8 +50,7 @@ void main() {
 
     renderState.clear = (renderState.frame <= 1);
 
-    // Only reset buffers on the very first preview frame.
-    if (renderState.frame == 0) {
+    if (renderState.frame <= 1) {
         quadBuffer.aabb = scene_aabb(10000, 10000, 10000, -10000, -10000, -10000);
         quadBuffer.count = 0u;
 
