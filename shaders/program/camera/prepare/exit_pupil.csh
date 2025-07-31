@@ -2,10 +2,15 @@
 #include "/lib/buffer/state.glsl"
 #include "/lib/lens/tracing.glsl"
 
+uniform bool hideGUI;
+
 layout (local_size_x = 32, local_size_y = 1, local_size_z = 1) in;
 const ivec3 workGroups = ivec3(8, 1, 1);
 
 void main() {
+    if (!hideGUI) {
+        return;
+    }
     vec2 sensorExtent = getSensorPhysicalExtent(CAMERA_SENSOR);
     // Use the largest sensor dimension to ensure we cover the whole sensor
     float physicalRadius = max(sensorExtent.x, sensorExtent.y);
