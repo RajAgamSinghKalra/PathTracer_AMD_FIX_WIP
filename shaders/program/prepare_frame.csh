@@ -22,37 +22,35 @@ void main() {
     if (hideGUI) {
         renderState.frame++;
     } else {
-        if (renderState.frame != 1) {
-            renderState.frame = 0;
-            renderState.invalidSplat = 0;
-            renderState.startTime = ivec2(currentDate.x, currentYearTime.x);
-            renderState.localTime = currentLocalTime();
+        renderState.frame = 0;
+        renderState.invalidSplat = 0;
+        renderState.startTime = ivec2(currentDate.x, currentYearTime.x);
+        renderState.localTime = currentLocalTime();
 #ifndef USE_SYSTEM_TIME
-            datetime time2 = renderState.localTime;
+        datetime time2 = renderState.localTime;
+        
+        time2.hour = 6;
+        time2.minute = 0;
+        time2.second = 0;
 
-            time2.hour = 6;
-            time2.minute = 0;
-            time2.second = 0;
+        time2 = unixToDatetime(datetimeToUnix(time2) + uint(float(worldTime) * 3.6));
 
-            time2 = unixToDatetime(datetimeToUnix(time2) + uint(float(worldTime) * 3.6));
-
-            renderState.localTime.hour = time2.hour;
-            renderState.localTime.minute = time2.minute;
-            renderState.localTime.second = time2.second;
+        renderState.localTime.hour = time2.hour;
+        renderState.localTime.minute = time2.minute;
+        renderState.localTime.second = time2.second;
 #endif
 #if (SUN_PATH_TYPE == 1)
-            datetime utcTime = convertToUniversalTime(renderState.localTime);
-            renderState.sunPosition = getRealisticSunPosition(utcTime, getGeographicCoordinates());
+        datetime utcTime = convertToUniversalTime(renderState.localTime);
+        renderState.sunPosition = getRealisticSunPosition(utcTime, getGeographicCoordinates());
 #else
-            renderState.sunPosition = getMinecraftSunPosition(mat3(gbufferModelViewInverse) * sunPosition);
+        renderState.sunPosition = getMinecraftSunPosition(mat3(gbufferModelViewInverse) * sunPosition);
 #endif
-            renderState.sunDirection = normalize(renderState.sunPosition);
-        }
+        renderState.sunDirection = normalize(renderState.sunPosition);
     }
 
-    renderState.clear = hideGUI ? (renderState.frame <= 2) : (renderState.frame == 0);
+    renderState.clear = (renderState.frame <= 1);
 
-    if (renderState.frame == 0) {
+    if (renderState.frame <= 1) {
         quadBuffer.aabb = scene_aabb(10000, 10000, 10000, -10000, -10000, -10000);
         quadBuffer.count = 0u;
 
