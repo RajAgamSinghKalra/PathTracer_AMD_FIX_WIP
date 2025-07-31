@@ -22,15 +22,7 @@ void main() {
     if (hideGUI) {
         renderState.frame++;
     } else {
-        // During preview the geometry should only be voxelized once to avoid
-        // heavy per-frame work. Keep the initial frame at 1 so the first pass
-        // can gather geometry, then freeze the counter at 2 for subsequent
-        // preview frames until rendering begins.
-        if (renderState.frame == 0) {
-            renderState.frame = 1;
-        } else {
-            renderState.frame = 2;
-        }
+        renderState.frame = 0;
         renderState.invalidSplat = 0;
         renderState.startTime = ivec2(currentDate.x, currentYearTime.x);
         renderState.localTime = currentLocalTime();
