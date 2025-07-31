@@ -10,6 +10,8 @@
 in vec2 texcoord;
 
 uniform float frameTimeSmooth;
+uniform float viewWidth;
+uniform float viewHeight;
 // The preview mode doesn't always provide valid viewport uniforms.
 // Query the film texture size instead.
 
@@ -20,9 +22,17 @@ void main() {
     ivec2 dim = textureSize(filmSampler, 0);
     float width = float(dim.x);
     float height = float(dim.y);
+    float filmAspect = width / height;
+    float screenAspect = filmAspect;
+    if (viewWidth > 0.0 && viewHeight > 0.0) {
+        screenAspect = viewWidth / viewHeight;
+    }
+
     vec2 filmCoord = texcoord * 2.0 - 1.0;
-    filmCoord.x *= width / height;
-    color = getFilmAverageColor(filmCoord);
+    filmCoord.x *= filmAspect / screenAspect;
+    bool outside = abs(filmCoord.x) > 1.0 || abs(filmCoord.y) > 1.0;
+    filmCoord = clamp(filmCoord, vec2(-1.0), vec2(1.0));
+    color = outside ? vec3(0.0) : getFilmAverageColor(filmCoord);
 #ifdef NEIGHBOURHOOD_CLAMPING
     vec3 maxNeighbour = max(
         max(getFilmAverageColor(filmCoord, ivec2(1, 0)).rgb, getFilmAverageColor(filmCoord, ivec2(-1, 0)).rgb),
