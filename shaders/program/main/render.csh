@@ -194,14 +194,16 @@ void main() {
     float width = float(dim.x);
     float height = float(dim.y);
 
-    vec2 fragCoord = vec2(gl_GlobalInvocationID.xy);
-    if (fragCoord.x >= width || fragCoord.y >= height) return;
+    for (int y = int(gl_GlobalInvocationID.y); y < dim.y; y += int(gl_NumWorkGroups.y) * int(gl_WorkGroupSize.y)) {
+        for (int x = int(gl_GlobalInvocationID.x); x < dim.x; x += int(gl_NumWorkGroups.x) * int(gl_WorkGroupSize.x)) {
+            vec2 fragCoord = vec2(x, y);
+            initGlobalPRNG(fragCoord / vec2(width, height), renderState.frame);
 
-    initGlobalPRNG(fragCoord / vec2(width, height), renderState.frame);
-
-    if (renderState.frame == 0) {
-        preview(fragCoord);
-    } else {
-        pathTracer(fragCoord);
+            if (renderState.frame == 0) {
+                preview(fragCoord);
+            } else {
+                pathTracer(fragCoord);
+            }
+        }
     }
 }
