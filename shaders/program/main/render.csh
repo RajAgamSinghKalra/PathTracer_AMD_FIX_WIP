@@ -59,8 +59,7 @@ void pathTracer(vec2 fragCoord) {
 #endif
 
     float cameraWeight = 1.0;
-    bool lensFlare = false;
-    ray r = generateCameraRay(lambda, filmSample, cameraWeight, lensFlare);
+    ray r = generatePinholeCameraRay(filmSample);
     if (cameraWeight == 0.0) {
         logFilmSample(filmSample, vec3(0.0));
         return;
@@ -75,7 +74,7 @@ void pathTracer(vec2 fragCoord) {
     for (int i = 0;; i++) {
         if (!traceRay(it, voxelOffset, r)) {
 #ifdef SKY_CONTRIBUTION
-            if ((i == 0 && !lensFlare) || (i > 0 && bsdfSample.dirac)) {
+            if (i == 0 || (i > 0 && bsdfSample.dirac)) {
                 ray earthRay = convertToEarthSpace(r);
                 if (intersectSphere(earthRay, sunPosition, sunRadius).x >= 0.0) {
                     float transmittance = estimateTransmittance(earthRay, extinctionBeta);
