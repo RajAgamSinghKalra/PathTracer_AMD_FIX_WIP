@@ -17,8 +17,8 @@ float averageLuminanceToEV100(float avgLum) {
     return log2(avgLum * 100.0 / 12.5);
 }
 
-float cameraSettingsToEV100(float shutterSpeed, float iso) {
-    return log2(shutterSpeed * 100.0 / iso);
+float cameraSettingsToEV100(float shutterSpeed, float iso, float fNumber) {
+    return log2(fNumber * fNumber / shutterSpeed * 100.0 / iso);
 }
 
 float exposureFromEV100(float ev100) {
