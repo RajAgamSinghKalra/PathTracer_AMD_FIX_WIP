@@ -9,8 +9,11 @@
 layout (local_size_x = 16, local_size_y = 16, local_size_z = 1) in;
 const vec2 workGroupsRender = vec2(1.0, 1.0);
 
-// Derive the target dimensions from the film buffer because the uniforms can
-// be invalid during preview.
+uniform float viewWidth;
+uniform float viewHeight;
+
+// Derive the target dimensions from the film buffer if the viewport uniforms are
+// invalid during preview.
 
 shared uint histogramShared[256];
 
@@ -32,7 +35,10 @@ void main() {
         return;
     }
 
-    uvec2 dim = uvec2(imageSize(filmBuffer));
+    uvec2 dim = uvec2(viewWidth, viewHeight);
+    if (dim.x == 0u || dim.y == 0u) {
+        dim = uvec2(imageSize(filmBuffer));
+    }
     if (gl_GlobalInvocationID.x < dim.x && gl_GlobalInvocationID.y < dim.y) {
         vec3 color = getFilmAverageColor(ivec2(gl_GlobalInvocationID.xy));
         uint binIndex = colorToBin(color);
