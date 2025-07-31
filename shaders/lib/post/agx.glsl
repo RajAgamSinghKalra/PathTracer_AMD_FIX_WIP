@@ -46,9 +46,10 @@ vec3 agxEotf(vec3 val) {
     // Undo input transform
     val = agx_mat_inv * val;
 
-    // sRGB IEC 61966-2-1 2.2 Exponent Reference EOTF Display
-    // (Should I replace this with the actual sRGB conversion function?)
-    val = linearToSrgb(val);
+    // Convert from encoded values back to linear light using the sRGB EOTF
+    // before returning the result. This avoids applying gamma twice in the
+    // final composite shader.
+    val = srgbToLinear(val);
 
     return val;
 }
