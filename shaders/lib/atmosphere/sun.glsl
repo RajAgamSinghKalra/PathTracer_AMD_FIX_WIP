@@ -65,8 +65,10 @@ vec3 sampleSunDirection(vec2 rand, vec3 sunPosition, vec3 x, out float weight) {
 }
 
 // https://www.nrel.gov/grid/solar-resource/spectra-astm-e490
-float getSunRadiance(float wavelength) {
-    return solarIrradiance.data[clamp(int(wavelength), WL_MIN, WL_MAX) - WL_MIN] * 1000.0 / (2.0 * PI);
+float getSunRadiance(float wavelength, vec3 sunPosition) {
+    float altitude = dot(normalize(sunPosition), vec3(0.0, 1.0, 0.0));
+    float visibility = clamp(altitude, 0.0, 1.0);
+    return solarIrradiance.data[clamp(int(wavelength), WL_MIN, WL_MAX) - WL_MIN] * 1000.0 / (2.0 * PI) * visibility;
 }
 
 #endif // _SUN_GLSL
