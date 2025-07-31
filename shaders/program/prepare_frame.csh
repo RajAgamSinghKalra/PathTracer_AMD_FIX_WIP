@@ -20,17 +20,9 @@ uniform int worldTime;
 
 void main() {
     if (hideGUI) {
-        if (renderState.frame >= 2) {
-            // Restart rendering when exiting preview
-            renderState.frame = 1;
-        } else {
-            renderState.frame++;
-        }
+        renderState.frame++;
     } else {
-        // Advance once during preview so geometry is processed only on the first frame
-        if (renderState.frame < 2) {
-            renderState.frame++;
-        }
+        renderState.frame = 0;
         renderState.invalidSplat = 0;
         renderState.startTime = ivec2(currentDate.x, currentYearTime.x);
         renderState.localTime = currentLocalTime();
