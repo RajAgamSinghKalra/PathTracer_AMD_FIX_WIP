@@ -45,10 +45,10 @@ vec4 calculateTextureHash() {
 }
 
 void main() {
-    // Voxelize geometry only once when path tracing starts
-    // Previously this ran every frame while renderState.frame was 0,
-    // causing expensive voxelization during preview.
-    if (gl_PrimitiveIDIn % 2 != 0 || vColor[0].a == 0.0 || renderState.frame != 1) {
+    // Voxelize geometry during preview so the initial frame is visible.
+    // This may run each frame while renderState.frame is 0 or 1, but
+    // ensures geometry is present before rendering actually begins.
+    if (gl_PrimitiveIDIn % 2 != 0 || vColor[0].a == 0.0 || renderState.frame > 1) {
         return;
     }
 
