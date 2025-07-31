@@ -9,8 +9,11 @@
 layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 const ivec3 workGroups = ivec3(1, 1, 1);
 
+uniform float viewWidth;
+uniform float viewHeight;
+
 // The preview stage may not populate viewport uniforms. Use the film buffer
-// dimensions instead when computing statistics.
+// dimensions if the viewport values are invalid when computing statistics.
 
 shared uint histogramShared[256];
 
@@ -39,8 +42,14 @@ void main() {
     }
 
     if (gl_LocalInvocationIndex == 0u) {
-        ivec2 dim = imageSize(filmBuffer);
-        float logAverage = (float(histogramShared[0]) / max(float(dim.x * dim.y) - float(count), 1.0)) - 1.0;
+        float width = viewWidth;
+        float height = viewHeight;
+        if (width <= 0.0 || height <= 0.0) {
+            ivec2 dim = imageSize(filmBuffer);
+            width = float(dim.x);
+            height = float(dim.y);
+        }
+        float logAverage = (float(histogramShared[0]) / max(width * height - float(count), 1.0)) - 1.0;
         float avgLum = fromLogLuminance(logAverage / 254.0);
 
         renderState.avgLuminance = avgLum;
