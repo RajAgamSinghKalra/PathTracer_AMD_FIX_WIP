@@ -13,3 +13,9 @@
 
 
 >if you want this repo removed/privated please contact me via rajagamofficial@gmail.com, i will do so ASAP
+
+>Works Good Enough, some settings are broken, but at least its working on AMD cards, For now i will be abandoning this fork
+
+
+example image : 
+<img width="2560" height="1440" alt="2025-07-31_15 18 51 comp2" src="https://github.com/user-attachments/assets/5917c0d4-ceee-43dd-82ad-8ec97261cff3" />
